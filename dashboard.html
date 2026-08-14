@@ -45,17 +45,13 @@
             <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
             <span>Overview</span>
           </a>
+          <a href="#campaignSection" class="nav-item" id="navCampaigns">
+            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>Send Campaign</span>
+          </a>
           <a href="#messages" class="nav-item">
             <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <span>Messages</span>
-          </a>
-          <a href="#campaigns" class="nav-item">
-            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            <span>Campaigns</span>
-          </a>
-          <a href="#contacts" class="nav-item">
-            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            <span>Contacts</span>
+            <span>Outbox & Logs</span>
           </a>
 
           <div class="nav-section-title">INTEGRATION</div>
@@ -73,7 +69,7 @@
           <div class="gateway-status-widget">
             <div class="status-indicator-dot online"></div>
             <div class="gateway-status-info">
-              <span class="gateway-title">APNs Gateway</span>
+              <span class="gateway-title">APNs Gateway v4</span>
               <span class="gateway-uptime">Operational • 99.99%</span>
             </div>
           </div>
@@ -209,6 +205,96 @@
             </div>
           </section>
 
+          <!-- Campaign / Bulk File Upload Dispatcher Section -->
+          <section class="panel campaign-panel" id="campaignSection" style="margin-bottom: 2rem;">
+            <div class="panel-header">
+              <div class="panel-title-group">
+                <div class="panel-icon cyan">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                </div>
+                <div>
+                  <h3 class="panel-title">Bulk iMessage Campaign & File Dispatcher</h3>
+                  <p class="panel-subtitle">Upload contact list (CSV / TXT) or paste numbers to dispatch automated broadcast</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              <div class="campaign-grid">
+                <!-- Left: File Upload & Input -->
+                <div class="campaign-left">
+                  <div class="form-group">
+                    <label class="form-label">Upload Numbers File (.csv or .txt)</label>
+                    <div class="file-dropzone" id="fileDropzone">
+                      <input type="file" id="contactsFileInput" accept=".csv,.txt" class="hidden" />
+                      <div class="dropzone-content">
+                        <div class="dropzone-icon">📁</div>
+                        <span class="dropzone-text">Click to browse or drag & drop contact file here</span>
+                        <span class="dropzone-sub">Accepts phone numbers or Apple ID emails</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="label-row">
+                      <label class="form-label" for="manualNumbers">Or Paste Phone Numbers (one per line)</label>
+                      <span class="recipient-count-badge" id="recipientCountBadge">0 numbers detected</span>
+                    </div>
+                    <textarea
+                      id="manualNumbers"
+                      class="form-input form-textarea"
+                      rows="4"
+                      placeholder="+1 (555) 019-2834&#10;+1 (555) 982-1102&#10;+1 (555) 349-8821"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <!-- Right: Message Template & Launch Button -->
+                <div class="campaign-right">
+                  <div class="form-group">
+                    <div class="label-row">
+                      <label class="form-label" for="campaignMessageText">Message Template</label>
+                      <span class="char-count" id="charCount">0 / 160 chars</span>
+                    </div>
+                    <textarea
+                      id="campaignMessageText"
+                      class="form-input form-textarea"
+                      rows="4"
+                      placeholder="Type your iMessage broadcast template here... (e.g. 'Exclusive Offer: Get 20% off today with code FLASH20')"
+                      required
+                    ></textarea>
+                  </div>
+
+                  <div class="campaign-summary-box">
+                    <div class="summary-row">
+                      <span>Gateway Route:</span>
+                      <strong style="color: var(--neon-green);">Direct Apple APNs Relay</strong>
+                    </div>
+                    <div class="summary-row">
+                      <span>Estimated Speed:</span>
+                      <strong style="color: var(--neon-cyan);">~1,200 msgs / min</strong>
+                    </div>
+                  </div>
+
+                  <!-- Dispatch Progress Container -->
+                  <div id="dispatchProgressContainer" class="dispatch-progress-box hidden">
+                    <div class="progress-label-row">
+                      <span id="progressText">Dispatching 0 / 0...</span>
+                      <span id="progressPercent" style="color: var(--neon-cyan); font-weight: 800;">0%</span>
+                    </div>
+                    <div class="progress-bar-track">
+                      <div class="progress-bar-fill" id="progressBarFill"></div>
+                    </div>
+                  </div>
+
+                  <button type="button" class="btn btn-primary btn-block btn-glow" id="btnLaunchCampaign" style="padding: 0.85rem;">
+                    <span>🚀 Launch Broadcast Campaign</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <!-- Split Dashboard Grid -->
           <div class="dashboard-grid">
             <!-- Account Info -->
@@ -241,42 +327,23 @@
                   </div>
 
                   <div class="info-item">
-                    <div class="info-meta">
-                      <span class="info-label">Full Name</span>
-                    </div>
+                    <div class="info-meta"><span class="info-label">Full Name</span></div>
                     <div class="info-value" id="profileFullName">Loading...</div>
                   </div>
 
                   <div class="info-item">
-                    <div class="info-meta">
-                      <span class="info-label">Email Address</span>
-                    </div>
+                    <div class="info-meta"><span class="info-label">Email Address</span></div>
                     <div class="info-value" id="profileEmail">Loading...</div>
                   </div>
 
                   <div class="info-item">
-                    <div class="info-meta">
-                      <span class="info-label">Member Since</span>
-                    </div>
+                    <div class="info-meta"><span class="info-label">Member Since</span></div>
                     <div class="info-value" id="createdAt">Loading date...</div>
                   </div>
 
                   <div class="info-item">
-                    <div class="info-meta">
-                      <span class="info-label">Authentication Provider</span>
-                    </div>
-                    <div class="info-value">
-                      <span class="auth-provider-badge">Supabase Auth (JWT Secured)</span>
-                    </div>
-                  </div>
-
-                  <div class="info-item">
-                    <div class="info-meta">
-                      <span class="info-label">Security Protocol</span>
-                    </div>
-                    <div class="info-value">
-                      <span class="security-status-badge">End-to-End Encrypted (E2EE)</span>
-                    </div>
+                    <div class="info-meta"><span class="info-label">Authentication Provider</span></div>
+                    <div class="info-value"><span class="auth-provider-badge">Supabase Auth (JWT Secured)</span></div>
                   </div>
                 </div>
               </div>
@@ -308,9 +375,7 @@
 
                   <div class="simulator-bubbles" id="simulatorBubbleContainer">
                     <div class="imessage-bubble outgoing">
-                      <p class="bubble-text">
-                        Welcome to iMessage Hub! Your high-throughput Apple messaging gateway is online, fully verified, and ready to dispatch.
-                      </p>
+                      <p class="bubble-text">Welcome to iMessage Hub! Your high-throughput Apple messaging gateway is online.</p>
                       <span class="bubble-meta">Delivered • Just now</span>
                     </div>
                   </div>
@@ -326,7 +391,7 @@
             </div>
           </div>
 
-          <!-- Activity History Panel -->
+          <!-- Outbox & Sent Log Panel -->
           <section class="panel message-history-panel" id="messages">
             <div class="panel-header">
               <div class="panel-title-group">
@@ -334,23 +399,37 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                 </div>
                 <div>
-                  <h3 class="panel-title">Recent Dispatch Activity</h3>
-                  <p class="panel-subtitle">Real-time log of sent iMessages and delivery statuses</p>
+                  <h3 class="panel-title">Outbox & Sent Messages Log</h3>
+                  <p class="panel-subtitle">Live real-time records of all dispatched numbers and delivery timestamps</p>
                 </div>
               </div>
               <div class="panel-actions">
+                <button class="btn btn-secondary btn-sm" id="btnClearOutbox"><span>Clear Log</span></button>
                 <button class="btn btn-secondary btn-sm" id="btnRefreshActivity"><span>Refresh</span></button>
               </div>
             </div>
 
-            <div class="panel-body table-responsive">
-              <div class="empty-state">
+            <div class="panel-body table-responsive" style="padding: 0;">
+              <table class="admin-table outbox-table" id="outboxTable">
+                <thead>
+                  <tr>
+                    <th>Msg ID</th>
+                    <th>Recipient</th>
+                    <th>Content Snippet</th>
+                    <th>Channel</th>
+                    <th>Dispatched Time</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="outboxTableBody"></tbody>
+              </table>
+
+              <div class="empty-state" id="outboxEmptyState">
                 <div class="empty-state-icon">
                   <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 </div>
-                <h4 class="empty-state-title">No message activity yet</h4>
-                <p class="empty-state-desc">Your dispatched messages and receipts will appear here.</p>
-                <button class="btn btn-primary btn-sm" id="btnEmptyCompose"><span>Compose First Message</span></button>
+                <h4 class="empty-state-title">No dispatched messages yet</h4>
+                <p class="empty-state-desc">Upload a file or send a message above to see all live outbox entries with delivery time.</p>
               </div>
             </div>
           </section>
@@ -360,19 +439,19 @@
 
     <!-- Modals -->
 
-    <!-- Compose Modal -->
+    <!-- Single Quick Message Modal -->
     <div id="composeModal" class="modal-overlay hidden">
       <div class="modal-card">
         <div class="modal-header">
           <div class="modal-title-row">
             <span class="modal-icon-glow"></span>
-            <h3 class="modal-title">Dispatch New iMessage</h3>
+            <h3 class="modal-title">Dispatch Quick iMessage</h3>
           </div>
           <button class="modal-close-btn" id="closeComposeModal">&times;</button>
         </div>
         <form id="composeForm" class="modal-body">
           <div class="form-group">
-            <label class="form-label" for="composeRecipient">Recipient (Phone or Apple ID)</label>
+            <label class="form-label" for="composeRecipient">Recipient Phone or Apple ID</label>
             <input type="text" id="composeRecipient" class="form-input" placeholder="+1 (555) 019-2834" required />
           </div>
           <div class="form-group">
@@ -387,7 +466,7 @@
       </div>
     </div>
 
-    <!-- EXACT USDT TRC20 PAYMENT MODAL -->
+    <!-- Exact USDT TRC20 Payment Modal -->
     <div id="topUpModal" class="modal-overlay hidden">
       <div class="modal-card usdt-payment-modal">
         <div class="modal-header">
@@ -396,12 +475,10 @@
         </div>
 
         <div class="modal-body usdt-modal-body">
-          <!-- Green Notice Banner -->
           <div class="usdt-notice-banner">
             Send exactly the displayed amount on the TRC20 network. Use only the address shown below.
           </div>
 
-          <!-- Amount to Pay & Dynamic Timer -->
           <div class="usdt-amount-section">
             <span class="usdt-amount-label">Amount to pay</span>
             <div class="usdt-amount-value" id="usdtAmountDisplay">$99.00</div>
@@ -418,7 +495,6 @@
             </div>
           </div>
 
-          <!-- TRON Network Identifier -->
           <div class="usdt-network-row">
             <div class="usdt-icon-circle">₮</div>
             <div class="usdt-network-info">
@@ -429,7 +505,6 @@
 
           <div class="usdt-qr-warning">THIS QR IS ONLY FOR <strong>USDT TRC20</strong></div>
 
-          <!-- QR Code Container -->
           <div class="usdt-qr-box">
             <img
               src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TWhUtsbWiR3gQE6yi9CirRQSR1zKAR9FJd&bgcolor=ffffff&color=000000"
@@ -439,7 +514,6 @@
             />
           </div>
 
-          <!-- Deposit Address Input with Copy -->
           <div class="form-group" style="margin-top: 1rem;">
             <label class="form-label" style="font-size: 0.8rem; color: var(--text-secondary);">USDT TRC20 deposit address</label>
             <div class="usdt-address-row">
@@ -454,39 +528,23 @@
             </div>
           </div>
 
-          <!-- Recipient Email -->
           <div class="form-group">
             <label class="form-label" for="usdtUserEmail" style="font-size: 0.8rem;">Recipient email *</label>
-            <input
-              type="email"
-              id="usdtUserEmail"
-              class="form-input"
-              placeholder="customer@example.com"
-              required
-            />
+            <input type="email" id="usdtUserEmail" class="form-input" placeholder="customer@example.com" required />
           </div>
 
-          <!-- Transaction Hash / TxID Input -->
           <div class="form-group">
             <label class="form-label" for="usdtTxHash" style="font-size: 0.8rem;">Transaction hash / TxID *</label>
-            <input
-              type="text"
-              id="usdtTxHash"
-              class="form-input"
-              placeholder="Enter your TRC20 transaction hash"
-              required
-            />
+            <input type="text" id="usdtTxHash" class="form-input" placeholder="Enter your TRC20 transaction hash" required />
           </div>
 
-          <!-- Action Buttons -->
           <div class="modal-actions" style="justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
             <button type="button" class="btn btn-secondary" id="cancelTopUpBtn" style="padding: 0.6rem 1.4rem;">Cancel</button>
-            <button type="button" class="btn btn-primary" id="btnSubmitPaid" style="padding: 0.6rem 1.8rem; background: linear-gradient(135deg, #007aff, #005ce6); color: #fff; font-weight: 800;">
+            <button type="button" class="btn btn-primary btn-paid" id="btnSubmitPaid" style="padding: 0.6rem 1.8rem; background: linear-gradient(135deg, #007aff, #005ce6); color: #fff; font-weight: 800;">
               PAID
             </button>
           </div>
 
-          <!-- Disclaimer -->
           <div class="usdt-bottom-disclaimer">
             Payment confirmation is manual — order processing starts after payment verification. Your order is not fulfilled until payment is verified.
           </div>
