@@ -12,10 +12,17 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 // ---------- Elements ----------
 const loginView = document.getElementById("loginView");
 const signupView = document.getElementById("signupView");
+const forgotPasswordView = document.getElementById("forgotPasswordView");
+
 const loginForm = document.getElementById("loginForm");
 const signupForm = document.getElementById("signupForm");
+const forgotPasswordForm = document.getElementById("forgotPasswordForm");
+
 const showSignupBtn = document.getElementById("showSignupBtn");
 const showLoginBtn = document.getElementById("showLoginBtn");
+const showForgotPasswordBtn = document.getElementById("showForgotPasswordBtn");
+const showLoginFromForgotBtn = document.getElementById("showLoginFromForgotBtn");
+
 const messageBox = document.getElementById("messageBox");
 
 // ---------- Captcha Logic ----------
@@ -41,20 +48,15 @@ function refreshCaptchas() {
   if (loginDisplay) loginDisplay.textContent = currentLoginCaptcha;
   if (signupDisplay) signupDisplay.textContent = currentSignupCaptcha;
   
-  // Clear inputs on refresh
   const loginInput = document.getElementById("loginCaptchaInput");
   const signupInput = document.getElementById("signupCaptchaInput");
   if (loginInput) loginInput.value = "";
   if (signupInput) signupInput.value = "";
 }
 
-// Refresh buttons logic
 document.getElementById("refreshLoginCaptcha")?.addEventListener("click", refreshCaptchas);
 document.getElementById("refreshSignupCaptcha")?.addEventListener("click", refreshCaptchas);
-
-// Initialize Captcha on page load
 refreshCaptchas();
-
 
 // ---------- Helpers ----------
 function showMessage(message, type = "info") {
@@ -71,20 +73,27 @@ function hideMessage() {
 }
 
 function setView(view) {
+  loginView?.classList.add("hidden");
+  signupView?.classList.add("hidden");
+  forgotPasswordView?.classList.add("hidden");
+
   if (view === "signup") {
-    loginView?.classList.add("hidden");
     signupView?.classList.remove("hidden");
+  } else if (view === "forgot") {
+    forgotPasswordView?.classList.remove("hidden");
   } else {
-    signupView?.classList.add("hidden");
     loginView?.classList.remove("hidden");
   }
+  
   hideMessage();
-  refreshCaptchas(); // Reset captcha when switching views
+  refreshCaptchas();
 }
 
-// ---------- Login / Signup switching ----------
+// ---------- View Switching ----------
 showSignupBtn?.addEventListener("click", () => setView("signup"));
 showLoginBtn?.addEventListener("click", () => setView("login"));
+showForgotPasswordBtn?.addEventListener("click", () => setView("forgot"));
+showLoginFromForgotBtn?.addEventListener("click", () => setView("login"));
 
 // ---------- Password visibility ----------
 document.querySelectorAll(".password-toggle").forEach((button) => {
@@ -110,7 +119,6 @@ loginForm?.addEventListener("submit", async (event) => {
     return;
   }
 
-  // Verify Captcha Check
   if (captchaInput !== currentLoginCaptcha) {
     showMessage("Invalid verification code. Please try again.", "error");
     refreshCaptchas();
@@ -124,21 +132,14 @@ loginForm?.addEventListener("submit", async (event) => {
   }
   
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
-    if (!data.session) {
-      throw new Error("Login session could not be created.");
-    }
-    
+    if (!data.session) throw new Error("Login session could not be created.");
     window.location.href = "/dashboard.html";
   } catch (error) {
     console.error("Login error:", error);
     showMessage(error?.message || "Unable to sign in. Please try again.", "error");
-    refreshCaptchas(); // Refresh captcha on failure
+    refreshCaptchas();
   } finally {
     if (submitButton) {
       submitButton.disabled = false;
@@ -164,16 +165,14 @@ signupForm?.addEventListener("submit", async (event) => {
   }
   
   if (captchaInput !== currentSignupCaptcha) {
-    showMessage("Invalid verification code. Please try again.", "error");
+    showMessage("Invalid verification code.", "error");
     refreshCaptchas();
     return;
   }
-
   if (password.length < 8) {
     showMessage("Password must contain at least 8 characters.", "error");
     return;
   }
-  
   if (password !== confirmPassword) {
     showMessage("Passwords do not match.", "error");
     return;
@@ -187,20 +186,14 @@ signupForm?.addEventListener("submit", async (event) => {
   
   try {
     const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-      },
+      email, password, options: { data: { full_name: fullName } }
     });
-    
     if (error) throw error;
     if (data.session) {
       window.location.href = "/dashboard.html";
       return;
     }
-    
-    showMessage("Account created. Please check your email to verify your account.", "success");
+    showMessage("Account created. Please check your email to verify.", "success");
     signupForm.reset();
     refreshCaptchas();
   } catch (error) {
@@ -211,6 +204,42 @@ signupForm?.addEventListener("submit", async (event) => {
     if (submitButton) {
       submitButton.disabled = false;
       submitButton.textContent = "Create account";
+    }
+  }
+});
+
+// ---------- Forgot Password ----------
+forgotPasswordForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  hideMessage();
+  
+  const email = document.getElementById("forgotEmail")?.value.trim();
+  
+  if (!email) {
+    showMessage("Please enter your email.", "error");
+    return;
+  }
+
+  const submitButton = forgotPasswordForm.querySelector('button[type="submit"]');
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = "Sending...";
+  }
+
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/dashboard.html",
+    });
+    if (error) throw error;
+    showMessage("If this email is registered, you will receive a reset link shortly.", "success");
+    forgotPasswordForm.reset();
+  } catch (error) {
+    console.error("Reset error:", error);
+    showMessage(error?.message || "Unable to send reset email.", "error");
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "Send Reset Link";
     }
   }
 });
