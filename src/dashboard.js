@@ -26,11 +26,27 @@ const mobileToggleBtn = document.getElementById("mobileToggleBtn");
 const sidebar = document.getElementById("sidebar");
 const toastContainer = document.getElementById("toastContainer");
 
+// Campaign & Outbox Elements
+const fileDropzone = document.getElementById("fileDropzone");
+const contactsFileInput = document.getElementById("contactsFileInput");
+const manualNumbers = document.getElementById("manualNumbers");
+const recipientCountBadge = document.getElementById("recipientCountBadge");
+const campaignMessageText = document.getElementById("campaignMessageText");
+const charCount = document.getElementById("charCount");
+const btnLaunchCampaign = document.getElementById("btnLaunchCampaign");
+const dispatchProgressContainer = document.getElementById("dispatchProgressContainer");
+const progressText = document.getElementById("progressText");
+const progressPercent = document.getElementById("progressPercent");
+const progressBarFill = document.getElementById("progressBarFill");
+const outboxTableBody = document.getElementById("outboxTableBody");
+const outboxEmptyState = document.getElementById("outboxEmptyState");
+const btnClearOutbox = document.getElementById("btnClearOutbox");
+const btnRefreshActivity = document.getElementById("btnRefreshActivity");
+
 // Modals
 const composeModal = document.getElementById("composeModal");
 const topUpModal = document.getElementById("topUpModal");
 const btnQuickCompose = document.getElementById("btnQuickCompose");
-const btnEmptyCompose = document.getElementById("btnEmptyCompose");
 const closeComposeModal = document.getElementById("closeComposeModal");
 const cancelComposeBtn = document.getElementById("cancelComposeBtn");
 const composeForm = document.getElementById("composeForm");
@@ -50,10 +66,12 @@ const usdtTimer = document.getElementById("usdtTimer");
 
 const simulatorBubbleContainer = document.getElementById("simulatorBubbleContainer");
 const totalDispatched = document.getElementById("totalDispatched");
-let dispatchedCount = 0;
+
+let totalSentCount = 0;
 let selectedTopUpAmount = 99.0;
 let countdownInterval = null;
 let currentUser = null;
+let currentRecipientsList = [];
 
 function showToast(message, type = "info") {
   if (!toastContainer) return;
@@ -143,7 +161,6 @@ async function initDashboard() {
     const formattedDate = formatDate(currentUser.created_at);
     const roleStr = currentUser.user_metadata?.role || "User";
 
-    // Read balance
     const cachedBalance = localStorage.getItem(`wallet_${emailStr}`);
     const walletStr = cachedBalance
       ? `$${parseFloat(cachedBalance).toFixed(2)}`
@@ -168,6 +185,8 @@ async function initDashboard() {
 
     if (usdtUserEmail) usdtUserEmail.value = emailStr;
 
+    loadOutboxMessages();
+
     supabase.auth.onAuthStateChange((event, newSession) => {
       if (event === "SIGNED_OUT" || !newSession) {
         window.location.href = "index.html";
@@ -176,6 +195,211 @@ async function initDashboard() {
   } catch (err) {
     console.error("Dashboard init error:", err);
   }
+}
+
+// Outbox Logger
+function loadOutboxMessages() {
+  const email = currentUser?.email || "default";
+  const messages = JSON.parse(localStorage.getItem(`outbox_${email}`) || "[]");
+  totalSentCount = messages.length;
+  if (totalDispatched) totalDispatched.textContent = totalSentCount.toString();
+
+  if (!outboxTableBody) return;
+  outboxTableBody.innerHTML = "";
+
+  if (messages.length === 0) {
+    if (outboxEmptyState) outboxEmptyState.classList.remove("hidden");
+    return;
+  }
+
+  if (outboxEmptyState) outboxEmptyState.classList.add("hidden");
+
+  messages.forEach((msg) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><code class="code-pill" style="font-size: 0.75rem;">${msg.id}</code></td>
+      <td><strong style="color: #fff;">${msg.recipient}</strong></td>
+      <td style="color: var(--text-secondary); max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${msg.body}</td>
+      <td><span class="tag-status live" style="font-size: 0.7rem;">Apple APNs</span></td>
+      <td style="font-size: 0.8rem; color: var(--text-muted);">${msg.time}</td>
+      <td><span class="status-pill status-active" style="font-size: 0.7rem;">DELIVERED</span></td>
+    `;
+    outboxTableBody.appendChild(tr);
+  });
+}
+
+function saveOutboxMessage(recipient, text) {
+  const email = currentUser?.email || "default";
+  const messages = JSON.parse(localStorage.getItem(`outbox_${email}`) || "[]");
+  const randomId = "MSG-" + Math.floor(100000 + Math.random() * 900000);
+  const nowStr = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+
+  messages.unshift({
+    id: randomId,
+    recipient: recipient,
+    body: text,
+    time: nowStr,
+    status: "Delivered"
+  });
+
+  localStorage.setItem(`outbox_${email}`, JSON.stringify(messages));
+  loadOutboxMessages();
+}
+
+function parseNumbers(text) {
+  if (!text) return [];
+  const lines = text.split(/[\n,;]+/);
+  return lines
+    .map((l) => l.trim())
+    .filter((l) => l.length >= 7 && (l.includes("+") || /\d/.test(l) || l.includes("@")));
+}
+
+function updateRecipientCount() {
+  const numbers = parseNumbers(manualNumbers?.value || "");
+  currentRecipientsList = numbers;
+  if (recipientCountBadge) {
+    recipientCountBadge.textContent = `${numbers.length} numbers detected`;
+  }
+}
+
+if (fileDropzone && contactsFileInput) {
+  fileDropzone.addEventListener("click", () => contactsFileInput.click());
+
+  contactsFileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target.result;
+      if (manualNumbers) {
+        manualNumbers.value = content;
+        updateRecipientCount();
+        showToast(`Loaded file ${file.name}! Detected ${currentRecipientsList.length} numbers.`);
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  manualNumbers?.addEventListener("input", updateRecipientCount);
+}
+
+if (campaignMessageText && charCount) {
+  campaignMessageText.addEventListener("input", () => {
+    const len = campaignMessageText.value.length;
+    charCount.textContent = `${len} / 160 chars`;
+  });
+}
+
+// Launch Campaign Button
+if (btnLaunchCampaign) {
+  btnLaunchCampaign.addEventListener("click", async () => {
+    updateRecipientCount();
+    const messageBody = campaignMessageText?.value.trim();
+
+    if (currentRecipientsList.length === 0) {
+      alert("Please upload a file or enter at least one recipient phone number.");
+      manualNumbers?.focus();
+      return;
+    }
+
+    if (!messageBody) {
+      alert("Please enter message body template.");
+      campaignMessageText?.focus();
+      return;
+    }
+
+    btnLaunchCampaign.disabled = true;
+    if (dispatchProgressContainer) dispatchProgressContainer.classList.remove("hidden");
+
+    let sent = 0;
+    const total = currentRecipientsList.length;
+
+    const progressInterval = setInterval(() => {
+      sent += Math.max(1, Math.floor(total / 10));
+      if (sent > total) sent = total;
+
+      const pct = Math.floor((sent / total) * 100);
+      if (progressPercent) progressPercent.textContent = `${pct}%`;
+      if (progressText) progressText.textContent = `Dispatching ${sent} / ${total} messages...`;
+      if (progressBarFill) progressBarFill.style.width = `${pct}%`;
+
+      if (sent >= total) {
+        clearInterval(progressInterval);
+
+        currentRecipientsList.forEach((num) => {
+          saveOutboxMessage(num, messageBody);
+        });
+
+        if (simulatorBubbleContainer) {
+          const bubble = document.createElement("div");
+          bubble.className = "imessage-bubble outgoing";
+          bubble.innerHTML = `
+            <p class="bubble-text">${messageBody}</p>
+            <span class="bubble-meta">Broadcasted to ${total} recipients • Just now</span>
+          `;
+          simulatorBubbleContainer.appendChild(bubble);
+          simulatorBubbleContainer.scrollTop = simulatorBubbleContainer.scrollHeight;
+        }
+
+        setTimeout(() => {
+          if (dispatchProgressContainer) dispatchProgressContainer.classList.add("hidden");
+          btnLaunchCampaign.disabled = false;
+          showToast(`Broadcast Complete! Dispatched ${total} messages.`, "success");
+        }, 600);
+      }
+    }, 150);
+  });
+}
+
+if (btnClearOutbox) {
+  btnClearOutbox.addEventListener("click", () => {
+    const email = currentUser?.email || "default";
+    localStorage.removeItem(`outbox_${email}`);
+    loadOutboxMessages();
+    showToast("Outbox log cleared.");
+  });
+}
+
+if (btnRefreshActivity) {
+  btnRefreshActivity.addEventListener("click", () => {
+    loadOutboxMessages();
+    showToast("Outbox log refreshed.");
+  });
+}
+
+// Single Message Modal
+if (composeForm) {
+  composeForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const recipient = document.getElementById("composeRecipient")?.value;
+    const text = document.getElementById("composeText")?.value;
+    if (!text || !recipient) return;
+
+    closeModal(composeModal);
+    composeForm.reset();
+
+    saveOutboxMessage(recipient, text);
+
+    if (simulatorBubbleContainer) {
+      const bubble = document.createElement("div");
+      bubble.className = "imessage-bubble outgoing";
+      bubble.innerHTML = `
+        <p class="bubble-text">${text}</p>
+        <span class="bubble-meta">Delivered to ${recipient} • Just now</span>
+      `;
+      simulatorBubbleContainer.appendChild(bubble);
+      simulatorBubbleContainer.scrollTop = simulatorBubbleContainer.scrollHeight;
+    }
+
+    showToast("iMessage dispatched successfully via Apple APNs!");
+  });
 }
 
 if (logoutButton) {
@@ -217,11 +441,10 @@ function closeModal(modal) {
 }
 
 if (btnQuickCompose) btnQuickCompose.addEventListener("click", () => openModal(composeModal));
-if (btnEmptyCompose) btnEmptyCompose.addEventListener("click", () => openModal(composeModal));
 if (closeComposeModal) closeComposeModal.addEventListener("click", () => closeModal(composeModal));
 if (cancelComposeBtn) cancelComposeBtn.addEventListener("click", () => closeModal(composeModal));
 
-// Top Up / USDT Payment Modal
+// USDT Payment
 function handleOpenTopUp() {
   openModal(topUpModal);
   startPaymentTimer();
@@ -261,7 +484,6 @@ document.querySelectorAll(".tier-pill").forEach((pill) => {
   });
 });
 
-// Submit PAID Request
 if (btnSubmitPaid) {
   btnSubmitPaid.addEventListener("click", async () => {
     const txHash = usdtTxHash ? usdtTxHash.value.trim() : "";
@@ -308,34 +530,6 @@ if (btnSubmitPaid) {
     btnSubmitPaid.textContent = "PAID";
 
     showToast("Payment submitted! Awaiting Admin verification.", "success");
-  });
-}
-
-// Dispatch Message Simulator
-if (composeForm) {
-  composeForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const recipient = document.getElementById("composeRecipient")?.value;
-    const text = document.getElementById("composeText")?.value;
-    if (!text) return;
-
-    closeModal(composeModal);
-    composeForm.reset();
-
-    if (simulatorBubbleContainer) {
-      const bubble = document.createElement("div");
-      bubble.className = "imessage-bubble outgoing";
-      bubble.innerHTML = `
-        <p class="bubble-text">${text}</p>
-        <span class="bubble-meta">Delivered to ${recipient || 'recipient'} • Just now</span>
-      `;
-      simulatorBubbleContainer.appendChild(bubble);
-      simulatorBubbleContainer.scrollTop = simulatorBubbleContainer.scrollHeight;
-    }
-
-    dispatchedCount += 1;
-    if (totalDispatched) totalDispatched.textContent = dispatchedCount.toString();
-    showToast("iMessage dispatched successfully via Apple APNs!");
   });
 }
 
