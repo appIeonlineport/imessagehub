@@ -17,10 +17,6 @@
         </div>
       </div>
       
-      <div class="live-reference">
-        <span>LIVE ACCESS REFERENCE</span><strong id="referenceCode">#000000</strong>
-      </div>
-      
       <!-- LOGIN VIEW -->
       <div id="loginView">
         <div class="section-heading">
@@ -37,6 +33,16 @@
               <button type="button" class="password-toggle" data-target="loginPassword">Show</button>
             </div>
           </label>
+          
+          <!-- NEW CAPTCHA FIELD FOR LOGIN -->
+          <label>Security Verification
+            <div class="captcha-container">
+              <div id="loginCaptchaDisplay" class="captcha-display">12345</div>
+              <button type="button" id="refreshLoginCaptcha" class="icon-button" title="Refresh Code">↻</button>
+            </div>
+            <input id="loginCaptchaInput" type="text" placeholder="Enter the 5-digit code above" required maxlength="5">
+          </label>
+
           <div class="form-row">
             <button type="button" id="forgotPasswordBtn" class="text-button">Forgot password?</button>
           </div>
@@ -68,6 +74,16 @@
           <label>Confirm password
             <input id="signupConfirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Repeat password" required>
           </label>
+
+          <!-- NEW CAPTCHA FIELD FOR SIGNUP -->
+          <label>Security Verification
+            <div class="captcha-container">
+              <div id="signupCaptchaDisplay" class="captcha-display">12345</div>
+              <button type="button" id="refreshSignupCaptcha" class="icon-button" title="Refresh Code">↻</button>
+            </div>
+            <input id="signupCaptchaInput" type="text" placeholder="Enter the 5-digit code above" required maxlength="5">
+          </label>
+
           <button class="primary-button" type="submit">Create account</button>
         </form>
         <button id="showLoginBtn" class="secondary-button" type="button">Back to sign in</button>
