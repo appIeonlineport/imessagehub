@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -10,9 +9,8 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-// ---------- Helpers ----------
 function showMessage(message, type = "info") {
-  const box = document.getElementById("messageBox");
+  const box = document.getElementById("adminMessage");
   if (!box) {
     console.log(message);
     return;
@@ -29,7 +27,6 @@ function setText(id, value) {
   }
 }
 
-// ---------- Load current admin ----------
 async function loadAdmin() {
   try {
     const {
@@ -45,11 +42,9 @@ async function loadAdmin() {
     
     const user = session.user;
 
-    // NEW SECURITY CHECK: Database se check karo ki ye user 'owner' hai ya nahi
     const { data: profile, error: profileError } = await supabase.from('profiles').select('role').eq('id', user.id).single();
     
     if (profileError || !profile || profile.role !== 'owner') {
-      // Agar user owner nahi hai, toh usko wapas dashboard par bhej do
       window.location.href = "/dashboard.html";
       return;
     }
@@ -67,7 +62,6 @@ async function loadAdmin() {
   }
 }
 
-// ---------- Sign out ----------
 const logoutButton = document.getElementById("logoutButton");
 logoutButton?.addEventListener("click", async () => {
   logoutButton.disabled = true;
@@ -84,5 +78,4 @@ logoutButton?.addEventListener("click", async () => {
   }
 });
 
-// ---------- Start ----------
 loadAdmin();
