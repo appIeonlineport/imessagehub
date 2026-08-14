@@ -34,7 +34,6 @@
             </div>
           </label>
           
-          <!-- NEW CAPTCHA FIELD FOR LOGIN -->
           <label>Security Verification
             <div class="captcha-container">
               <div id="loginCaptchaDisplay" class="captcha-display">12345</div>
@@ -44,7 +43,7 @@
           </label>
 
           <div class="form-row">
-            <button type="button" id="forgotPasswordBtn" class="text-button">Forgot password?</button>
+            <button type="button" id="showForgotPasswordBtn" class="text-button">Forgot password?</button>
           </div>
           <button class="primary-button" type="submit">Sign in</button>
         </form>
@@ -75,7 +74,6 @@
             <input id="signupConfirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Repeat password" required>
           </label>
 
-          <!-- NEW CAPTCHA FIELD FOR SIGNUP -->
           <label>Security Verification
             <div class="captcha-container">
               <div id="signupCaptchaDisplay" class="captcha-display">12345</div>
@@ -87,6 +85,21 @@
           <button class="primary-button" type="submit">Create account</button>
         </form>
         <button id="showLoginBtn" class="secondary-button" type="button">Back to sign in</button>
+      </div>
+
+      <!-- FORGOT PASSWORD VIEW -->
+      <div id="forgotPasswordView" class="hidden">
+        <div class="section-heading">
+          <h2>Reset Password</h2>
+          <p>Enter your email to receive a reset link.</p>
+        </div>
+        <form id="forgotPasswordForm">
+          <label>Email address
+            <input id="forgotEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+          </label>
+          <button class="primary-button" type="submit">Send Reset Link</button>
+        </form>
+        <button id="showLoginFromForgotBtn" class="secondary-button" type="button" style="margin-top: 16px;">Back to sign in</button>
       </div>
       
       <div id="messageBox" class="message hidden"></div>
