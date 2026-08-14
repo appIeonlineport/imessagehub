@@ -1,4 +1,3 @@
-import "./styles.css";
 import { createClient } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 
