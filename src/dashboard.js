@@ -29,37 +29,42 @@ const toastContainer = document.getElementById("toastContainer");
 // Modals
 const composeModal = document.getElementById("composeModal");
 const topUpModal = document.getElementById("topUpModal");
-const apiDocsModal = document.getElementById("apiDocsModal");
 const btnQuickCompose = document.getElementById("btnQuickCompose");
 const btnEmptyCompose = document.getElementById("btnEmptyCompose");
 const closeComposeModal = document.getElementById("closeComposeModal");
 const cancelComposeBtn = document.getElementById("cancelComposeBtn");
 const composeForm = document.getElementById("composeForm");
 
+// USDT Payment Elements
 const btnTopUp = document.getElementById("btnTopUp");
+const btnTopUpHero = document.getElementById("btnTopUpHero");
 const closeTopUpModal = document.getElementById("closeTopUpModal");
 const cancelTopUpBtn = document.getElementById("cancelTopUpBtn");
-const confirmTopUpBtn = document.getElementById("confirmTopUpBtn");
-
-const btnViewDocs = document.getElementById("btnViewDocs");
-const navApi = document.getElementById("navApi");
-const closeApiDocsModal = document.getElementById("closeApiDocsModal");
-const closeApiDocsBtn = document.getElementById("closeApiDocsBtn");
+const btnSubmitPaid = document.getElementById("btnSubmitPaid");
+const copyUsdtAddressBtn = document.getElementById("copyUsdtAddressBtn");
+const usdtWalletAddress = document.getElementById("usdtWalletAddress");
+const usdtUserEmail = document.getElementById("usdtUserEmail");
+const usdtTxHash = document.getElementById("usdtTxHash");
+const usdtAmountDisplay = document.getElementById("usdtAmountDisplay");
+const usdtTimer = document.getElementById("usdtTimer");
 
 const simulatorBubbleContainer = document.getElementById("simulatorBubbleContainer");
 const totalDispatched = document.getElementById("totalDispatched");
 let dispatchedCount = 0;
+let selectedTopUpAmount = 99.0;
+let countdownInterval = null;
+let currentUser = null;
 
-function showToast(message) {
+function showToast(message, type = "info") {
   if (!toastContainer) return;
   const toast = document.createElement("div");
-  toast.className = "toast-item show";
+  toast.className = `toast-item show toast-${type}`;
   toast.textContent = message;
   toastContainer.appendChild(toast);
   setTimeout(() => {
     toast.classList.remove("show");
     setTimeout(() => toast.remove(), 300);
-  }, 3200);
+  }, 3500);
 }
 
 function formatDate(dateStr) {
@@ -80,13 +85,33 @@ function formatDate(dateStr) {
 }
 
 function getInitials(name) {
-  if (!name) return "U";
+  if (!name) return "VM";
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-// Supabase Initialization
+function startPaymentTimer() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  let totalSeconds = 20 * 60; // 20 mins
+
+  function updateDisplay() {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    if (usdtTimer) {
+      usdtTimer.textContent = `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    }
+    if (totalSeconds <= 0) {
+      clearInterval(countdownInterval);
+      if (usdtTimer) usdtTimer.textContent = "Expired";
+    }
+    totalSeconds--;
+  }
+
+  updateDisplay();
+  countdownInterval = setInterval(updateDisplay, 1000);
+}
+
 let supabase = null;
 if (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY) {
   try {
@@ -97,14 +122,7 @@ if (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY) {
 }
 
 async function initDashboard() {
-  if (!supabase) {
-    if (dashboardMessage) {
-      dashboardMessage.textContent = "Supabase environment configuration missing.";
-      dashboardMessage.className = "dashboard-alert error";
-      dashboardMessage.classList.remove("hidden");
-    }
-    return;
-  }
+  if (!supabase) return;
 
   try {
     const { data: { session }, error } = await supabase.auth.getSession();
@@ -114,17 +132,23 @@ async function initDashboard() {
       return;
     }
 
-    const user = session.user;
+    currentUser = session.user;
     const fullName =
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      user.email?.split("@")[0] ||
+      currentUser.user_metadata?.full_name ||
+      currentUser.user_metadata?.name ||
+      currentUser.email?.split("@")[0] ||
       "User";
-    const emailStr = user.email || "N/A";
-    const userIdStr = user.id || "N/A";
-    const formattedDate = formatDate(user.created_at);
-    const roleStr = user.user_metadata?.role || "User";
-    const walletStr = user.user_metadata?.wallet_balance || "$0.00";
+    const emailStr = currentUser.email || "N/A";
+    const userIdStr = currentUser.id || "N/A";
+    const formattedDate = formatDate(currentUser.created_at);
+    const roleStr = currentUser.user_metadata?.role || "User";
+
+    // Read balance
+    const cachedBalance = localStorage.getItem(`wallet_${emailStr}`);
+    const walletStr = cachedBalance
+      ? `$${parseFloat(cachedBalance).toFixed(2)}`
+      : currentUser.user_metadata?.wallet_balance || "$0.00";
+
     const initials = getInitials(fullName);
 
     if (welcomeName) welcomeName.textContent = fullName;
@@ -142,17 +166,18 @@ async function initDashboard() {
     if (headerAvatar) headerAvatar.textContent = initials;
     if (welcomeAvatar) welcomeAvatar.textContent = initials;
 
+    if (usdtUserEmail) usdtUserEmail.value = emailStr;
+
     supabase.auth.onAuthStateChange((event, newSession) => {
       if (event === "SIGNED_OUT" || !newSession) {
         window.location.href = "index.html";
       }
     });
   } catch (err) {
-    console.error("Error initializing dashboard session:", err);
+    console.error("Dashboard init error:", err);
   }
 }
 
-// Sign out
 if (logoutButton) {
   logoutButton.addEventListener("click", async () => {
     logoutButton.disabled = true;
@@ -164,28 +189,25 @@ if (logoutButton) {
   });
 }
 
-// Copy User ID
 if (copyUserIdBtn && userId) {
   copyUserIdBtn.addEventListener("click", async () => {
     const text = userId.textContent;
     if (!text || text.includes("Loading")) return;
     try {
       await navigator.clipboard.writeText(text);
-      showToast("Supabase User ID copied to clipboard!");
+      showToast("Supabase User ID copied!");
     } catch (e) {
       console.warn("Copy error:", e);
     }
   });
 }
 
-// Mobile sidebar toggle
 if (mobileToggleBtn && sidebar) {
   mobileToggleBtn.addEventListener("click", () => {
     sidebar.classList.toggle("open");
   });
 }
 
-// Modal Functions
 function openModal(modal) {
   if (modal) modal.classList.remove("hidden");
 }
@@ -194,26 +216,100 @@ function closeModal(modal) {
   if (modal) modal.classList.add("hidden");
 }
 
-// Compose Modal
 if (btnQuickCompose) btnQuickCompose.addEventListener("click", () => openModal(composeModal));
 if (btnEmptyCompose) btnEmptyCompose.addEventListener("click", () => openModal(composeModal));
 if (closeComposeModal) closeComposeModal.addEventListener("click", () => closeModal(composeModal));
 if (cancelComposeBtn) cancelComposeBtn.addEventListener("click", () => closeModal(composeModal));
 
-// Top Up Modal
-if (btnTopUp) btnTopUp.addEventListener("click", () => openModal(topUpModal));
+// Top Up / USDT Payment Modal
+function handleOpenTopUp() {
+  openModal(topUpModal);
+  startPaymentTimer();
+  if (currentUser && usdtUserEmail) {
+    usdtUserEmail.value = currentUser.email;
+  }
+}
+
+if (btnTopUp) btnTopUp.addEventListener("click", handleOpenTopUp);
+if (btnTopUpHero) btnTopUpHero.addEventListener("click", handleOpenTopUp);
 if (closeTopUpModal) closeTopUpModal.addEventListener("click", () => closeModal(topUpModal));
 if (cancelTopUpBtn) cancelTopUpBtn.addEventListener("click", () => closeModal(topUpModal));
-if (confirmTopUpBtn) confirmTopUpBtn.addEventListener("click", () => {
-  closeModal(topUpModal);
-  showToast("Gateway checkout initialized for message credits.");
+
+if (copyUsdtAddressBtn && usdtWalletAddress) {
+  copyUsdtAddressBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(usdtWalletAddress.value);
+      copyUsdtAddressBtn.textContent = "Copied!";
+      showToast("TRC20 Address copied!");
+      setTimeout(() => {
+        copyUsdtAddressBtn.textContent = "Copy";
+      }, 2000);
+    } catch (e) {
+      console.warn(e);
+    }
+  });
+}
+
+document.querySelectorAll(".tier-pill").forEach((pill) => {
+  pill.addEventListener("click", () => {
+    document.querySelectorAll(".tier-pill").forEach((p) => p.classList.remove("active"));
+    pill.classList.add("active");
+    selectedTopUpAmount = parseFloat(pill.getAttribute("data-amount"));
+    if (usdtAmountDisplay) {
+      usdtAmountDisplay.textContent = `$${selectedTopUpAmount.toFixed(2)}`;
+    }
+  });
 });
 
-// API Docs Modal
-if (btnViewDocs) btnViewDocs.addEventListener("click", () => openModal(apiDocsModal));
-if (navApi) navApi.addEventListener("click", (e) => { e.preventDefault(); openModal(apiDocsModal); });
-if (closeApiDocsModal) closeApiDocsModal.addEventListener("click", () => closeModal(apiDocsModal));
-if (closeApiDocsBtn) closeApiDocsBtn.addEventListener("click", () => closeModal(apiDocsModal));
+// Submit PAID Request
+if (btnSubmitPaid) {
+  btnSubmitPaid.addEventListener("click", async () => {
+    const txHash = usdtTxHash ? usdtTxHash.value.trim() : "";
+    const email = usdtUserEmail ? usdtUserEmail.value.trim() : (currentUser?.email || "indiatryme@gmail.com");
+
+    if (!txHash) {
+      alert("Please enter your TRC20 Transaction Hash / TxID to submit payment.");
+      if (usdtTxHash) usdtTxHash.focus();
+      return;
+    }
+
+    btnSubmitPaid.disabled = true;
+    btnSubmitPaid.textContent = "Submitting...";
+
+    const newRequest = {
+      id: crypto.randomUUID ? crypto.randomUUID() : `req_${Date.now()}`,
+      user_id: currentUser?.id || "anonymous",
+      user_email: email,
+      amount: selectedTopUpAmount,
+      network: "TRC20",
+      wallet_address: usdtWalletAddress?.value || "TWhUtsbWiR3gQE6yi9CirRQSR1zKAR9FJd",
+      tx_hash: txHash,
+      status: "pending",
+      created_at: new Date().toISOString()
+    };
+
+    if (supabase) {
+      try {
+        await supabase.from("topup_requests").insert([newRequest]);
+      } catch (e) {
+        console.warn("Supabase insert error (fallback used):", e);
+      }
+    }
+
+    try {
+      const existing = JSON.parse(localStorage.getItem("imessagehub_topups") || "[]");
+      existing.unshift(newRequest);
+      localStorage.setItem("imessagehub_topups", JSON.stringify(existing));
+    } catch (e) {}
+
+    closeModal(topUpModal);
+    if (usdtTxHash) usdtTxHash.value = "";
+    btnSubmitPaid.disabled = false;
+    btnSubmitPaid.textContent = "PAID";
+
+    showToast("Payment submitted! Awaiting Admin verification.", "success");
+  });
+}
 
 // Dispatch Message Simulator
 if (composeForm) {
@@ -242,13 +338,5 @@ if (composeForm) {
     showToast("iMessage dispatched successfully via Apple APNs!");
   });
 }
-
-// Credit Tier Selection
-document.querySelectorAll(".credit-tier-card").forEach((card) => {
-  card.addEventListener("click", () => {
-    document.querySelectorAll(".credit-tier-card").forEach((c) => c.classList.remove("active"));
-    card.classList.add("active");
-  });
-});
 
 initDashboard();
