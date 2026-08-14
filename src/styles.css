@@ -52,7 +52,7 @@ button {
   padding: 32px 16px;
 }
 
-.auth-card {
+.auth-card { }
   width: 100%;
   max-width: 520px;
   background: var(--card);
