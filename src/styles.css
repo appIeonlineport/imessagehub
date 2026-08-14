@@ -12,9 +12,12 @@
   --border: #e5e7eb;
   --primary: #111827;
   --primary-hover: #000000;
-  --danger: #dc2626;
   --success: #16a34a;
-  --radius: 14px;
+  --danger: #dc2626;
+}
+
+html {
+  min-height: 100%;
 }
 
 body {
@@ -44,6 +47,10 @@ button {
   cursor: pointer;
 }
 
+/* =========================
+   Authentication
+   ========================= */
+
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -52,14 +59,14 @@ button {
   padding: 32px 16px;
 }
 
-.auth-card { }
+.auth-card {
   width: 100%;
   max-width: 520px;
+  padding: 34px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 22px;
-  padding: 34px;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.10);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.1);
 }
 
 .brand {
@@ -232,6 +239,12 @@ input:focus {
   transform: translateY(-1px);
 }
 
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
 .secondary-button {
   border: 1px solid var(--border);
   background: #ffffff;
@@ -273,6 +286,18 @@ input:focus {
   font-size: 13px;
 }
 
+.message.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.message.success {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
 .auth-footer {
   margin-top: 26px;
   padding-top: 18px;
@@ -282,17 +307,8 @@ input:focus {
   font-size: 12px;
 }
 
-@media (max-width: 600px) {
-  .auth-page {
-    padding: 18px 12px;
-  }
-
-  .auth-card {
-    padding: 24px 18px;
-    border-radius: 18px;
-  }
 /* =========================
-   Dashboard
+   Application / Dashboard
    ========================= */
 
 .app-page {
@@ -336,6 +352,7 @@ input:focus {
 
 .brand.compact h1 {
   font-size: 22px;
+  line-height: 1.2;
   letter-spacing: -0.4px;
 }
 
@@ -356,6 +373,11 @@ input:focus {
 
 .logout-button:hover {
   background: #f3f4f6;
+}
+
+.logout-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .welcome-panel {
@@ -444,6 +466,10 @@ input:focus {
 }
 
 .panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
   padding-bottom: 16px;
   margin-bottom: 18px;
   border-bottom: 1px solid var(--border);
@@ -483,17 +509,88 @@ input:focus {
   word-break: break-word;
 }
 
-.message.error {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+/* =========================
+   Admin
+   ========================= */
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.message.success {
-  background: #f0fdf4;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+th,
+td {
+  padding: 13px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+th {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+td {
+  color: var(--text);
+}
+
+.status {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.status.active,
+.status.paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status.rejected,
+.status.suspended {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.approve-button {
+  border: 1px solid #c7d2fe;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: #3730a3;
+  background: #eef2ff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.approve-button:hover {
+  background: #e0e7ff;
+}
+
+/* =========================
+   Responsive
+   ========================= */
 
 @media (max-width: 700px) {
   .app-page {
@@ -519,7 +616,40 @@ input:focus {
     font-size: 24px;
   }
 }
+
+@media (max-width: 600px) {
+  .auth-page {
+    padding: 18px 12px;
+  }
+
+  .auth-card {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+
   .brand h1 {
     font-size: 26px;
+  }
+
+  .brand.compact h1 {
+    font-size: 19px;
+  }
+
+  .brand.compact .brand-mark {
+    width: 42px;
+    height: 42px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .logout-button {
+    padding: 8px 12px;
+  }
+
+  .panel,
+  .stat-card {
+    padding: 18px;
   }
 }
