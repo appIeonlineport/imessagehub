@@ -21,6 +21,7 @@
       <aside class="app-sidebar" id="sidebar">
         <div class="sidebar-header">
           <div class="brand">
+            <!-- Animated Futuristic Logo -->
             <div class="brand-logo-animated">
               <div class="logo-pulse-ring"></div>
               <svg
@@ -438,4 +439,110 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="23 4 23 10 17 10"></polyline>
                     <polyline points="1 20 1 14 7 14"></polyline>
-                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                  </svg>
+                  <span>Refresh</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="panel-body table-responsive">
+              <div class="empty-state">
+                <div class="empty-state-icon">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </div>
+                <h4 class="empty-state-title">No message activity yet</h4>
+                <p class="empty-state-desc">
+                  Your dispatched messages and receipts will appear here.
+                </p>
+                <button class="btn btn-primary btn-sm" id="btnEmptyCompose">
+                  <span>Compose First Message</span>
+                </button>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="composeModal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-glow"></span>
+            <h3 class="modal-title">Dispatch New iMessage</h3>
+          </div>
+          <button class="modal-close-btn" id="closeComposeModal">&times;</button>
+        </div>
+        <form id="composeForm" class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="composeRecipient">Recipient (Phone or Apple ID)</label>
+            <input type="text" id="composeRecipient" class="form-input" placeholder="+1 (555) 019-2834" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="composeText">Message Body</label>
+            <textarea id="composeText" class="form-input form-textarea" rows="3" placeholder="Type your message here..." required></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelComposeBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="sendComposeBtn">Send iMessage</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="topUpModal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-glow">$</span>
+            <h3 class="modal-title">Top Up Wallet</h3>
+          </div>
+          <button class="modal-close-btn" id="closeTopUpModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Select credit package:</p>
+          <div class="credit-tier-grid">
+            <button type="button" class="credit-tier-card active"><span class="tier-amount">$10</span><span class="tier-credits">1,000 Msgs</span></button>
+            <button type="button" class="credit-tier-card"><span class="tier-amount">$25</span><span class="tier-credits">3,000 Msgs</span></button>
+            <button type="button" class="credit-tier-card"><span class="tier-amount">$50</span><span class="tier-credits">7,500 Msgs</span></button>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelTopUpBtn">Close</button>
+            <button type="button" class="btn btn-primary" id="confirmTopUpBtn">Checkout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="apiDocsModal" class="modal-overlay hidden">
+      <div class="modal-card modal-card-large">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon-glow">&lt;/&gt;</span>
+            <h3 class="modal-title">REST API Docs</h3>
+          </div>
+          <button class="modal-close-btn" id="closeApiDocsModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="code-snippet-box">
+            <pre><code>curl -X POST https://api.imessagehub.com/v1/dispatch \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"to": "+15550192834", "body": "Hello iMessage!"}'</code></pre>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-primary" id="closeApiDocsBtn">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script type="module" src="/src/dashboard.js"></script>
+  </body>
+</html>
