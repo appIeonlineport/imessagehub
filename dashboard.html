@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
   <body class="app-page">
-    <!-- Ambient Tech Glows -->
     <div class="tech-ambient-glow top-left"></div>
     <div class="tech-ambient-glow bottom-right"></div>
 
@@ -27,8 +26,8 @@
               <div class="logo-pulse-ring"></div>
               <svg
                 class="brand-svg"
-                width="26"
-                height="26"
+                width="28"
+                height="28"
                 viewBox="0 0 24 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -48,14 +47,14 @@
             </div>
             <div class="brand-info">
               <span class="brand-text">iMessage Hub</span>
-              <span class="badge-pro">ENTERPRISE</span>
+              <span class="badge-pro">PRO</span>
             </div>
           </div>
         </div>
 
         <nav class="sidebar-nav">
           <div class="nav-section-title">CONTROL CENTER</div>
-          <button class="nav-item active" data-tab="overview">
+          <a href="#" class="nav-item active">
             <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="7" height="7"></rect>
               <rect x="14" y="3" width="7" height="7"></rect>
@@ -63,51 +62,51 @@
               <rect x="3" y="14" width="7" height="7"></rect>
             </svg>
             <span>Overview</span>
-          </button>
-          <button class="nav-item" data-tab="messages">
+          </a>
+          <a href="#messages" class="nav-item">
             <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
-            <span>Dispatch Console</span>
-          </button>
-          <button class="nav-item" data-tab="campaigns">
+            <span>Messages</span>
+          </a>
+          <a href="#campaigns" class="nav-item">
             <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
-            <span>Broadcasts</span>
-          </button>
-          <button class="nav-item" data-tab="contacts">
+            <span>Campaigns</span>
+          </a>
+          <a href="#contacts" class="nav-item">
             <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
               <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
             </svg>
-            <span>Audience</span>
-          </button>
+            <span>Contacts</span>
+          </a>
 
           <div class="nav-section-title">INTEGRATION</div>
-          <button class="nav-item" id="navApiDocs">
+          <a href="#api" class="nav-item" id="navApi">
             <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 18 22 12 16 6"></polyline>
               <polyline points="8 6 2 12 8 18"></polyline>
             </svg>
-            <span>REST API</span>
-          </button>
-          <button class="nav-item" id="navSettings">
+            <span>API & Webhooks</span>
+          </a>
+          <a href="#settings" class="nav-item">
             <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
             </svg>
-            <span>Configuration</span>
-          </button>
+            <span>Settings</span>
+          </a>
         </nav>
 
         <div class="sidebar-footer">
           <div class="gateway-status-widget">
             <div class="status-indicator-dot online"></div>
             <div class="gateway-status-info">
-              <span class="gateway-title">APNs Gateway v4</span>
+              <span class="gateway-title">APNs Gateway</span>
               <span class="gateway-uptime">Operational • 99.99%</span>
             </div>
           </div>
@@ -116,7 +115,7 @@
 
       <!-- Main Layout -->
       <div class="app-main">
-        <!-- Top Navigation Bar -->
+        <!-- Topbar -->
         <header class="topbar">
           <div class="topbar-left">
             <button class="mobile-toggle-btn" id="mobileToggleBtn" aria-label="Toggle menu">
@@ -129,7 +128,7 @@
             <div class="breadcrumbs">
               <span class="crumb-root">iMessage Hub</span>
               <span class="crumb-separator">/</span>
-              <span class="crumb-current">Live Operations</span>
+              <span class="crumb-current">Dashboard</span>
             </div>
           </div>
 
@@ -157,12 +156,11 @@
           </div>
         </header>
 
-        <!-- Content Area -->
+        <!-- Main Content -->
         <main class="app-content">
-          <!-- Status Banner -->
           <div id="dashboardMessage" class="dashboard-alert hidden"></div>
 
-          <!-- Hero Welcome Panel -->
+          <!-- Hero Section -->
           <section class="welcome-panel">
             <div class="welcome-content">
               <div class="welcome-user-info">
@@ -170,7 +168,7 @@
                 <div class="welcome-text">
                   <div class="welcome-greeting-row">
                     <h2 class="welcome-title">
-                      Welcome back, <span id="welcomeName" class="gradient-text">Loading...</span>
+                      Welcome back, <span id="welcomeName" class="neon-text-glow">Loading...</span>
                     </h2>
                     <span id="accountStatus" class="status-pill status-active">ACTIVE</span>
                   </div>
@@ -206,9 +204,8 @@
             </div>
           </section>
 
-          <!-- KPI Metric Cards Grid -->
+          <!-- KPI Cards -->
           <section class="stats-grid">
-            <!-- Wallet -->
             <div class="stat-card">
               <div class="stat-header">
                 <span class="stat-label">WALLET BALANCE</span>
@@ -221,12 +218,11 @@
               </div>
               <div class="stat-value text-cyan" id="walletBalance">$0.00</div>
               <div class="stat-footer">
-                <span class="stat-subtext">Message balance</span>
+                <span class="stat-subtext">Message credits</span>
                 <button class="btn-link-neon" id="btnTopUp">+ Add Funds</button>
               </div>
             </div>
 
-            <!-- Role -->
             <div class="stat-card">
               <div class="stat-header">
                 <span class="stat-label">ACCOUNT ROLE</span>
@@ -238,15 +234,14 @@
               </div>
               <div class="stat-value" id="accountRole">User</div>
               <div class="stat-footer">
-                <span class="stat-subtext">Tier: High Speed</span>
+                <span class="stat-subtext">Tier: Standard Plan</span>
                 <span class="tag-status">Verified</span>
               </div>
             </div>
 
-            <!-- Dispatched -->
             <div class="stat-card">
               <div class="stat-header">
-                <span class="stat-label">DISPATCHED</span>
+                <span class="stat-label">TOTAL DISPATCHED</span>
                 <div class="stat-icon-wrapper green">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -257,14 +252,13 @@
               <div class="stat-value" id="totalDispatched">0</div>
               <div class="stat-footer">
                 <span class="stat-subtext">Delivery: 100%</span>
-                <span class="stat-trend positive">↑ Online</span>
+                <span class="stat-trend positive">↑ Active</span>
               </div>
             </div>
 
-            <!-- Status -->
             <div class="stat-card">
               <div class="stat-header">
-                <span class="stat-label">GATEWAY HEALTH</span>
+                <span class="stat-label">GATEWAY STATUS</span>
                 <div class="stat-icon-wrapper blue">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -274,7 +268,7 @@
               </div>
               <div class="stat-value text-green" id="gatewayStatus">Connected</div>
               <div class="stat-footer">
-                <span class="stat-subtext">Latency: 18ms</span>
+                <span class="stat-subtext">Latency: 24ms</span>
                 <span class="tag-status live">Live APNs</span>
               </div>
             </div>
@@ -282,7 +276,7 @@
 
           <!-- Split Dashboard Grid -->
           <div class="dashboard-grid">
-            <!-- Account Information -->
+            <!-- Account Info -->
             <div class="panel">
               <div class="panel-header">
                 <div class="panel-title-group">
@@ -293,8 +287,8 @@
                     </svg>
                   </div>
                   <div>
-                    <h3 class="panel-title">Authenticated Identity</h3>
-                    <p class="panel-subtitle">Supabase encryption & account security</p>
+                    <h3 class="panel-title">Account Information</h3>
+                    <p class="panel-subtitle">Authenticated identity and security profile</p>
                   </div>
                 </div>
               </div>
@@ -304,7 +298,7 @@
                   <div class="info-item">
                     <div class="info-meta">
                       <span class="info-label">Supabase User ID</span>
-                      <span class="info-hint">System UUID</span>
+                      <span class="info-hint">Unique system identifier</span>
                     </div>
                     <div class="info-value-group">
                       <code class="code-pill" id="userId">Loading ID...</code>
@@ -333,19 +327,29 @@
 
                   <div class="info-item">
                     <div class="info-meta">
-                      <span class="info-label">Registration Date</span>
+                      <span class="info-label">Member Since</span>
                     </div>
                     <div class="info-value" id="createdAt">Loading date...</div>
                   </div>
 
                   <div class="info-item">
                     <div class="info-meta">
-                      <span class="info-label">Encryption Protocol</span>
+                      <span class="info-label">Authentication Provider</span>
+                    </div>
+                    <div class="info-value">
+                      <span class="auth-provider-badge">
+                        Supabase Auth (JWT Secured)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="info-item">
+                    <div class="info-meta">
+                      <span class="info-label">Security Protocol</span>
                     </div>
                     <div class="info-value">
                       <span class="security-status-badge">
-                        <span class="shield-dot"></span>
-                        TLS 1.3 / End-to-End Encrypted
+                        End-to-End Encrypted (E2EE)
                       </span>
                     </div>
                   </div>
@@ -353,7 +357,7 @@
               </div>
             </div>
 
-            <!-- iMessage Interactive Live Simulator -->
+            <!-- iMessage Relay Simulator -->
             <div class="panel">
               <div class="panel-header">
                 <div class="panel-title-group">
@@ -363,8 +367,8 @@
                     </svg>
                   </div>
                   <div>
-                    <h3 class="panel-title">Apple iMessage Gateway</h3>
-                    <p class="panel-subtitle">Live real-time APNs relay preview</p>
+                    <h3 class="panel-title">iMessage Gateway Preview</h3>
+                    <p class="panel-subtitle">Real-time Apple Push Notification Service simulator</p>
                   </div>
                 </div>
               </div>
@@ -374,8 +378,8 @@
                   <div class="simulator-header">
                     <div class="sim-contact-avatar"></div>
                     <div class="sim-contact-info">
-                      <span class="sim-contact-name">iMessage Gateway Console</span>
-                      <span class="sim-service-type">Apple Cloud • APNs Connected</span>
+                      <span class="sim-contact-name">iMessage Hub Gateway</span>
+                      <span class="sim-service-type">iMessage • Apple Cloud</span>
                     </div>
                   </div>
 
@@ -400,18 +404,18 @@
                   </div>
                   <div class="feature-item">
                     <span class="feature-dot"></span>
-                    <span>Live Delivery Receipts</span>
+                    <span>Read Receipts & Typing State</span>
                   </div>
                   <div class="feature-item">
                     <span class="feature-dot"></span>
-                    <span>High-Speed REST API</span>
+                    <span>High Throughput REST API</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Activity / History Panel -->
+          <!-- Activity History Panel -->
           <section class="panel message-history-panel" id="messages">
             <div class="panel-header">
               <div class="panel-title-group">
@@ -426,12 +430,13 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="panel-title">Recent Dispatch Queue</h3>
-                  <p class="panel-subtitle">Activity logs and live receipt triggers</p>
+                  <h3 class="panel-title">Recent Dispatch Activity</h3>
+                  <p class="panel-subtitle">Real-time log of sent iMessages and delivery statuses</p>
                 </div>
               </div>
-              <button class="btn btn-secondary btn-sm" id="btnRefreshActivity">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="23 4 23 10 17 10"></polyline>
-                  <polyline points="1 20 1 14 7 14"></polyline>
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.3
+              <div class="panel-actions">
+                <button class="btn btn-secondary btn-sm" id="btnRefreshActivity">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <polyline points="1 20 1 14 7 14"></polyline>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0
