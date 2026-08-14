@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-{ createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -40,7 +39,6 @@ async function loadDashboard() {
     
     const user = session.user;
 
-    // Supabase se asli Profile aur Wallet data fetch kar rahe hain
     const { data: profile } = await supabase.from('profiles').select('role, status').eq('id', user.id).single();
     const { data: wallet } = await supabase.from('wallets').select('balance').eq('user_id', user.id).single();
 
@@ -49,7 +47,6 @@ async function loadDashboard() {
     setText("userId", user.id || "");
     setText("createdAt", user.created_at ? new Date(user.created_at).toLocaleString() : "");
     
-    // Real data show karega
     setText("accountRole", profile?.role === 'owner' ? 'Owner' : 'User');
     setText("accountStatus", (profile?.status || 'ACTIVE').toUpperCase());
     setText("walletBalance", wallet ? `$${Number(wallet.balance).toFixed(2)}` : "$0.00");
