@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>iMessage Hub — Management Dashboard</title>
+    <title>iMessage Hub — SMS & APNs Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -12,465 +12,397 @@
     />
     <link rel="stylesheet" href="/src/styles.css" />
   </head>
-  <body class="app-page">
-    <div class="tech-ambient-glow top-left"></div>
-    <div class="tech-ambient-glow bottom-right"></div>
-
-    <div class="app-shell">
-      <!-- Sidebar Navigation -->
-      <aside class="app-sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <div class="brand">
-            <div class="brand-logo-animated">
-              <div class="logo-pulse-ring"></div>
-              <svg class="brand-svg" width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M12 3C6.477 3 2 6.94 2 11.8C2 14.54 3.443 16.97 5.7 18.52L4.5 21.5L8.5 19.98C9.61 20.37 10.78 20.6 12 20.6C17.523 20.6 22 16.66 22 11.8C22 6.94 17.523 3 12 3Z" fill="url(#cyberLogoGrad)"/>
-                <defs>
-                  <linearGradient id="cyberLogoGrad" x1="2" y1="3" x2="22" y2="21" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#00F0FF" /><stop offset="0.5" stop-color="#007AFF" /><stop offset="1" stop-color="#A855F7" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <div class="brand-info">
-              <span class="brand-text">iMessage Hub</span>
-              <span class="badge-pro">PRO</span>
-            </div>
+  <body class="platform-body">
+    <div class="platform-layout">
+      <!-- Left Sidebar -->
+      <aside class="platform-sidebar" id="platformSidebar">
+        <div class="sidebar-brand-box">
+          <div class="platform-logo-box">
+            <span class="logo-apple-icon"></span>
+          </div>
+          <div class="platform-brand-text">
+            <span class="brand-title-main">SMS Platform</span>
+            <span class="brand-sub-badge">iMessage Hub</span>
           </div>
         </div>
 
-        <nav class="sidebar-nav">
-          <div class="nav-section-title">CONTROL CENTER</div>
-          <a href="dashboard.html" class="nav-item active">
-            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            <span>Overview</span>
-          </a>
-          <a href="#campaignSection" class="nav-item" id="navCampaigns">
-            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            <span>Send Campaign</span>
-          </a>
-          <a href="#messages" class="nav-item">
-            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <span>Outbox & Logs</span>
-          </a>
+        <nav class="platform-menu">
+          <button class="menu-item active" data-view="viewDashboard">
+            <svg class="menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>Dashboard</span>
+          </button>
 
-          <div class="nav-section-title">INTEGRATION</div>
-          <a href="#api" class="nav-item" id="navApi">
-            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-            <span>API & Webhooks</span>
-          </a>
-          <a href="admin.html" class="nav-item" id="navAdmin">
-            <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="6" y1="12" x2="18" y2="12"></line></svg>
+          <button class="menu-item" data-view="viewPricing">
+            <svg class="menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            <span>SMS Pricing</span>
+          </button>
+
+          <div class="menu-group">
+            <button class="menu-item menu-parent" data-view="viewNewCampaign">
+              <svg class="menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <span>New Campaign</span>
+              <span class="menu-arrow">›</span>
+            </button>
+            <div class="sub-menu">
+              <button class="sub-menu-item active" data-view="viewNewCampaign">• New Campaign</button>
+              <button class="sub-menu-item" data-view="viewOutbox">• Message Queue</button>
+            </div>
+          </div>
+
+          <div class="menu-group">
+            <button class="menu-item menu-parent" data-view="viewOutbox">
+              <svg class="menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="6" y1="12" x2="18" y2="12"></line></svg>
+              <span>Billing / Records</span>
+              <span class="menu-arrow">›</span>
+            </button>
+            <div class="sub-menu">
+              <button class="sub-menu-item" data-view="viewOutbox">• Outbox Records</button>
+              <button class="sub-menu-item" id="btnSidebarTopUp">• Top Up (USDT)</button>
+            </div>
+          </div>
+
+          <button class="menu-item" data-view="viewStats">
+            <svg class="menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>Statistics</span>
+          </button>
+
+          <a href="admin.html" class="menu-item admin-link-item">
+            <svg class="menu-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             <span>Admin Approvals</span>
           </a>
         </nav>
-
-        <div class="sidebar-footer">
-          <div class="gateway-status-widget">
-            <div class="status-indicator-dot online"></div>
-            <div class="gateway-status-info">
-              <span class="gateway-title">APNs Gateway v4</span>
-              <span class="gateway-uptime">Operational • 99.99%</span>
-            </div>
-          </div>
-        </div>
       </aside>
 
-      <!-- Main Layout -->
-      <div class="app-main">
-        <header class="topbar">
-          <div class="topbar-left">
-            <button class="mobile-toggle-btn" id="mobileToggleBtn" aria-label="Toggle menu">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+      <!-- Main Area -->
+      <div class="platform-main">
+        <header class="platform-topbar">
+          <div class="topbar-left-controls">
+            <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle Sidebar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
-            <div class="breadcrumbs">
-              <span class="crumb-root">iMessage Hub</span>
-              <span class="crumb-separator">/</span>
-              <span class="crumb-current">Dashboard</span>
-            </div>
+            <span class="platform-title-badge">iMessage Hub Platform</span>
           </div>
 
-          <div class="topbar-right">
-            <div class="gateway-badge">
-              <span class="pulse-dot"></span>
-              <span class="gateway-label">Live Gateway</span>
+          <div class="topbar-right-controls">
+            <div class="topbar-meta-item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+              <span id="liveClockDisplay">2026-08-15 06:17:15</span>
             </div>
 
-            <div class="user-profile-menu">
-              <div class="user-avatar" id="headerAvatar">VM</div>
-              <div class="user-meta">
-                <span class="user-meta-name" id="headerName">Loading...</span>
-                <span class="user-meta-role" id="headerRole">User</span>
-              </div>
-              <button id="logoutButton" class="btn btn-secondary btn-sm logout-btn" title="Sign Out">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                <span>Sign Out</span>
+            <div class="topbar-meta-item">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              <span>UTC+05:30</span>
+            </div>
+
+            <div class="topbar-balance-pill" id="topbarBalanceBtn" title="Click to Top Up">
+              <span class="balance-label">Balance:</span>
+              <span class="balance-number" id="walletBalance">$0.00</span>
+              <span class="btn-topup-mini">+ Top Up</span>
+            </div>
+
+            <div class="topbar-meta-item lang-select">
+              <span>English ▾</span>
+            </div>
+
+            <div class="user-dropdown-container">
+              <button class="user-dropdown-trigger" id="userMenuBtn">
+                <div class="user-avatar-circle" id="headerAvatar">VM</div>
+                <span class="user-account-id" id="headerName">0016C0136</span>
+                <span class="dropdown-caret">▾</span>
               </button>
+              
+              <div class="user-dropdown-menu hidden" id="userDropdownMenu">
+                <div class="dropdown-header">
+                  <strong id="dropdownUserTitle">0016C0136</strong>
+                  <span class="user-role-badge" id="accountRole">consumer</span>
+                </div>
+                <button class="dropdown-item" id="btnShowProfile"><span class="item-icon">⚙</span> Account Info</button>
+                <button class="dropdown-item" id="btnOpenTopUpFromMenu"><span class="item-icon">💳</span> USDT Deposit</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item text-danger" id="logoutButton"><span class="item-icon">🚪</span> Logout</button>
+              </div>
             </div>
           </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="app-content">
+        <main class="platform-content-area">
+          <span id="welcomeName" class="hidden"></span>
+          <span id="welcomeEmail" class="hidden"></span>
+          <span id="accountStatus" class="hidden">ACTIVE</span>
+          <code id="userId" class="hidden"></code>
+          <span id="createdAt" class="hidden"></span>
           <div id="dashboardMessage" class="dashboard-alert hidden"></div>
 
-          <!-- Hero Section -->
-          <section class="welcome-panel">
-            <div class="welcome-content">
-              <div class="welcome-user-info">
-                <div class="welcome-avatar-large" id="welcomeAvatar">VM</div>
-                <div class="welcome-text">
-                  <div class="welcome-greeting-row">
-                    <h2 class="welcome-title">
-                      Welcome back, <span id="welcomeName" class="neon-text-glow">Loading...</span>
-                    </h2>
-                    <span id="accountStatus" class="status-pill status-active">ACTIVE</span>
+          <!-- VIEW 1: DASHBOARD HOME -->
+          <div class="view-panel" id="viewDashboard">
+            <div class="breadcrumb-bar"><span>🏠 Dashboard</span></div>
+
+            <div class="welcome-saas-banner">
+              <div class="banner-text-left">
+                <h1 class="welcome-heading">Hello, <span id="dashWelcomeId">0016C0136</span></h1>
+                <p class="welcome-sub-lead">Welcome back to iMessage Hub SMS & Relay Management Console</p>
+                <button class="btn btn-primary btn-get-started" id="btnGetStarted">Get started →</button>
+              </div>
+              <div class="banner-illustration">
+                <div class="illustration-graphic">📱  🚀</div>
+              </div>
+            </div>
+
+            <div class="credential-cards-grid">
+              <div class="cred-card">
+                <div class="cred-card-header"><span class="cred-card-title">HTTP API Auth Token</span></div>
+                <div class="cred-card-body">
+                  <p class="cred-desc">Secret token for REST dispatch endpoints.</p>
+                  <code class="code-pill">imh_live_9f8a29b4e107c</code>
+                </div>
+                <div class="cred-card-footer">
+                  <button class="btn-text-link">Regenerate</button>
+                </div>
+              </div>
+
+              <div class="cred-card">
+                <div class="cred-card-header"><span class="cred-card-title">APNs / SMPP Relay Key</span></div>
+                <div class="cred-card-body">
+                  <p class="cred-desc">Apple Push direct connection gateway key.</p>
+                  <code class="code-pill">apns_sec_41029c7bd91a</code>
+                </div>
+                <div class="cred-card-footer">
+                  <button class="btn-text-link">Regenerate</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="stats-overview-grid">
+              <div class="stat-box-panel">
+                <div class="stat-box-header"><span class="stat-box-title">iMessage statistics in the last 24 hours</span></div>
+                <div class="stat-chart-placeholder">
+                  <div class="chart-bar" style="height: 40%;"><span>00:00</span></div>
+                  <div class="chart-bar" style="height: 65%;"><span>06:00</span></div>
+                  <div class="chart-bar active" style="height: 90%;"><span>12:00</span></div>
+                  <div class="chart-bar" style="height: 55%;"><span>18:00</span></div>
+                </div>
+              </div>
+
+              <div class="stat-box-panel">
+                <div class="stat-box-header"><span class="stat-box-title">Statistics for the last 12 months</span></div>
+                <div class="stat-chart-placeholder">
+                  <div class="chart-bar" style="height: 30%;"><span>May</span></div>
+                  <div class="chart-bar" style="height: 50%;"><span>Jun</span></div>
+                  <div class="chart-bar" style="height: 75%;"><span>Jul</span></div>
+                  <div class="chart-bar active" style="height: 100%;"><span>Aug</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW 2: NEW CAMPAIGN -->
+          <div class="view-panel hidden" id="viewNewCampaign">
+            <div class="breadcrumb-bar"><span>✉️ New Campaign / New Campaign</span></div>
+
+            <div class="panel ctitele-campaign-card">
+              <div class="tab-header-strip">
+                <button class="strip-tab active">New Campaign</button>
+              </div>
+
+              <div class="panel-body">
+                <form id="mainCampaignForm">
+                  <div class="form-row-inline">
+                    <label class="form-row-label">Type:</label>
+                    <div class="radio-options-row">
+                      <label class="radio-label"><input type="radio" name="msgType" value="SMS" checked /><span>SMS / iMessage</span></label>
+                      <label class="radio-label"><input type="radio" name="msgType" value="MMS" /><span>MMS (Rich Media)</span></label>
+                    </div>
                   </div>
-                  <p class="welcome-email-row">
-                    <span class="welcome-email-icon">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                    </span>
-                    <span id="welcomeEmail">loading@example.com</span>
-                  </p>
-                </div>
-              </div>
-              <div class="welcome-actions">
-                <button class="btn btn-primary btn-glow" id="btnQuickCompose">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                  <span>New Message</span>
-                </button>
-                <button class="btn btn-secondary" id="btnTopUpHero">
-                  <span>Top Up</span>
-                </button>
-              </div>
-            </div>
-          </section>
 
-          <!-- KPI Cards -->
-          <section class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-label">WALLET BALANCE</span>
-                <div class="stat-icon-wrapper cyan">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="6" y1="12" x2="18" y2="12"></line></svg>
-                </div>
-              </div>
-              <div class="stat-value text-cyan" id="walletBalance">$0.00</div>
-              <div class="stat-footer">
-                <span class="stat-subtext">Message credits</span>
-                <button class="btn-link-neon" id="btnTopUp">+ Add Funds</button>
-              </div>
-            </div>
+                  <div class="form-row-inline">
+                    <label class="form-row-label">Plan send time:</label>
+                    <div class="form-row-control">
+                      <input type="text" class="form-input" id="planSendTimeInput" value="Instant Dispatch (Now)" readonly />
+                    </div>
+                  </div>
 
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-label">ACCOUNT ROLE</span>
-                <div class="stat-icon-wrapper purple">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                </div>
-              </div>
-              <div class="stat-value" id="accountRole">User</div>
-              <div class="stat-footer">
-                <span class="stat-subtext">Tier: Standard Plan</span>
-                <span class="tag-status">Verified</span>
-              </div>
-            </div>
+                  <div class="form-row-inline">
+                    <label class="form-row-label">Number:</label>
+                    <div class="form-row-control">
+                      <textarea
+                        id="campaignNumbersArea"
+                        class="form-input form-textarea"
+                        rows="4"
+                        placeholder="Enter or paste phone numbers, comma required between each number or one per line&#10;Example: +15550192834, +15559821102"
+                      ></textarea>
+                      <span class="field-hint-text">Add phone numbers using international phone format (+1, +44, +91, etc.)</span>
+                    </div>
+                  </div>
 
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-label">TOTAL DISPATCHED</span>
-                <div class="stat-icon-wrapper green">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                </div>
-              </div>
-              <div class="stat-value" id="totalDispatched">0</div>
-              <div class="stat-footer">
-                <span class="stat-subtext">Delivery: 100%</span>
-                <span class="stat-trend positive">↑ Active</span>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-label">GATEWAY STATUS</span>
-                <div class="stat-icon-wrapper blue">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
-                </div>
-              </div>
-              <div class="stat-value text-green" id="gatewayStatus">Connected</div>
-              <div class="stat-footer">
-                <span class="stat-subtext">Latency: 24ms</span>
-                <span class="tag-status live">Live APNs</span>
-              </div>
-            </div>
-          </section>
-
-          <!-- Campaign / Bulk File Upload Dispatcher Section -->
-          <section class="panel campaign-panel" id="campaignSection" style="margin-bottom: 2rem;">
-            <div class="panel-header">
-              <div class="panel-title-group">
-                <div class="panel-icon cyan">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                </div>
-                <div>
-                  <h3 class="panel-title">Bulk iMessage Campaign & File Dispatcher</h3>
-                  <p class="panel-subtitle">Upload contact list (CSV / TXT) or paste numbers to dispatch automated broadcast</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="panel-body">
-              <div class="campaign-grid">
-                <!-- Left: File Upload & Input -->
-                <div class="campaign-left">
-                  <div class="form-group">
-                    <label class="form-label">Upload Numbers File (.csv or .txt)</label>
-                    <div class="file-dropzone" id="fileDropzone">
-                      <input type="file" id="contactsFileInput" accept=".csv,.txt" class="hidden" />
-                      <div class="dropzone-content">
-                        <div class="dropzone-icon">📁</div>
-                        <span class="dropzone-text">Click to browse or drag & drop contact file here</span>
-                        <span class="dropzone-sub">Accepts phone numbers or Apple ID emails</span>
+                  <div class="form-row-inline">
+                    <label class="form-row-label">Number files <span class="help-circle">?</span>:</label>
+                    <div class="form-row-control">
+                      <input type="file" id="bulkFileInput" accept=".txt,.csv,.xlsx,.xls" class="hidden" />
+                      <button type="button" class="btn btn-secondary btn-upload-blue" id="btnTriggerUpload">Click to upload</button>
+                      <div class="upload-guidelines-box">
+                        <p>Accept file types: <span class="ext-tag">.txt</span>, <span class="ext-tag">.csv</span>, <span class="ext-tag">.xlsx</span>, <span class="ext-tag">.xls</span></p>
+                        <p><strong>txt file:</strong> one number per line or separated by commas (only numbers supported)</p>
+                        <p><strong>csv file:</strong> only numbers are supported, please use standard 1-column format</p>
                       </div>
                     </div>
                   </div>
 
-                  <div class="form-group">
-                    <div class="label-row">
-                      <label class="form-label" for="manualNumbers">Or Paste Phone Numbers (one per line)</label>
-                      <span class="recipient-count-badge" id="recipientCountBadge">0 numbers detected</span>
-                    </div>
-                    <textarea
-                      id="manualNumbers"
-                      class="form-input form-textarea"
-                      rows="4"
-                      placeholder="+1 (555) 019-2834&#10;+1 (555) 982-1102&#10;+1 (555) 349-8821"
-                    ></textarea>
-                  </div>
-                </div>
-
-                <!-- Right: Message Template & Launch Button -->
-                <div class="campaign-right">
-                  <div class="form-group">
-                    <div class="label-row">
-                      <label class="form-label" for="campaignMessageText">Message Template</label>
-                      <span class="char-count" id="charCount">0 / 160 chars</span>
-                    </div>
-                    <textarea
-                      id="campaignMessageText"
-                      class="form-input form-textarea"
-                      rows="4"
-                      placeholder="Type your iMessage broadcast template here... (e.g. 'Exclusive Offer: Get 20% off today with code FLASH20')"
-                      required
-                    ></textarea>
-                  </div>
-
-                  <div class="campaign-summary-box">
-                    <div class="summary-row">
-                      <span>Gateway Route:</span>
-                      <strong style="color: var(--neon-green);">Direct Apple APNs Relay</strong>
-                    </div>
-                    <div class="summary-row">
-                      <span>Estimated Speed:</span>
-                      <strong style="color: var(--neon-cyan);">~1,200 msgs / min</strong>
+                  <div class="form-row-inline">
+                    <label class="form-row-label">SenderId <span class="help-circle">?</span>:</label>
+                    <div class="form-row-control">
+                      <input type="text" class="form-input" id="senderIdInput" value="iMessage-Direct" placeholder="Select or type Sender ID" />
                     </div>
                   </div>
 
-                  <!-- Dispatch Progress Container -->
-                  <div id="dispatchProgressContainer" class="dispatch-progress-box hidden">
+                  <div class="form-row-inline">
+                    <label class="form-row-label">Content:</label>
+                    <div class="form-row-control">
+                      <textarea
+                        id="mainMessageContent"
+                        class="form-input form-textarea"
+                        rows="4"
+                        placeholder="SMS: SMS content is required.&#10;Type your campaign broadcast message here..."
+                        required
+                      ></textarea>
+                      <div class="content-meta-bar">
+                        <span id="wordsAndItemsCounter">0 / 160 words | 1 items</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="campaignProgressBox" class="dispatch-progress-box hidden">
                     <div class="progress-label-row">
-                      <span id="progressText">Dispatching 0 / 0...</span>
-                      <span id="progressPercent" style="color: var(--neon-cyan); font-weight: 800;">0%</span>
+                      <span id="campaignProgressText">Dispatching 0 / 0...</span>
+                      <span id="campaignProgressPercent">0%</span>
                     </div>
                     <div class="progress-bar-track">
-                      <div class="progress-bar-fill" id="progressBarFill"></div>
+                      <div class="progress-bar-fill" id="campaignProgressBarFill"></div>
                     </div>
                   </div>
 
-                  <button type="button" class="btn btn-primary btn-block btn-glow" id="btnLaunchCampaign" style="padding: 0.85rem;">
-                    <span>🚀 Launch Broadcast Campaign</span>
-                  </button>
-                </div>
+                  <div class="form-row-inline">
+                    <label class="form-row-label"></label>
+                    <div class="form-row-control">
+                      <button type="button" class="btn btn-primary btn-submit-send" id="btnSubmitCampaign">Send 🚀</button>
+                    </div>
+                  </div>
+                </form>
               </div>
             </div>
-          </section>
+          </div>
 
-          <!-- Split Dashboard Grid -->
-          <div class="dashboard-grid">
-            <!-- Account Info -->
-            <div class="panel">
-              <div class="panel-header">
-                <div class="panel-title-group">
-                  <div class="panel-icon cyan">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                  </div>
-                  <div>
-                    <h3 class="panel-title">Account Information</h3>
-                    <p class="panel-subtitle">Authenticated identity and security profile</p>
-                  </div>
+          <!-- VIEW 3: BILLING / OUTBOX -->
+          <div class="view-panel hidden" id="viewOutbox">
+            <div class="breadcrumb-bar"><span>📑 Billing / Outbox / Send Record</span></div>
+
+            <div class="panel outbox-record-panel">
+              <div class="outbox-filter-bar">
+                <div class="filter-group">
+                  <label>Time:</label>
+                  <input type="text" class="filter-input" value="Today (00:00 - 23:59)" readonly />
+                </div>
+                <div class="filter-group">
+                  <label>Type:</label>
+                  <select class="filter-select">
+                    <option>All Types</option>
+                    <option>SMS</option>
+                    <option>MMS</option>
+                  </select>
+                </div>
+                <div class="filter-buttons">
+                  <button class="btn btn-primary btn-sm" id="btnFilterSearch">🔍 Search</button>
+                  <button class="btn btn-secondary btn-sm" id="btnClearOutboxRecords">Clear Records</button>
                 </div>
               </div>
 
-              <div class="panel-body">
-                <div class="info-list">
-                  <div class="info-item">
-                    <div class="info-meta">
-                      <span class="info-label">Supabase User ID</span>
-                      <span class="info-hint">Unique system identifier</span>
-                    </div>
-                    <div class="info-value-group">
-                      <code class="code-pill" id="userId">Loading ID...</code>
-                      <button class="btn-icon" id="copyUserIdBtn" title="Copy User ID">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                      </button>
-                    </div>
-                  </div>
+              <div class="panel-body table-responsive" style="padding: 0;">
+                <table class="ctitele-table" id="outboxRecordsTable">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Type</th>
+                      <th>Batch Job</th>
+                      <th>Consumption</th>
+                      <th>Send Result</th>
+                      <th>Recipient</th>
+                      <th>Sender</th>
+                      <th>Send Time</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="outboxRecordsTbody"></tbody>
+                </table>
 
-                  <div class="info-item">
-                    <div class="info-meta"><span class="info-label">Full Name</span></div>
-                    <div class="info-value" id="profileFullName">Loading...</div>
-                  </div>
-
-                  <div class="info-item">
-                    <div class="info-meta"><span class="info-label">Email Address</span></div>
-                    <div class="info-value" id="profileEmail">Loading...</div>
-                  </div>
-
-                  <div class="info-item">
-                    <div class="info-meta"><span class="info-label">Member Since</span></div>
-                    <div class="info-value" id="createdAt">Loading date...</div>
-                  </div>
-
-                  <div class="info-item">
-                    <div class="info-meta"><span class="info-label">Authentication Provider</span></div>
-                    <div class="info-value"><span class="auth-provider-badge">Supabase Auth (JWT Secured)</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- iMessage Relay Simulator -->
-            <div class="panel">
-              <div class="panel-header">
-                <div class="panel-title-group">
-                  <div class="panel-icon blue">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                  </div>
-                  <div>
-                    <h3 class="panel-title">iMessage Gateway Preview</h3>
-                    <p class="panel-subtitle">Real-time Apple Push Notification Service simulator</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="panel-body">
-                <div class="imessage-simulator">
-                  <div class="simulator-header">
-                    <div class="sim-contact-avatar"></div>
-                    <div class="sim-contact-info">
-                      <span class="sim-contact-name">iMessage Hub Gateway</span>
-                      <span class="sim-service-type">iMessage • Apple Cloud</span>
-                    </div>
-                  </div>
-
-                  <div class="simulator-bubbles" id="simulatorBubbleContainer">
-                    <div class="imessage-bubble outgoing">
-                      <p class="bubble-text">Welcome to iMessage Hub! Your high-throughput Apple messaging gateway is online.</p>
-                      <span class="bubble-meta">Delivered • Just now</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="gateway-features">
-                  <div class="feature-item"><span class="feature-dot"></span><span>Instant Apple Push Relay</span></div>
-                  <div class="feature-item"><span class="feature-dot"></span><span>Rich Media Attachments</span></div>
-                  <div class="feature-item"><span class="feature-dot"></span><span>Read Receipts & Typing State</span></div>
-                  <div class="feature-item"><span class="feature-dot"></span><span>High Throughput REST API</span></div>
+                <div class="empty-records-notice" id="outboxNoDataNotice">
+                  There are no data records under the current search conditions!
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Outbox & Sent Log Panel -->
-          <section class="panel message-history-panel" id="messages">
-            <div class="panel-header">
-              <div class="panel-title-group">
-                <div class="panel-icon green">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                </div>
-                <div>
-                  <h3 class="panel-title">Outbox & Sent Messages Log</h3>
-                  <p class="panel-subtitle">Live real-time records of all dispatched numbers and delivery timestamps</p>
-                </div>
-              </div>
-              <div class="panel-actions">
-                <button class="btn btn-secondary btn-sm" id="btnClearOutbox"><span>Clear Log</span></button>
-                <button class="btn btn-secondary btn-sm" id="btnRefreshActivity"><span>Refresh</span></button>
+          <!-- VIEW 4: SMS PRICING -->
+          <div class="view-panel hidden" id="viewPricing">
+            <div class="breadcrumb-bar"><span>📈 Dashboard / SMS Pricing</span></div>
+            <div class="panel">
+              <div class="panel-header"><h3 class="panel-title">Standard Operator Rates</h3></div>
+              <div class="panel-body table-responsive" style="padding: 0;">
+                <table class="ctitele-table">
+                  <thead>
+                    <tr>
+                      <th>Operator ID</th>
+                      <th>Country / Region</th>
+                      <th>Business Type</th>
+                      <th>Rate per Msg</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>310</strong></td>
+                      <td>United States (USA)</td>
+                      <td>iMessage / APNs Direct</td>
+                      <td style="color: #1890ff; font-weight: 800;">$0.055000</td>
+                      <td><span class="status-pill status-active">Active</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>440</strong></td>
+                      <td>United Kingdom (UK)</td>
+                      <td>iMessage Relay</td>
+                      <td style="color: #1890ff; font-weight: 800;">$0.048000</td>
+                      <td><span class="status-pill status-active">Active</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>404</strong></td>
+                      <td>India (IN)</td>
+                      <td>Standard Route</td>
+                      <td style="color: #1890ff; font-weight: 800;">$0.012000</td>
+                      <td><span class="status-pill status-active">Active</span></td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
+          </div>
 
-            <div class="panel-body table-responsive" style="padding: 0;">
-              <table class="admin-table outbox-table" id="outboxTable">
-                <thead>
-                  <tr>
-                    <th>Msg ID</th>
-                    <th>Recipient</th>
-                    <th>Content Snippet</th>
-                    <th>Channel</th>
-                    <th>Dispatched Time</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="outboxTableBody"></tbody>
-              </table>
-
-              <div class="empty-state" id="outboxEmptyState">
-                <div class="empty-state-icon">
-                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                </div>
-                <h4 class="empty-state-title">No dispatched messages yet</h4>
-                <p class="empty-state-desc">Upload a file or send a message above to see all live outbox entries with delivery time.</p>
+          <!-- VIEW 5: STATISTICS -->
+          <div class="view-panel hidden" id="viewStats">
+            <div class="breadcrumb-bar"><span>📊 Dashboard / Statistics</span></div>
+            <div class="panel">
+              <div class="panel-body" style="text-align: center; padding: 3rem;">
+                <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Gateway Performance Analytics</h3>
+                <p style="color: #8c8c8c;">Overall delivery success rate: <strong style="color: #52c41a;">100%</strong> • Average latency: <strong>18ms</strong></p>
               </div>
             </div>
-          </section>
+          </div>
         </main>
       </div>
     </div>
 
-    <!-- Modals -->
-
-    <!-- Single Quick Message Modal -->
-    <div id="composeModal" class="modal-overlay hidden">
-      <div class="modal-card">
-        <div class="modal-header">
-          <div class="modal-title-row">
-            <span class="modal-icon-glow"></span>
-            <h3 class="modal-title">Dispatch Quick iMessage</h3>
-          </div>
-          <button class="modal-close-btn" id="closeComposeModal">&times;</button>
-        </div>
-        <form id="composeForm" class="modal-body">
-          <div class="form-group">
-            <label class="form-label" for="composeRecipient">Recipient Phone or Apple ID</label>
-            <input type="text" id="composeRecipient" class="form-input" placeholder="+1 (555) 019-2834" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="composeText">Message Body</label>
-            <textarea id="composeText" class="form-input form-textarea" rows="3" placeholder="Type your message here..." required></textarea>
-          </div>
-          <div class="modal-actions">
-            <button type="button" class="btn btn-secondary" id="cancelComposeBtn">Cancel</button>
-            <button type="submit" class="btn btn-primary" id="sendComposeBtn">Send iMessage</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Exact USDT TRC20 Payment Modal -->
+    <!-- USDT TRC20 Payment Modal -->
     <div id="topUpModal" class="modal-overlay hidden">
       <div class="modal-card usdt-payment-modal">
         <div class="modal-header">
-          <h3 class="modal-title" style="font-size: 1.25rem;">USDT payment</h3>
+          <h3 class="modal-title">USDT payment</h3>
           <button class="modal-close-btn" id="closeTopUpModal">&times;</button>
         </div>
 
@@ -490,9 +422,7 @@
               <button type="button" class="tier-pill" data-amount="250">$250</button>
             </div>
 
-            <div class="usdt-timer-pill">
-              Payment expires in <span id="usdtTimer">19:59</span>
-            </div>
+            <div class="usdt-timer-pill">Payment expires in <span id="usdtTimer">19:59</span></div>
           </div>
 
           <div class="usdt-network-row">
@@ -506,55 +436,58 @@
           <div class="usdt-qr-warning">THIS QR IS ONLY FOR <strong>USDT TRC20</strong></div>
 
           <div class="usdt-qr-box">
-            <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TWhUtsbWiR3gQE6yi9CirRQSR1zKAR9FJd&bgcolor=ffffff&color=000000"
-              alt="TRC20 QR Code"
-              class="usdt-qr-image"
-              id="usdtQrImg"
-            />
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TWhUtsbWiR3gQE6yi9CirRQSR1zKAR9FJd&bgcolor=ffffff&color=000000" alt="TRC20 QR" class="usdt-qr-image" />
           </div>
 
-          <div class="form-group" style="margin-top: 1rem;">
-            <label class="form-label" style="font-size: 0.8rem; color: var(--text-secondary);">USDT TRC20 deposit address</label>
+          <div class="form-group">
+            <label class="form-label">USDT TRC20 deposit address</label>
             <div class="usdt-address-row">
-              <input
-                type="text"
-                class="form-input usdt-address-input"
-                id="usdtWalletAddress"
-                value="TWhUtsbWiR3gQE6yi9CirRQSR1zKAR9FJd"
-                readonly
-              />
+              <input type="text" class="form-input usdt-address-input" id="usdtWalletAddress" value="TWhUtsbWiR3gQE6yi9CirRQSR1zKAR9FJd" readonly />
               <button type="button" class="btn btn-secondary copy-address-btn" id="copyUsdtAddressBtn">Copy</button>
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="usdtUserEmail" style="font-size: 0.8rem;">Recipient email *</label>
+            <label class="form-label" for="usdtUserEmail">Recipient email *</label>
             <input type="email" id="usdtUserEmail" class="form-input" placeholder="customer@example.com" required />
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="usdtTxHash" style="font-size: 0.8rem;">Transaction hash / TxID *</label>
+            <label class="form-label" for="usdtTxHash">Transaction hash / TxID *</label>
             <input type="text" id="usdtTxHash" class="form-input" placeholder="Enter your TRC20 transaction hash" required />
           </div>
 
-          <div class="modal-actions" style="justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
-            <button type="button" class="btn btn-secondary" id="cancelTopUpBtn" style="padding: 0.6rem 1.4rem;">Cancel</button>
-            <button type="button" class="btn btn-primary btn-paid" id="btnSubmitPaid" style="padding: 0.6rem 1.8rem; background: linear-gradient(135deg, #007aff, #005ce6); color: #fff; font-weight: 800;">
-              PAID
-            </button>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelTopUpBtn">Cancel</button>
+            <button type="button" class="btn btn-primary btn-paid" id="btnSubmitPaid">PAID</button>
           </div>
 
-          <div class="usdt-bottom-disclaimer">
-            Payment confirmation is manual — order processing starts after payment verification. Your order is not fulfilled until payment is verified.
+          <div class="usdt-bottom-disclaimer">Payment confirmation is manual — order processing starts after payment verification.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Details Modal -->
+    <div id="accountModal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title">Account Security Details</h3>
+          <button class="modal-close-btn" id="closeAccountModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="info-list">
+            <p><strong>User Account:</strong> <span id="modalUserName">0016C0136</span></p>
+            <p><strong>Email:</strong> <span id="modalUserEmail">indiatryme@gmail.com</span></p>
+            <p><strong>Role:</strong> Consumer</p>
+          </div>
+          <div class="modal-actions" style="margin-top: 1.5rem;">
+            <button type="button" class="btn btn-primary" id="closeAccountModalBtn">Close</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Toast Notification Container -->
     <div id="toastContainer" class="toast-container"></div>
-
     <script type="module" src="/src/dashboard.js"></script>
   </body>
 </html>
