@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iMessage Hub — Owner</title><link rel="stylesheet" href="/src/styles.css"></head>
+<body><main class="app-page"><div class="app-shell">
+<header class="topbar"><div class="brand compact"><div class="brand-mark">iM</div><div><h1>iMessage Hub</h1><p>Owner Control Center</p></div></div><div class="topbar-actions"><span class="owner-badge">OWNER</span><button id="logoutButton" class="logout-button">Sign out</button></div></header>
+<section class="stats-grid">
+<article class="stat-card"><span>Total Users</span><strong id="totalUsers">—</strong></article>
+<article class="stat-card"><span>Active Users</span><strong id="activeUsers">—</strong></article>
+<article class="stat-card"><span>Pending Top-ups</span><strong id="pendingTopups">—</strong></article>
+<article class="stat-card"><span>Total Wallet Credit</span><strong id="totalBalance">—</strong></article>
+</section>
+<section class="panel"><div class="panel-header"><h2>Users</h2><button id="refreshButton" class="logout-button">Refresh</button></div>
+<div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Status</th><th>Created</th></tr></thead><tbody id="usersTableBody"><tr><td colspan="4">Loading...</td></tr></tbody></table></div></section>
+<section class="panel panel-gap"><div class="panel-header"><h2>Top-up Requests</h2></div>
+<div class="table-wrap"><table><thead><tr><th>User</th><th>Amount</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody id="topupTableBody"><tr><td colspan="5">Loading...</td></tr></tbody></table></div></section>
+<div id="adminMessage" class="message hidden"></div>
+</div></main><script type="module" src="/src/admin.js"></script></body></html>

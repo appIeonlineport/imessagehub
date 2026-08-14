@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iMessage Hub — Dashboard</title><link rel="stylesheet" href="/src/styles.css"></head>
+<body><main class="app-page"><div class="app-shell">
+<header class="topbar"><div class="brand compact"><div class="brand-mark">iM</div><div><h1>iMessage Hub</h1><p>User Dashboard</p></div></div><button id="logoutButton" class="logout-button">Sign out</button></header>
+<section class="welcome-panel"><div><span class="eyebrow">ACCOUNT</span><h2 id="welcomeName">Loading...</h2><p id="welcomeEmail">Loading...</p></div><span id="accountStatus" class="owner-badge">ACTIVE</span></section>
+<section class="stats-grid"><article class="stat-card"><span>Wallet Balance</span><strong id="walletBalance">—</strong></article><article class="stat-card"><span>Account Role</span><strong id="accountRole">—</strong></article></section>
+<section class="panel"><div class="panel-header"><h2>Account information</h2></div><div class="info-grid"><div><span>User ID</span><strong id="userId">—</strong></div><div><span>Created</span><strong id="createdAt">—</strong></div></div></section>
+<div id="dashboardMessage" class="message hidden"></div>
+</div></main><script type="module" src="/src/dashboard.js"></script></body></html>

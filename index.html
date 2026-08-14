@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iMessage Hub</title><link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+<main class="auth-page"><section class="auth-card">
+<div class="brand"><div class="brand-mark">iM</div><div><h1>iMessage Hub</h1><p>Messaging Management Platform</p></div></div>
+<div class="live-reference"><span>LIVE ACCESS REFERENCE</span><strong id="referenceCode">#000000</strong></div>
+
+<div id="loginView">
+<div class="section-heading"><h2>Welcome back</h2><p>Sign in to continue to your workspace.</p></div>
+<form id="loginForm">
+<label>Email address<input id="loginEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+<label>Password<div class="password-field"><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required><button type="button" class="password-toggle" data-target="loginPassword">Show</button></div></label>
+<div class="form-row"><button type="button" id="forgotPasswordBtn" class="text-button">Forgot password?</button></div>
+<button class="primary-button" type="submit">Sign in</button>
+</form>
+<div class="divider">New to iMessage Hub?</div>
+<button id="showSignupBtn" class="secondary-button" type="button">Create new account</button>
+</div>
+
+<div id="signupView" class="hidden">
+<div class="section-heading"><h2>Create your account</h2><p>Your workspace will be linked to your account.</p></div>
+<form id="signupForm">
+<label>Full name<input id="signupName" type="text" autocomplete="name" placeholder="Your full name" required></label>
+<label>Email address<input id="signupEmail" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+<label>Password<div class="password-field"><input id="signupPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Minimum 8 characters" required><button type="button" class="password-toggle" data-target="signupPassword">Show</button></div></label>
+<label>Confirm password<input id="signupConfirmPassword" type="password" autocomplete="new-password" minlength="8" placeholder="Repeat password" required></label>
+<button class="primary-button" type="submit">Create account</button>
+</form>
+<button id="showLoginBtn" class="secondary-button" type="button">Back to sign in</button>
+</div>
+
+<div id="messageBox" class="message hidden"></div>
+<footer class="auth-footer">Secure account access&nbsp; • &nbsp;iMessage Hub</footer>
+</section></main>
+<script type="module" src="/src/app.js"></script>
+</body></html>
