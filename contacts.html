@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>iMessage Hub - Contacts</title>
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <div class="saas-container">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">iM</div>
+        <h2>iMessage Hub</h2>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="/dashboard.html" class="nav-item">Dashboard</a>
+        <a href="#" class="nav-item disabled">Messages <span class="badge">Soon</span></a>
+        <a href="/contacts.html" class="nav-item active">Contacts</a>
+        <a href="#" class="nav-item disabled">Campaigns <span class="badge">Soon</span></a>
+        <a href="#" class="nav-item disabled">Billing <span class="badge">Soon</span></a>
+      </nav>
+      
+      <div class="sidebar-bottom">
+        <button id="logoutButton" class="secondary-button logout-sidebar">Sign out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <header class="topbar-modern">
+        <div>
+          <h1 class="page-title">Contacts Manager</h1>
+        </div>
+        <div class="topbar-right">
+          <span class="status-indicator">SECURE</span>
+        </div>
+      </header>
+
+      <div class="content-scroll">
+        
+        <!-- Add Contact Form -->
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Add New Contact</h2>
+          </div>
+          <form id="addContactForm" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; align-items: end;">
+            <label>Name
+              <input type="text" id="contactName" placeholder="e.g. Rahul Kumar" required>
+            </label>
+            <label>Phone Number
+              <input type="tel" id="contactPhone" placeholder="e.g. +91 9876543210" required>
+            </label>
+            <button type="submit" class="primary-button" style="width: auto; padding: 0 24px;">Save Contact</button>
+          </form>
+          <div id="contactMessage" class="message hidden" style="margin-top: 16px;"></div>
+        </section>
+
+        <!-- Contacts List -->
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Saved Contacts</h2>
+            <span class="badge" id="contactCount">0</span>
+          </div>
+          <div class="table-wrap">
+            <table style="width: 100%; text-align: left; color: var(--text);">
+              <thead>
+                <tr style="color: var(--primary); border-bottom: 1px solid var(--border);">
+                  <th style="padding: 12px 8px;">Name</th>
+                  <th style="padding: 12px 8px;">Phone</th>
+                  <th style="padding: 12px 8px;">Added On</th>
+                </tr>
+              </thead>
+              <tbody id="contactsTableBody">
+                <tr><td colspan="3" style="padding: 12px 8px;">Loading contacts...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+  <script type="module" src="/src/contacts.js"></script>
+</body>
+</html>
