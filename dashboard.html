@@ -427,14 +427,14 @@
             <div>
 
               <div class="stat-label">
-                Account Role
+                Account Type
               </div>
 
               <strong
                 id="accountRole"
                 class="stat-value"
               >
-                consumer
+                User
               </strong>
 
             </div>
@@ -443,6 +443,19 @@
 
         </div>
 
+
+        <!-- MESSAGE ACTIVITY -->
+        <div class="portal-card message-activity-card">
+          <div class="portal-card-header">
+            <div>
+              <span class="eyebrow">ACTIVITY OVERVIEW</span>
+              <h2>7-Day Message Activity</h2>
+              <p>Daily campaign submissions from this account.</p>
+            </div>
+            <strong id="activitySevenDayTotal" class="chart-total">0 messages</strong>
+          </div>
+          <div id="messageActivityChart" class="message-activity-chart" aria-label="Messages submitted during the last seven days"></div>
+        </div>
 
         <!-- ACCOUNT INFORMATION -->
         <div class="portal-card">
@@ -827,9 +840,9 @@
             <small>Selected period</small>
           </article>
           <article class="outbox-summary-card">
-            <span>Queued</span>
-            <strong id="outboxQueuedCount">0</strong>
-            <small>Awaiting provider processing</small>
+            <span>Submitted</span>
+            <strong id="outboxSubmittedCount">0</strong>
+            <small>Accepted by the portal</small>
           </article>
           <article class="outbox-summary-card outbox-success-card">
             <span>Delivered</span>
@@ -1321,6 +1334,14 @@
 
 
     <div class="modal-actions">
+
+      <button
+        id="btnProfilePasswordReset"
+        class="btn-primary"
+        type="button"
+      >
+        Reset Password
+      </button>
 
       <button
         id="closeAccountModalBtn"

@@ -18,10 +18,18 @@ const loginCaptchaInput = document.getElementById("loginCaptchaInput");
 const signupCaptchaInput = document.getElementById("signupCaptchaInput");
 const toggleLoginPwd = document.getElementById("toggleLoginPwd");
 const loginPasswordInput = document.getElementById("loginPassword");
+const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+const resetPasswordForm = document.getElementById("resetPasswordForm");
+const resetPasswordInput = document.getElementById("resetPassword");
+const resetPasswordConfirmInput = document.getElementById("resetPasswordConfirm");
+const resetPasswordSubmitBtn = document.getElementById("resetPasswordSubmitBtn");
 
 let currentLoginCaptcha = "";
 let currentSignupCaptcha = "";
 let supabase = null;
+const recoveryRequested =
+  new URLSearchParams(window.location.search).get("recovery") === "1" ||
+  window.location.hash.includes("type=recovery");
 
 function generateRandomCode() {
   return Array.from({ length: 5 }, () => Math.floor(Math.random() * 10)).join("");
@@ -84,8 +92,17 @@ function initializeSupabase() {
   }
 }
 
+function showRecoveryForm() {
+  tabLogin?.classList.remove("active");
+  tabSignup?.classList.remove("active");
+  loginForm?.classList.add("hidden");
+  signupForm?.classList.add("hidden");
+  resetPasswordForm?.classList.remove("hidden");
+  clearMessage();
+}
+
 async function checkCurrentSession() {
-  if (!supabase) return;
+  if (!supabase || recoveryRequested) return;
 
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
@@ -126,6 +143,65 @@ if (tabLogin && tabSignup && loginForm && signupForm) {
     refreshCaptcha();
   });
 }
+
+forgotPasswordLink?.addEventListener("click", async () => {
+  clearMessage();
+  if (!supabase) {
+    showMessage("Authentication service is unavailable.", "error");
+    return;
+  }
+
+  const email = document.getElementById("loginEmail")?.value?.trim() || "";
+  if (!email) {
+    showMessage("Enter your account email first, then select Forgot password.", "warning");
+    document.getElementById("loginEmail")?.focus();
+    return;
+  }
+
+  forgotPasswordLink.disabled = true;
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/index.html?recovery=1`
+    });
+    if (error) throw error;
+    showMessage("If this email is registered, a secure password reset link has been sent.", "success");
+  } catch (error) {
+    console.error("Password reset request error:", error);
+    showMessage(error.message || "Unable to send the password reset email.", "error");
+  } finally {
+    forgotPasswordLink.disabled = false;
+  }
+});
+
+resetPasswordForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  clearMessage();
+
+  const password = resetPasswordInput?.value || "";
+  const confirmPassword = resetPasswordConfirmInput?.value || "";
+  if (password.length < 8) {
+    showMessage("New password must be at least 8 characters long.", "error");
+    return;
+  }
+  if (password !== confirmPassword) {
+    showMessage("New passwords do not match.", "error");
+    return;
+  }
+
+  setButtonLoading(resetPasswordSubmitBtn, true);
+  try {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+    showMessage("Password updated successfully. Please sign in with your new password.", "success");
+    await supabase.auth.signOut();
+    window.history.replaceState({}, "", "index.html");
+    setTimeout(() => window.location.reload(), 1000);
+  } catch (error) {
+    console.error("Password update error:", error);
+    showMessage(error.message || "Unable to update your password.", "error");
+    setButtonLoading(resetPasswordSubmitBtn, false, "Update Password");
+  }
+});
 
 loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -216,7 +292,7 @@ signupForm?.addEventListener("submit", async (event) => {
       options: {
         data: {
           full_name: fullName,
-          role: "agent"
+          account_type: "user"
         }
       }
     });
@@ -253,6 +329,11 @@ signupForm?.addEventListener("submit", async (event) => {
   }
 });
 
-initializeSupabase();
+if (initializeSupabase()) {
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === "PASSWORD_RECOVERY") showRecoveryForm();
+  });
+  if (recoveryRequested) showRecoveryForm();
+}
 refreshCaptcha();
 checkCurrentSession();

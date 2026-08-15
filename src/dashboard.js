@@ -50,6 +50,8 @@ const els = {
   outboxNoDataNotice: $("outboxNoDataNotice"),
   btnClearOutboxRecords: $("btnClearOutboxRecords"),
   btnFilterSearch: $("btnFilterSearch"),
+  messageActivityChart: $("messageActivityChart"),
+  activitySevenDayTotal: $("activitySevenDayTotal"),
   outboxFromDate: $("outboxFromDate"),
   outboxToDate: $("outboxToDate"),
   outboxStatusFilter: $("outboxStatusFilter"),
@@ -57,7 +59,7 @@ const els = {
   btnResetOutboxFilters: $("btnResetOutboxFilters"),
   outboxFilterMessage: $("outboxFilterMessage"),
   outboxTotalCount: $("outboxTotalCount"),
-  outboxQueuedCount: $("outboxQueuedCount"),
+  outboxSubmittedCount: $("outboxSubmittedCount"),
   outboxDeliveredCount: $("outboxDeliveredCount"),
   outboxFailedCount: $("outboxFailedCount"),
   outboxTotalCharges: $("outboxTotalCharges"),
@@ -75,6 +77,7 @@ const els = {
   accountModal: $("accountModal"),
   closeAccountModal: $("closeAccountModal"),
   closeAccountModalBtn: $("closeAccountModalBtn"),
+  btnProfilePasswordReset: $("btnProfilePasswordReset"),
   modalUserName: $("modalUserName"),
   modalUserEmail: $("modalUserEmail"),
   campaignSuccessModal: $("campaignSuccessModal"),
@@ -636,8 +639,7 @@ function outboxStatusLabel(status) {
   const value = String(status || "pending").toLowerCase();
   if (value === "delivered") return "Delivered";
   if (value === "failed") return "Failed";
-  if (value === "sent") return "Sent";
-  return "Queued";
+  return "Submitted";
 }
 
 function outboxRecordCost(record) {
@@ -653,12 +655,12 @@ function renderOutboxSummary(records) {
     totals.charges += outboxRecordCost(record);
     if (label === "Delivered") totals.delivered += 1;
     else if (label === "Failed") totals.failed += 1;
-    else totals.queued += 1;
+    else totals.submitted += 1;
     return totals;
-  }, { total: 0, queued: 0, delivered: 0, failed: 0, charges: 0 });
+  }, { total: 0, submitted: 0, delivered: 0, failed: 0, charges: 0 });
 
   if (els.outboxTotalCount) els.outboxTotalCount.textContent = summary.total.toLocaleString();
-  if (els.outboxQueuedCount) els.outboxQueuedCount.textContent = summary.queued.toLocaleString();
+  if (els.outboxSubmittedCount) els.outboxSubmittedCount.textContent = summary.submitted.toLocaleString();
   if (els.outboxDeliveredCount) els.outboxDeliveredCount.textContent = summary.delivered.toLocaleString();
   if (els.outboxFailedCount) els.outboxFailedCount.textContent = summary.failed.toLocaleString();
   if (els.outboxTotalCharges) els.outboxTotalCharges.textContent = money(summary.charges);
@@ -727,6 +729,49 @@ function applyOutboxFilters() {
   }
 }
 
+function renderMessageActivityChart(records) {
+  if (!els.messageActivityChart) return;
+
+  const days = [];
+  const totals = new Map();
+  for (let offset = 6; offset >= 0; offset -= 1) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - offset);
+    const key = date.toISOString().slice(0, 10);
+    days.push({ key, label: date.toLocaleDateString("en-US", { weekday: "short" }) });
+    totals.set(key, 0);
+  }
+
+  (records || []).forEach((record) => {
+    const date = new Date(record.created_at);
+    if (Number.isNaN(date.getTime())) return;
+    const local = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const key = local.toISOString().slice(0, 10);
+    if (totals.has(key)) totals.set(key, totals.get(key) + 1);
+  });
+
+  const values = days.map((day) => totals.get(day.key) || 0);
+  const maxValue = Math.max(1, ...values);
+  const sevenDayTotal = values.reduce((sum, value) => sum + value, 0);
+  if (els.activitySevenDayTotal) {
+    els.activitySevenDayTotal.textContent = `${sevenDayTotal.toLocaleString()} messages`;
+  }
+
+  els.messageActivityChart.innerHTML = days.map((day, index) => {
+    const value = values[index];
+    const height = Math.max(6, Math.round((value / maxValue) * 100));
+    return `
+      <div class="activity-bar-column" title="${day.label}: ${value} messages">
+        <span class="activity-bar-value">${value}</span>
+        <div class="activity-bar-track">
+          <div class="activity-bar-fill" style="height:${height}%"></div>
+        </div>
+        <span class="activity-bar-label">${day.label}</span>
+      </div>`;
+  }).join("");
+}
+
 async function loadOutboxRecords() {
   if (!supabase || !currentUser) {
     outboxRecordsCache = [];
@@ -763,6 +808,7 @@ async function loadOutboxRecords() {
   }
 
   outboxRecordsCache = data || [];
+  renderMessageActivityChart(outboxRecordsCache);
   applyOutboxFilters();
 }
 
@@ -909,6 +955,27 @@ profileButtons.forEach((button) => {
 
 els.closeAccountModal?.addEventListener("click", () => closeModal(els.accountModal));
 els.closeAccountModalBtn?.addEventListener("click", () => closeModal(els.accountModal));
+els.btnProfilePasswordReset?.addEventListener("click", async () => {
+  const email = currentUser?.email;
+  if (!supabase || !email) {
+    showToast("No account email is available.", "error");
+    return;
+  }
+
+  els.btnProfilePasswordReset.disabled = true;
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/index.html?recovery=1`
+    });
+    if (error) throw error;
+    showToast("A secure password reset link was sent to your email.", "success");
+  } catch (error) {
+    console.error("Profile password reset error:", error);
+    showToast(error.message || "Unable to send password reset email.", "error");
+  } finally {
+    els.btnProfilePasswordReset.disabled = false;
+  }
+});
 
 if (els.userMenuBtn && els.userDropdownMenu) {
   els.userMenuBtn.addEventListener("click", (event) => {
@@ -955,7 +1022,9 @@ function renderAccount() {
 
   if (els.welcomeName) els.welcomeName.textContent = fullName;
   if (els.welcomeEmail) els.welcomeEmail.textContent = email;
-  if (els.accountRole) els.accountRole.textContent = role;
+  if (els.accountRole) {
+    els.accountRole.textContent = role === "admin" ? "Administrator" : "User";
+  }
   if (els.accountStatus) els.accountStatus.textContent = status.toUpperCase();
   if (els.headerName) els.headerName.textContent = accountCode;
   if (els.dashWelcomeId) els.dashWelcomeId.textContent = accountCode;
