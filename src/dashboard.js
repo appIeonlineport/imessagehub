@@ -1,2274 +1,757 @@
 import { createClient } from "@supabase/supabase-js";
 
-// =========================================================
-// SUPABASE
-// =========================================================
-
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY =
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 let supabase = null;
-
 if (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY) {
   try {
-    supabase = createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
+    supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   } catch (error) {
     console.error("Supabase initialization error:", error);
   }
 }
 
+const $ = (id) => document.getElementById(id);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
 
-// =========================================================
-// DOM
-// =========================================================
+const welcomeName = $("welcomeName");
+const welcomeEmail = $("welcomeEmail");
+const accountStatus = $("accountStatus");
+const walletBalance = $("walletBalance");
+const walletBalanceTop = $("walletBalanceTop");
+const accountRole = $("accountRole");
+const userId = $("userId");
+const createdAt = $("createdAt");
+const logoutButton = $("logoutButton");
+const dashboardMessage = $("dashboardMessage");
+const headerName = $("headerName");
+const headerAvatar = $("headerAvatar");
+const dashWelcomeId = $("dashWelcomeId");
+const dropdownUserTitle = $("dropdownUserTitle");
+const liveClockDisplay = $("liveClockDisplay");
 
-// Dashboard
-const welcomeName = document.getElementById("welcomeName");
-const welcomeEmail = document.getElementById("welcomeEmail");
-const accountStatus = document.getElementById("accountStatus");
-const walletBalance = document.getElementById("walletBalance");
-const walletBalanceTop = document.getElementById("walletBalanceTop");
-const accountRole = document.getElementById("accountRole");
-const userId = document.getElementById("userId");
-const createdAt = document.getElementById("createdAt");
-const logoutButton = document.getElementById("logoutButton");
-const dashboardMessage = document.getElementById("dashboardMessage");
+const menuItems = $$('[data-view]');
+const viewPanels = $$(".view-panel");
+const btnGetStarted = $("btnGetStarted");
 
-const headerName = document.getElementById("headerName");
-const headerAvatar = document.getElementById("headerAvatar");
-const dashWelcomeId = document.getElementById("dashWelcomeId");
-const dropdownUserTitle = document.getElementById("dropdownUserTitle");
-const liveClockDisplay = document.getElementById("liveClockDisplay");
+const userMenuBtn = $("userMenuBtn");
+const userDropdownMenu = $("userDropdownMenu");
+const profileButtons = $$('[id="btnShowProfile"]');
+const btnOpenTopUpFromMenu = $("btnOpenTopUpFromMenu");
+const topbarBalanceBtn = $("topbarBalanceBtn");
+const btnSidebarTopUp = $("btnSidebarTopUp");
+const btnDashboardTopUp = $("btnDashboardTopUp");
 
+const campaignNumbersArea = $("campaignNumbersArea");
+const bulkFileInput = $("bulkFileInput");
+const btnTriggerUpload = $("btnTriggerUpload");
+const senderIdInput = $("senderIdInput");
+const mainMessageContent = $("mainMessageContent");
+const wordsAndItemsCounter = $("wordsAndItemsCounter");
+const btnSubmitCampaign = $("btnSubmitCampaign");
 
-// Navigation
-const menuItems = document.querySelectorAll("[data-view]");
-const viewPanels = document.querySelectorAll(".view-panel");
-const btnGetStarted = document.getElementById("btnGetStarted");
+const campaignRouteInput = $("campaignRouteInput");
+const routeCards = $$(".route-card");
+const routeRadios = $$('input[name="campaignRoute"]');
+const campaignSelectedRoute = $("campaignSelectedRoute");
+const campaignEstimatedCost = $("campaignEstimatedCost");
+const recipientCount = $("recipientCount");
+const recipientCountLarge = $("recipientCountLarge");
 
+const outboxRecordsTbody = $("outboxRecordsTbody");
+const outboxNoDataNotice = $("outboxNoDataNotice");
+const btnClearOutboxRecords = $("btnClearOutboxRecords");
+const btnFilterSearch = $("btnFilterSearch");
+const paymentHistoryList = $("paymentHistoryList");
 
-// User menu
-const userMenuBtn = document.getElementById("userMenuBtn");
-const userDropdownMenu = document.getElementById("userDropdownMenu");
-const btnShowProfile = document.getElementById("btnShowProfile");
-const btnOpenTopUpFromMenu =
-  document.getElementById("btnOpenTopUpFromMenu");
+const topUpModal = $("topUpModal");
+const closeTopUpModal = $("closeTopUpModal");
+const cancelTopUpBtn = $("cancelTopUpBtn");
+const btnSubmitPaid = $("btnSubmitPaid");
+const copyUsdtAddressBtn = $("copyUsdtAddressBtn");
+const usdtWalletAddress = $("usdtWalletAddress");
+const usdtUserEmail = $("usdtUserEmail");
+const usdtTxHash = $("usdtTxHash");
+const usdtAmountDisplay = $("usdtAmountDisplay");
+const usdtTimer = $("usdtTimer");
 
-const topbarBalanceBtn =
-  document.getElementById("topbarBalanceBtn");
+const accountModal = $("accountModal");
+const closeAccountModal = $("closeAccountModal");
+const closeAccountModalBtn = $("closeAccountModalBtn");
+const modalUserName = $("modalUserName");
+const modalUserEmail = $("modalUserEmail");
 
-const btnSidebarTopUp =
-  document.getElementById("btnSidebarTopUp");
-
-const btnDashboardTopUp =
-  document.getElementById("btnDashboardTopUp");
-
-
-// Campaign
-const campaignNumbersArea =
-  document.getElementById("campaignNumbersArea");
-
-const bulkFileInput =
-  document.getElementById("bulkFileInput");
-
-const btnTriggerUpload =
-  document.getElementById("btnTriggerUpload");
-
-const senderIdInput =
-  document.getElementById("senderIdInput");
-
-const mainMessageContent =
-  document.getElementById("mainMessageContent");
-
-const wordsAndItemsCounter =
-  document.getElementById("wordsAndItemsCounter");
-
-const btnSubmitCampaign =
-  document.getElementById("btnSubmitCampaign");
-
-
-// Route
-const campaignRouteInput =
-  document.getElementById("campaignRouteInput");
-
-const routeCards =
-  document.querySelectorAll(".route-card");
-
-const routeRadios =
-  document.querySelectorAll(
-    'input[name="campaignRoute"]'
-  );
-
-const campaignSelectedRoute =
-  document.getElementById("campaignSelectedRoute");
-
-const campaignEstimatedCost =
-  document.getElementById("campaignEstimatedCost");
-
-const recipientCount =
-  document.getElementById("recipientCount");
-
-const recipientCountLarge =
-  document.getElementById("recipientCountLarge");
-
-
-// Outbox
-const outboxRecordsTbody =
-  document.getElementById("outboxRecordsTbody");
-
-const outboxNoDataNotice =
-  document.getElementById("outboxNoDataNotice");
-
-const btnClearOutboxRecords =
-  document.getElementById("btnClearOutboxRecords");
-
-const btnFilterSearch =
-  document.getElementById("btnFilterSearch");
-
-
-// Payment history
-const paymentHistoryList =
-  document.getElementById("paymentHistoryList");
-
-
-// Top-up
-const topUpModal =
-  document.getElementById("topUpModal");
-
-const closeTopUpModal =
-  document.getElementById("closeTopUpModal");
-
-const cancelTopUpBtn =
-  document.getElementById("cancelTopUpBtn");
-
-const btnSubmitPaid =
-  document.getElementById("btnSubmitPaid");
-
-const copyUsdtAddressBtn =
-  document.getElementById("copyUsdtAddressBtn");
-
-const usdtWalletAddress =
-  document.getElementById("usdtWalletAddress");
-
-const usdtUserEmail =
-  document.getElementById("usdtUserEmail");
-
-const usdtTxHash =
-  document.getElementById("usdtTxHash");
-
-const usdtAmountDisplay =
-  document.getElementById("usdtAmountDisplay");
-
-const usdtTimer =
-  document.getElementById("usdtTimer");
-
-
-// Account
-const accountModal =
-  document.getElementById("accountModal");
-
-const closeAccountModal =
-  document.getElementById("closeAccountModal");
-
-const closeAccountModalBtn =
-  document.getElementById("closeAccountModalBtn");
-
-const modalUserName =
-  document.getElementById("modalUserName");
-
-const modalUserEmail =
-  document.getElementById("modalUserEmail");
-
-
-// Success modal
-const campaignSuccessModal =
-  document.getElementById("campaignSuccessModal");
-
-const successRecipientCount =
-  document.getElementById("successRecipientCount");
-
-const successRouteName =
-  document.getElementById("successRouteName");
-
-const successCampaignCost =
-  document.getElementById("successCampaignCost");
-
-const btnSuccessGoOutbox =
-  document.getElementById("btnSuccessGoOutbox");
-
-const btnSuccessClose =
-  document.getElementById("btnSuccessClose");
-
-
-// Toast
-const toastContainer =
-  document.getElementById("toastContainer");
-
-
-// =========================================================
-// STATE
-// =========================================================
+const campaignSuccessModal = $("campaignSuccessModal");
+const successRecipientCount = $("successRecipientCount");
+const successRouteName = $("successRouteName");
+const successCampaignCost = $("successCampaignCost");
+const btnSuccessGoOutbox = $("btnSuccessGoOutbox");
+const btnSuccessClose = $("btnSuccessClose");
+const toastContainer = $("toastContainer");
 
 let currentUser = null;
-
 let selectedTopUpAmount = 99;
-
 let countdownInterval = null;
-
 let parsedCampaignNumbers = [];
-
 let currentWalletBalance = 0;
 
-
-// Route prices
 const ROUTES = {
-  "Route A": 0.030,
+  "Route A": 0.03,
   "Route B": 0.045
 };
 
-
-// =========================================================
-// HELPERS
-// =========================================================
-
 function money(value) {
-  const number = Number(value) || 0;
-  return `$${number.toFixed(2)}`;
+  return `$${(Number(value) || 0).toFixed(2)}`;
 }
-
 
 function showToast(message, type = "info") {
   if (!toastContainer) return;
-
   const toast = document.createElement("div");
-
-  toast.className =
-    `toast-item show toast-${type}`;
-
+  toast.className = `toast-item show toast-${type}`;
   toast.textContent = message;
-
   toastContainer.appendChild(toast);
-
   setTimeout(() => {
     toast.classList.remove("show");
-
-    setTimeout(() => {
-      toast.remove();
-    }, 300);
-  }, 3200);
+    setTimeout(() => toast.remove(), 250);
+  }, 3000);
 }
-
 
 function openModal(modal) {
-  if (modal) {
-    modal.classList.remove("hidden");
-  }
+  modal?.classList.remove("hidden");
 }
-
 
 function closeModal(modal) {
-  if (modal) {
-    modal.classList.add("hidden");
-  }
+  modal?.classList.add("hidden");
 }
 
-
-// =========================================================
-// LIVE CLOCK
-// =========================================================
+function formatDateTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+}
 
 function startLiveClock() {
-  function updateClock() {
+  const update = () => {
     const now = new Date();
-
-    const pad = (value) =>
-      String(value).padStart(2, "0");
-
-    const formatted =
-      `${now.getFullYear()}-` +
-      `${pad(now.getMonth() + 1)}-` +
-      `${pad(now.getDate())} ` +
-      `${pad(now.getHours())}:` +
-      `${pad(now.getMinutes())}:` +
-      `${pad(now.getSeconds())}`;
-
+    const pad = (value) => String(value).padStart(2, "0");
     if (liveClockDisplay) {
       liveClockDisplay.textContent =
-        formatted;
+        `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
+        `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     }
-  }
-
-  updateClock();
-
-  setInterval(updateClock, 1000);
+  };
+  update();
+  setInterval(update, 1000);
 }
 
-
-// =========================================================
-// NAVIGATION
-// =========================================================
-
-function switchView(targetViewId) {
-  viewPanels.forEach((panel) => {
-    panel.classList.add("hidden");
-  });
-
-  const target =
-    document.getElementById(targetViewId);
-
-  if (target) {
-    target.classList.remove("hidden");
-  }
+async function switchView(targetViewId) {
+  viewPanels.forEach((panel) => panel.classList.add("hidden"));
+  $(targetViewId)?.classList.remove("hidden");
 
   menuItems.forEach((item) => {
-    const view =
-      item.getAttribute("data-view");
-
-    item.classList.toggle(
-      "active",
-      view === targetViewId
-    );
+    item.classList.toggle("active", item.getAttribute("data-view") === targetViewId);
   });
 
-  if (targetViewId === "viewOutbox") {
-    loadOutboxRecords();
-  }
-
+  if (targetViewId === "viewOutbox") await loadOutboxRecords();
   if (targetViewId === "viewPaymentHistory") {
-    loadPaymentHistory();
+    await loadPaymentHistory();
+    await refreshWalletBalance();
   }
+  if (targetViewId === "viewDashboard") await refreshWalletBalance();
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
-
 
 menuItems.forEach((item) => {
   item.addEventListener("click", (event) => {
     event.preventDefault();
-
-    const view =
-      item.getAttribute("data-view");
-
-    if (view) {
-      switchView(view);
-    }
+    const view = item.getAttribute("data-view");
+    if (view) switchView(view);
   });
 });
 
-
-if (btnGetStarted) {
-  btnGetStarted.addEventListener(
-    "click",
-    () => {
-      switchView("viewNewCampaign");
-    }
-  );
-}
-
-
-// =========================================================
-// ROUTES
-// =========================================================
+btnGetStarted?.addEventListener("click", () => switchView("viewNewCampaign"));
 
 function getSelectedRoute() {
-  const selected =
-    document.querySelector(
-      'input[name="campaignRoute"]:checked'
-    );
-
-  if (selected) {
-    return {
-      name: selected.value,
-      price:
-        Number(
-          selected.getAttribute("data-price")
-        ) || ROUTES[selected.value] || 0
-    };
-  }
-
-  const fallback =
-    campaignRouteInput?.value || "Route A";
-
-  return {
-    name: fallback,
-    price: ROUTES[fallback] || 0.030
-  };
+  const selected = document.querySelector('input[name="campaignRoute"]:checked');
+  const fallback = campaignRouteInput?.value || "Route A";
+  const name = selected?.value || fallback;
+  const price = Number(selected?.getAttribute("data-price")) || ROUTES[name] || 0.03;
+  return { name, price };
 }
 
-
 function updateRouteUI() {
-  const route =
-    getSelectedRoute();
-
-  if (campaignRouteInput) {
-    campaignRouteInput.value =
-      route.name;
-  }
-
-  if (campaignSelectedRoute) {
-    campaignSelectedRoute.textContent =
-      route.name;
-  }
+  const route = getSelectedRoute();
+  if (campaignRouteInput) campaignRouteInput.value = route.name;
+  if (campaignSelectedRoute) campaignSelectedRoute.textContent = route.name;
 
   routeCards.forEach((card) => {
-    const radio =
-      card.querySelector(
-        'input[name="campaignRoute"]'
-      );
-
-    card.classList.toggle(
-      "active",
-      Boolean(radio?.checked)
-    );
+    const radio = card.querySelector('input[name="campaignRoute"]');
+    card.classList.toggle("active", Boolean(radio?.checked));
   });
 
   updateCampaignCost();
 }
 
-
-routeRadios.forEach((radio) => {
-  radio.addEventListener(
-    "change",
-    updateRouteUI
-  );
-});
-
-
+routeRadios.forEach((radio) => radio.addEventListener("change", updateRouteUI));
 routeCards.forEach((card) => {
-  card.addEventListener(
-    "click",
-    () => {
-      const radio =
-        card.querySelector(
-          'input[name="campaignRoute"]'
-        );
-
-      if (radio) {
-        radio.checked = true;
-        updateRouteUI();
-      }
-    }
-  );
-});
-
-
-if (campaignRouteInput) {
-  campaignRouteInput.addEventListener(
-    "change",
-    () => {
-      const selected =
-        campaignRouteInput.value;
-
-      const radio =
-        document.querySelector(
-          `input[name="campaignRoute"][value="${selected}"]`
-        );
-
-      if (radio) {
-        radio.checked = true;
-      }
-
+  card.addEventListener("click", () => {
+    const radio = card.querySelector('input[name="campaignRoute"]');
+    if (radio) {
+      radio.checked = true;
       updateRouteUI();
     }
-  );
-}
+  });
+});
 
-
-// =========================================================
-// RECIPIENT PARSING
-// =========================================================
+campaignRouteInput?.addEventListener("change", () => {
+  const selected = campaignRouteInput.value;
+  const radio = document.querySelector(`input[name="campaignRoute"][value="${selected}"]`);
+  if (radio) radio.checked = true;
+  updateRouteUI();
+});
 
 function parseInputNumbers(text) {
   if (!text) return [];
-
-  const values =
-    text.split(/[\n,;]+/);
-
-  const cleaned =
-    values
-      .map((value) => value.trim())
-      .filter(Boolean);
-
-  /*
-   * Keep the existing loose validation so that
-   * international numbers with +, spaces or
-   * country codes are accepted.
-   */
-  return cleaned.filter(
-    (value) =>
-      value.replace(/\D/g, "").length >= 7
-  );
+  return text
+    .split(/[\n,;]+/)
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .filter((value) => value.replace(/\D/g, "").length >= 7);
 }
 
-
 function updateRecipientCount() {
-  parsedCampaignNumbers =
-    parseInputNumbers(
-      campaignNumbersArea?.value || ""
-    );
-
-  const count =
-    parsedCampaignNumbers.length;
-
-  if (recipientCount) {
-    recipientCount.textContent =
-      `${count} recipient${count === 1 ? "" : "s"}`;
-  }
-
-  if (recipientCountLarge) {
-    recipientCountLarge.textContent =
-      count.toString();
-  }
-
+  parsedCampaignNumbers = parseInputNumbers(campaignNumbersArea?.value || "");
+  const count = parsedCampaignNumbers.length;
+  if (recipientCount) recipientCount.textContent = `${count} recipient${count === 1 ? "" : "s"}`;
+  if (recipientCountLarge) recipientCountLarge.textContent = String(count);
   updateCampaignCost();
 }
 
-
-if (campaignNumbersArea) {
-  campaignNumbersArea.addEventListener(
-    "input",
-    updateRecipientCount
-  );
-}
-
-
-// =========================================================
-// CAMPAIGN COST
-// =========================================================
+campaignNumbersArea?.addEventListener("input", updateRecipientCount);
 
 function calculateCampaignCost() {
-  const route =
-    getSelectedRoute();
-
-  const count =
-    parsedCampaignNumbers.length;
-
-  return count * route.price;
+  return parsedCampaignNumbers.length * getSelectedRoute().price;
 }
-
 
 function updateCampaignCost() {
-  const route =
-    getSelectedRoute();
-
-  const cost =
-    parsedCampaignNumbers.length *
-    route.price;
-
-  if (campaignEstimatedCost) {
-    campaignEstimatedCost.textContent =
-      money(cost);
-  }
+  if (campaignEstimatedCost) campaignEstimatedCost.textContent = money(calculateCampaignCost());
 }
-
-
-// =========================================================
-// MESSAGE COUNTER
-// =========================================================
 
 function updateMessageCounter() {
-  if (!mainMessageContent) return;
-
-  const length =
-    mainMessageContent.value.length;
-
-  if (wordsAndItemsCounter) {
-    wordsAndItemsCounter.textContent =
-      `${length} / 160 characters`;
-  }
+  const length = mainMessageContent?.value.length || 0;
+  if (wordsAndItemsCounter) wordsAndItemsCounter.textContent = `${length} / 160 characters`;
 }
 
-
-if (mainMessageContent) {
-  mainMessageContent.addEventListener(
-    "input",
-    updateMessageCounter
-  );
-}
-
-
-// =========================================================
-// FILE UPLOAD
-// =========================================================
+mainMessageContent?.addEventListener("input", updateMessageCounter);
 
 if (btnTriggerUpload && bulkFileInput) {
-
-  btnTriggerUpload.addEventListener(
-    "click",
-    () => {
-      bulkFileInput.click();
-    }
-  );
-
-
-  bulkFileInput.addEventListener(
-    "change",
-    (event) => {
-
-      const file =
-        event.target.files?.[0];
-
-      if (!file) return;
-
-      const reader =
-        new FileReader();
-
-      reader.onload =
-        (loadEvent) => {
-
-          const content =
-            String(
-              loadEvent.target.result || ""
-            );
-
-          if (campaignNumbersArea) {
-            campaignNumbersArea.value =
-              content;
-          }
-
-          updateRecipientCount();
-
-          showToast(
-            `${parsedCampaignNumbers.length} recipients loaded from ${file.name}.`,
-            "success"
-          );
-        };
-
-      reader.onerror = () => {
-        showToast(
-          "Unable to read the selected file.",
-          "error"
-        );
-      };
-
-      reader.readAsText(file);
-
-      // Allow the same file to be selected again.
-      bulkFileInput.value = "";
-    }
-  );
+  btnTriggerUpload.addEventListener("click", () => bulkFileInput.click());
+  bulkFileInput.addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      if (campaignNumbersArea) campaignNumbersArea.value = String(loadEvent.target.result || "");
+      updateRecipientCount();
+      showToast(`${parsedCampaignNumbers.length} recipients loaded from ${file.name}.`, "success");
+    };
+    reader.onerror = () => showToast("Unable to read the selected file.", "error");
+    reader.readAsText(file);
+    bulkFileInput.value = "";
+  });
 }
 
-
-// =========================================================
-// WALLET
-// =========================================================
-
-function walletStorageKey() {
-  return currentUser?.email
-    ? `wallet_${currentUser.email}`
-    : null;
+function spendStorageKey() {
+  return currentUser?.id ? `imessagehub_spend_${currentUser.id}` : null;
 }
 
+function getLocalSpend() {
+  const key = spendStorageKey();
+  if (!key) return 0;
+  const value = Number.parseFloat(localStorage.getItem(key) || "0");
+  return Number.isFinite(value) ? Math.max(0, value) : 0;
+}
+
+function addLocalSpend(amount) {
+  const key = spendStorageKey();
+  if (!key) return;
+  localStorage.setItem(key, (getLocalSpend() + (Number(amount) || 0)).toFixed(4));
+}
 
 async function calculateWalletBalance() {
+  if (!currentUser) return 0;
 
-  if (!currentUser) {
-    return 0;
-  }
+  let approvedCredits = 0;
 
-
-  // Local wallet value has priority.
-  const key =
-    walletStorageKey();
-
-  if (key) {
-    const localValue =
-      localStorage.getItem(key);
-
-    if (
-      localValue !== null &&
-      localValue !== ""
-    ) {
-      const parsed =
-        Number.parseFloat(localValue);
-
-      if (Number.isFinite(parsed)) {
-        return parsed;
-      }
-    }
-  }
-
-
-  /*
-   * If no local balance exists, calculate approved
-   * top-ups belonging to the current user.
-   */
   if (supabase) {
-
     try {
-
-      const { data, error } =
-        await supabase
-          .from("topup_requests")
-          .select("amount,status")
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-          .in(
-            "status",
-            [
-              "paid",
-              "approved",
-              "completed"
-            ]
-          );
+      const { data, error } = await supabase
+        .from("topup_requests")
+        .select("amount,status")
+        .eq("user_id", currentUser.id)
+        .in("status", ["paid", "approved", "completed"]);
 
       if (!error && Array.isArray(data)) {
-
-        return data.reduce(
-          (total, item) =>
-            total +
-            (Number(item.amount) || 0),
-          0
-        );
+        approvedCredits = data.reduce((total, item) => total + (Number(item.amount) || 0), 0);
       }
-
     } catch (error) {
-
-      console.warn(
-        "Wallet lookup failed:",
-        error
-      );
-
+      console.warn("Wallet lookup failed:", error);
     }
   }
 
-  return 0;
+  return Math.max(0, approvedCredits - getLocalSpend());
 }
-
 
 function renderWalletBalance(balance) {
-
-  currentWalletBalance =
-    Number(balance) || 0;
-
-  const formatted =
-    money(currentWalletBalance);
-
-  if (walletBalance) {
-    walletBalance.textContent =
-      formatted;
-  }
-
-  if (walletBalanceTop) {
-    walletBalanceTop.textContent =
-      formatted;
-  }
+  currentWalletBalance = Number(balance) || 0;
+  const formatted = money(currentWalletBalance);
+  if (walletBalance) walletBalance.textContent = formatted;
+  if (walletBalanceTop) walletBalanceTop.textContent = formatted;
 }
-
 
 async function refreshWalletBalance() {
-
-  const balance =
-    await calculateWalletBalance();
-
-  renderWalletBalance(balance);
+  renderWalletBalance(await calculateWalletBalance());
 }
-
-
-// =========================================================
-// TOP-UP TIMER
-// =========================================================
 
 function startPaymentTimer() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  let totalSeconds = 20 * 60;
 
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-  }
-
-  let totalSeconds =
-    20 * 60;
-
-
-  function updateTimer() {
-
-    const mins =
-      Math.floor(
-        totalSeconds / 60
-      );
-
-    const secs =
-      totalSeconds % 60;
-
-
-    if (usdtTimer) {
-
-      usdtTimer.textContent =
-        `${String(mins).padStart(2, "0")}:` +
-        `${String(secs).padStart(2, "0")}`;
-
-    }
-
-
+  const updateTimer = () => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    if (usdtTimer) usdtTimer.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
     if (totalSeconds <= 0) {
-
-      clearInterval(
-        countdownInterval
-      );
-
-      if (usdtTimer) {
-        usdtTimer.textContent =
-          "Expired";
-      }
-
+      clearInterval(countdownInterval);
+      if (usdtTimer) usdtTimer.textContent = "Expired";
       return;
     }
-
-
     totalSeconds--;
-  }
-
+  };
 
   updateTimer();
-
-  countdownInterval =
-    setInterval(
-      updateTimer,
-      1000
-    );
+  countdownInterval = setInterval(updateTimer, 1000);
 }
 
+function ensureCustomAmountUI() {
+  if ($("customTopUpAmount")) return;
+  const tierPills = document.querySelector(".tier-pills");
+  if (!tierPills) return;
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "form-section";
+  wrapper.style.marginTop = "12px";
+  wrapper.innerHTML = `
+    <label for="customTopUpAmount" class="portal-label">Custom Amount</label>
+    <div style="position:relative;display:flex;align-items:center;">
+      <span style="position:absolute;left:13px;color:#7b8798;font-weight:800;">$</span>
+      <input id="customTopUpAmount" class="portal-input" type="number" min="1" step="0.01" placeholder="Enter custom amount" style="padding-left:28px;" />
+    </div>
+    <div class="form-help">Enter any amount of $1.00 or more.</div>
+  `;
+  tierPills.insertAdjacentElement("afterend", wrapper);
+
+  const input = $("customTopUpAmount");
+  input?.addEventListener("input", () => {
+    const amount = Number.parseFloat(input.value);
+    if (!Number.isFinite(amount) || amount <= 0) return;
+    selectedTopUpAmount = amount;
+    $$(".tier-pill").forEach((pill) => pill.classList.remove("active"));
+    if (usdtAmountDisplay) usdtAmountDisplay.textContent = money(selectedTopUpAmount);
+  });
+}
+
+function ensurePaymentRequestModal() {
+  if ($("paymentRequestSubmittedModal")) return;
+
+  const modal = document.createElement("div");
+  modal.id = "paymentRequestSubmittedModal";
+  modal.className = "modal-overlay hidden";
+  modal.innerHTML = `
+    <div class="modal-card campaign-success-modal" style="max-width:470px;">
+      <div class="success-animation"><div class="success-check">✓</div></div>
+      <div class="modal-header success-modal-header">
+        <span class="eyebrow">PAYMENT REQUEST SUBMITTED</span>
+        <h2>Request received</h2>
+        <p>Your payment request has been submitted for review. Please check Payment History for status updates.</p>
+      </div>
+      <div class="submission-summary-card" style="grid-template-columns:1fr 1fr;">
+        <div><span>Amount</span><strong id="submittedPaymentAmount">$0.00</strong></div>
+        <div><span>Status</span><strong style="font-size:13px;">PENDING</strong></div>
+      </div>
+      <div class="modal-actions success-modal-actions">
+        <button id="btnPaymentHistoryFromConfirmation" class="btn-primary" type="button">View Payment History →</button>
+        <button id="btnClosePaymentConfirmation" class="btn-secondary" type="button">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  $("btnClosePaymentConfirmation")?.addEventListener("click", () => closeModal(modal));
+  $("btnPaymentHistoryFromConfirmation")?.addEventListener("click", async () => {
+    closeModal(modal);
+    await switchView("viewPaymentHistory");
+  });
+}
 
 function openTopUpModal() {
-
+  ensureCustomAmountUI();
+  ensurePaymentRequestModal();
   openModal(topUpModal);
-
-  if (usdtUserEmail && currentUser) {
-    usdtUserEmail.value =
-      currentUser.email || "";
-  }
-
+  if (usdtUserEmail && currentUser) usdtUserEmail.value = currentUser.email || "";
   startPaymentTimer();
 }
 
+[topbarBalanceBtn, btnSidebarTopUp, btnDashboardTopUp].forEach((button) => {
+  button?.addEventListener("click", openTopUpModal);
+});
 
-if (topbarBalanceBtn) {
-  topbarBalanceBtn.addEventListener(
-    "click",
-    openTopUpModal
-  );
-}
+btnOpenTopUpFromMenu?.addEventListener("click", () => {
+  openTopUpModal();
+  userDropdownMenu?.classList.add("hidden");
+});
 
-if (btnSidebarTopUp) {
-  btnSidebarTopUp.addEventListener(
-    "click",
-    openTopUpModal
-  );
-}
+closeTopUpModal?.addEventListener("click", () => closeModal(topUpModal));
+cancelTopUpBtn?.addEventListener("click", () => closeModal(topUpModal));
 
-if (btnDashboardTopUp) {
-  btnDashboardTopUp.addEventListener(
-    "click",
-    openTopUpModal
-  );
-}
-
-if (btnOpenTopUpFromMenu) {
-  btnOpenTopUpFromMenu.addEventListener(
-    "click",
-    () => {
-      openTopUpModal();
-
-      if (userDropdownMenu) {
-        userDropdownMenu.classList.add(
-          "hidden"
-        );
-      }
-    }
-  );
-}
-
-
-if (closeTopUpModal) {
-  closeTopUpModal.addEventListener(
-    "click",
-    () => closeModal(topUpModal)
-  );
-}
-
-
-if (cancelTopUpBtn) {
-  cancelTopUpBtn.addEventListener(
-    "click",
-    () => closeModal(topUpModal)
-  );
-}
-
-
-// Top-up tiers
-document
-  .querySelectorAll(".tier-pill")
-  .forEach((pill) => {
-
-    pill.addEventListener(
-      "click",
-      () => {
-
-        document
-          .querySelectorAll(".tier-pill")
-          .forEach((item) => {
-            item.classList.remove(
-              "active"
-            );
-          });
-
-        pill.classList.add("active");
-
-        selectedTopUpAmount =
-          Number(
-            pill.getAttribute(
-              "data-amount"
-            )
-          ) || 99;
-
-        if (usdtAmountDisplay) {
-          usdtAmountDisplay.textContent =
-            money(selectedTopUpAmount);
-        }
-
-      }
-    );
-
+$$(".tier-pill").forEach((pill) => {
+  pill.addEventListener("click", () => {
+    $$(".tier-pill").forEach((item) => item.classList.remove("active"));
+    pill.classList.add("active");
+    selectedTopUpAmount = Number(pill.getAttribute("data-amount")) || 99;
+    const custom = $("customTopUpAmount");
+    if (custom) custom.value = "";
+    if (usdtAmountDisplay) usdtAmountDisplay.textContent = money(selectedTopUpAmount);
   });
+});
 
-
-// Copy wallet
-if (
-  copyUsdtAddressBtn &&
-  usdtWalletAddress
-) {
-
-  copyUsdtAddressBtn.addEventListener(
-    "click",
-    async () => {
-
-      try {
-
-        await navigator.clipboard.writeText(
-          usdtWalletAddress.value
-        );
-
-        const original =
-          copyUsdtAddressBtn.textContent;
-
-        copyUsdtAddressBtn.textContent =
-          "Copied";
-
-        showToast(
-          "TRC20 wallet address copied.",
-          "success"
-        );
-
-        setTimeout(() => {
-
-          copyUsdtAddressBtn.textContent =
-            original || "Copy";
-
-        }, 1800);
-
-      } catch (error) {
-
-        showToast(
-          "Could not copy wallet address.",
-          "error"
-        );
-
-      }
-
+if (copyUsdtAddressBtn && usdtWalletAddress) {
+  copyUsdtAddressBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(usdtWalletAddress.value);
+      const original = copyUsdtAddressBtn.textContent;
+      copyUsdtAddressBtn.textContent = "Copied";
+      showToast("TRC20 wallet address copied.", "success");
+      setTimeout(() => (copyUsdtAddressBtn.textContent = original || "Copy"), 1500);
+    } catch {
+      showToast("Could not copy wallet address.", "error");
     }
-  );
-
+  });
 }
 
+btnSubmitPaid?.addEventListener("click", async () => {
+  const txHash = usdtTxHash?.value.trim() || "";
+  const customInput = $("customTopUpAmount");
+  const customValue = Number.parseFloat(customInput?.value || "");
 
-// Submit top-up
-if (btnSubmitPaid) {
+  if (Number.isFinite(customValue) && customValue > 0) selectedTopUpAmount = customValue;
 
-  btnSubmitPaid.addEventListener(
-    "click",
-    async () => {
-
-      const txHash =
-        usdtTxHash?.value.trim() || "";
-
-      if (!txHash) {
-
-        showToast(
-          "Please enter the TRC20 transaction hash.",
-          "error"
-        );
-
-        usdtTxHash?.focus();
-
-        return;
-      }
-
-
-      if (!currentUser) {
-
-        showToast(
-          "Your account session has expired.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      btnSubmitPaid.disabled = true;
-
-      btnSubmitPaid.textContent =
-        "Submitting...";
-
-
-      const newRequest = {
-
-        id:
-          typeof crypto?.randomUUID ===
-          "function"
-            ? crypto.randomUUID()
-            : `req_${Date.now()}`,
-
-        user_id:
-          currentUser.id,
-
-        user_email:
-          currentUser.email || "",
-
-        amount:
-          selectedTopUpAmount,
-
-        network:
-          "TRC20",
-
-        wallet_address:
-          usdtWalletAddress?.value || "",
-
-        tx_hash:
-          txHash,
-
-        status:
-          "pending",
-
-        created_at:
-          new Date().toISOString()
-
-      };
-
-
-      let savedToSupabase = false;
-
-
-      if (supabase) {
-
-        try {
-
-          const { error } =
-            await supabase
-              .from("topup_requests")
-              .insert([
-                newRequest
-              ]);
-
-          if (!error) {
-            savedToSupabase = true;
-          } else {
-            console.error(
-              "Top-up insert error:",
-              error
-            );
-          }
-
-        } catch (error) {
-
-          console.error(
-            "Top-up insert exception:",
-            error
-          );
-
-        }
-
-      }
-
-
-      // Keep local request history for the current browser.
-      try {
-
-        const existing =
-          JSON.parse(
-            localStorage.getItem(
-              "imessagehub_topups"
-            ) || "[]"
-          );
-
-        existing.unshift(
-          newRequest
-        );
-
-        localStorage.setItem(
-          "imessagehub_topups",
-          JSON.stringify(existing)
-        );
-
-      } catch (error) {
-
-        console.warn(
-          "Local top-up storage failed:",
-          error
-        );
-
-      }
-
-
-      closeModal(topUpModal);
-
-      if (usdtTxHash) {
-        usdtTxHash.value = "";
-      }
-
-      btnSubmitPaid.disabled = false;
-
-      btnSubmitPaid.textContent =
-        "PAID";
-
-
-      showToast(
-        savedToSupabase
-          ? "Payment submitted for verification."
-          : "Payment request saved.",
-        "success"
-      );
-
-
-      await loadPaymentHistory();
-
-    }
-  );
-
-}
-
-
-// =========================================================
-// PAYMENT HISTORY
-// =========================================================
-
-function renderPaymentHistory(records) {
-
-  if (!paymentHistoryList) {
+  if (!Number.isFinite(selectedTopUpAmount) || selectedTopUpAmount < 1) {
+    showToast("Please select or enter a valid top-up amount.", "error");
+    customInput?.focus();
     return;
   }
 
+  if (!txHash) {
+    showToast("Please enter the TRC20 transaction hash.", "error");
+    usdtTxHash?.focus();
+    return;
+  }
+
+  if (!currentUser) {
+    showToast("Your account session has expired.", "error");
+    return;
+  }
+
+  btnSubmitPaid.disabled = true;
+  btnSubmitPaid.textContent = "Submitting...";
+
+  const newRequest = {
+    user_id: currentUser.id,
+    user_email: currentUser.email || "",
+    amount: Number(selectedTopUpAmount.toFixed(2)),
+    network: "TRC20",
+    wallet_address: usdtWalletAddress?.value || "",
+    tx_hash: txHash,
+    status: "pending"
+  };
+
+  try {
+    if (!supabase) throw new Error("Payment service is unavailable.");
+
+    const { data, error } = await supabase
+      .from("topup_requests")
+      .insert([newRequest])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    closeModal(topUpModal);
+    if (usdtTxHash) usdtTxHash.value = "";
+    if (customInput) customInput.value = "";
+
+    ensurePaymentRequestModal();
+    if ($("submittedPaymentAmount")) $("submittedPaymentAmount").textContent = money(data?.amount || selectedTopUpAmount);
+    openModal($("paymentRequestSubmittedModal"));
+
+    await loadPaymentHistory();
+  } catch (error) {
+    console.error("Top-up submission error:", error);
+    showToast(`Payment request could not be submitted: ${error.message}`, "error");
+  } finally {
+    btnSubmitPaid.disabled = false;
+    btnSubmitPaid.textContent = "PAID";
+  }
+});
+
+function renderPaymentHistory(records) {
+  if (!paymentHistoryList) return;
   paymentHistoryList.innerHTML = "";
 
-
-  if (
-    !Array.isArray(records) ||
-    records.length === 0
-  ) {
-
+  if (!Array.isArray(records) || records.length === 0) {
     paymentHistoryList.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">$</div>
         <h3>No payments yet</h3>
-        <p>
-          Your submitted top-up requests will appear here.
-        </p>
-      </div>
-    `;
-
+        <p>Your submitted top-up requests will appear here.</p>
+      </div>`;
     return;
   }
 
-
   records.forEach((record) => {
-
-    const status =
-      String(
-        record.status || "pending"
-      ).toLowerCase();
-
-
-    const statusLabel =
-      status.toUpperCase();
-
-
-    const amount =
-      Number(record.amount) || 0;
-
-
-    const date =
-      new Date(
-        record.created_at ||
-        Date.now()
-      );
-
-
-    const item =
-      document.createElement("div");
-
-    item.className =
-      "payment-history-item";
-
-
+    const status = String(record.status || "pending").toLowerCase();
+    const approved = ["paid", "approved", "completed"].includes(status);
+    const item = document.createElement("div");
+    item.className = "payment-history-item";
     item.innerHTML = `
       <div class="payment-history-main">
-        <strong>${money(amount)}</strong>
+        <strong>${money(record.amount)}</strong>
         <span>USDT ${record.network || "TRC20"}</span>
       </div>
-
       <div class="payment-history-tx">
         <span>TxID</span>
         <code>${record.tx_hash || "—"}</code>
       </div>
-
-      <div class="payment-history-date">
-        ${date.toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit"
-        })}
-      </div>
-
-      <span class="status-pill ${status === "paid" || status === "approved" || status === "completed"
-        ? "status-success"
-        : ""}">
-        ${statusLabel}
-      </span>
-    `;
-
-
-    paymentHistoryList.appendChild(
-      item
-    );
-
+      <div class="payment-history-date">${formatDateTime(record.created_at)}</div>
+      <span class="status-pill ${approved ? "status-success" : ""}">${status.toUpperCase()}</span>`;
+    paymentHistoryList.appendChild(item);
   });
-
 }
-
 
 async function loadPaymentHistory() {
-
-  let records = [];
-
-
-  if (supabase && currentUser) {
-
-    try {
-
-      const { data, error } =
-        await supabase
-          .from("topup_requests")
-          .select("*")
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-          .order(
-            "created_at",
-            {
-              ascending: false
-            }
-          );
-
-      if (!error && Array.isArray(data)) {
-        records = data;
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "Payment history lookup failed:",
-        error
-      );
-
-    }
-
+  if (!supabase || !currentUser) {
+    renderPaymentHistory([]);
+    return;
   }
 
-
-  // Local fallback / merge
   try {
+    const { data, error } = await supabase
+      .from("topup_requests")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .order("created_at", { ascending: false });
 
-    const local =
-      JSON.parse(
-        localStorage.getItem(
-          "imessagehub_topups"
-        ) || "[]"
-      );
-
-
-    if (Array.isArray(local)) {
-
-      const ids =
-        new Set(
-          records.map(
-            (item) => item.id
-          )
-        );
-
-
-      local.forEach((item) => {
-
-        if (
-          !ids.has(item.id) &&
-          (
-            !currentUser ||
-            item.user_id ===
-              currentUser.id
-          )
-        ) {
-          records.push(item);
-        }
-
-      });
-
-    }
-
+    if (error) throw error;
+    renderPaymentHistory(Array.isArray(data) ? data : []);
   } catch (error) {
-    console.warn(
-      "Local payment history failed:",
-      error
-    );
+    console.warn("Payment history lookup failed:", error);
+    renderPaymentHistory([]);
   }
-
-
-  records.sort(
-    (a, b) =>
-      new Date(
-        b.created_at || 0
-      ) -
-      new Date(
-        a.created_at || 0
-      )
-  );
-
-
-  renderPaymentHistory(records);
 }
-
-
-// =========================================================
-// OUTBOX
-// =========================================================
 
 function outboxStorageKey() {
-
-  return currentUser?.email
-    ? `outbox_${currentUser.email}`
-    : "outbox_default";
-
+  return currentUser?.id ? `imessagehub_outbox_${currentUser.id}` : "imessagehub_outbox_default";
 }
 
-
-async function loadOutboxRecords() {
-
-  let records = [];
-
-
-  // Local records
+function getLocalOutbox() {
   try {
-
-    records =
-      JSON.parse(
-        localStorage.getItem(
-          outboxStorageKey()
-        ) || "[]"
-      );
-
-  } catch (error) {
-
-    records = [];
-
+    const value = JSON.parse(localStorage.getItem(outboxStorageKey()) || "[]");
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
   }
-
-
-  // Optional Supabase records
-  if (supabase && currentUser) {
-
-    try {
-
-      const { data, error } =
-        await supabase
-          .from("campaign_messages")
-          .select("*")
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-          .order(
-            "created_at",
-            {
-              ascending: false
-            }
-          );
-
-
-      if (
-        !error &&
-        Array.isArray(data)
-      ) {
-
-        const existingIds =
-          new Set(
-            records.map(
-              (record) =>
-                record.msg_id ||
-                record.id
-            )
-          );
-
-
-        data.forEach((item) => {
-
-          const identifier =
-            item.msg_id ||
-            item.id;
-
-          if (
-            !existingIds.has(
-              identifier
-            )
-          ) {
-
-            records.push({
-              id:
-                item.msg_id ||
-                item.id,
-
-              recipient:
-                item.recipient,
-
-              body:
-                item.body,
-
-              route:
-                item.route ||
-                item.sender_id ||
-                "Route A",
-
-              cost:
-                Number(item.cost) ||
-                0,
-
-              sender:
-                item.sender_id ||
-                "iMessage-Direct",
-
-              time:
-                item.created_at,
-
-              status:
-                item.status ||
-                "Submitted"
-            });
-
-          }
-
-        });
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "Outbox Supabase lookup failed:",
-        error
-      );
-
-    }
-
-  }
-
-
-  renderOutboxRecords(records);
 }
 
+function saveCampaignRecordsToOutbox(recipients, route, sender) {
+  const existing = getLocalOutbox();
+  const now = new Date().toISOString();
+  const batchId = Date.now().toString(36).toUpperCase();
+
+  const newRecords = recipients.map((recipient, index) => ({
+    id: `MSG-${batchId}-${String(index + 1).padStart(4, "0")}`,
+    recipient,
+    route: route.name,
+    cost: route.price,
+    sender,
+    time: now,
+    status: "Submitted"
+  }));
+
+  localStorage.setItem(outboxStorageKey(), JSON.stringify([...newRecords, ...existing]));
+  return newRecords;
+}
 
 function renderOutboxRecords(records) {
-
-  if (!outboxRecordsTbody) {
-    return;
-  }
-
-
+  if (!outboxRecordsTbody) return;
   outboxRecordsTbody.innerHTML = "";
 
-
-  if (
-    !Array.isArray(records) ||
-    records.length === 0
-  ) {
-
-    if (outboxNoDataNotice) {
-      outboxNoDataNotice.classList.remove(
-        "hidden"
-      );
-    }
-
+  if (!Array.isArray(records) || records.length === 0) {
+    outboxNoDataNotice?.classList.remove("hidden");
     return;
   }
 
-
-  if (outboxNoDataNotice) {
-    outboxNoDataNotice.classList.add(
-      "hidden"
-    );
-  }
-
+  outboxNoDataNotice?.classList.add("hidden");
 
   records.forEach((record) => {
-
-    const row =
-      document.createElement("tr");
-
-
-    const route =
-      record.route ||
-      "Route A";
-
-
-    const cost =
-      Number(record.cost) || 0;
-
-
-    const status =
-      record.status ||
-      "Submitted";
-
-
-    const sender =
-      record.sender ||
-      "iMessage-Direct";
-
-
-    const time =
-      record.time ||
-      record.created_at ||
-      new Date().toISOString();
-
-
+    const row = document.createElement("tr");
     row.innerHTML = `
-      <td>
-        <span class="outbox-id">
-          ${record.id || "—"}
-        </span>
-      </td>
-
-      <td>
-        Messaging
-      </td>
-
-      <td>
-        <strong>${route}</strong>
-      </td>
-
-      <td>
-        ${money(cost)}
-      </td>
-
-      <td>
-        <span class="status-pill status-success">
-          ${status}
-        </span>
-      </td>
-
-      <td>
-        <strong>${record.recipient || "—"}</strong>
-      </td>
-
-      <td>
-        ${sender}
-      </td>
-
-      <td>
-        ${formatDateTime(time)}
-      </td>
-
-      <td>
-        <span class="outbox-state">
-          SUBMITTED
-        </span>
-      </td>
-    `;
-
-
-    outboxRecordsTbody.appendChild(
-      row
-    );
-
+      <td><span class="outbox-id">${record.id || "—"}</span></td>
+      <td>Messaging</td>
+      <td><strong>${record.route || "Route A"}</strong></td>
+      <td>${money(record.cost)}</td>
+      <td><span class="status-pill status-success">${record.status || "Submitted"}</span></td>
+      <td><strong>${record.recipient || "—"}</strong></td>
+      <td>${record.sender || "iMessage-Direct"}</td>
+      <td>${formatDateTime(record.time || record.created_at)}</td>
+      <td><span class="outbox-state">SUBMITTED</span></td>`;
+    outboxRecordsTbody.appendChild(row);
   });
-
 }
 
-
-function formatDateTime(value) {
-
-  const date =
-    new Date(value);
-
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return "—";
-  }
-
-
-  return date.toLocaleString(
-    "en-US",
-    {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    }
-  );
+async function loadOutboxRecords() {
+  renderOutboxRecords(getLocalOutbox());
 }
-
-
-function saveRecordToOutbox(
-  recipient,
-  text,
-  route,
-  cost,
-  sender
-) {
-
-  const key =
-    outboxStorageKey();
-
-
-  let records = [];
-
-
-  try {
-
-    records =
-      JSON.parse(
-        localStorage.getItem(
-          key
-        ) || "[]"
-      );
-
-  } catch (error) {
-
-    records = [];
-
-  }
-
-
-  const record = {
-
-    id:
-      "MSG-" +
-      Math.random()
-        .toString(36)
-        .slice(2, 10)
-        .toUpperCase(),
-
-    recipient,
-
-    body:
-      text,
-
-    route,
-
-    cost,
-
-    sender,
-
-    time:
-      new Date().toISOString(),
-
-    status:
-      "Submitted"
-
-  };
-
-
-  records.unshift(
-    record
-  );
-
-
-  localStorage.setItem(
-    key,
-    JSON.stringify(records)
-  );
-
-
-  return record;
-}
-
-
-// =========================================================
-// CAMPAIGN SUBMISSION
-// =========================================================
-
-async function saveCampaignToSupabase(
-  recipient,
-  message,
-  route,
-  cost,
-  sender,
-  record
-) {
-
-  if (
-    !supabase ||
-    !currentUser
-  ) {
-    return false;
-  }
-
-
-  try {
-
-    const { error } =
-      await supabase
-        .from("campaign_messages")
-        .insert([
-          {
-            user_id:
-              currentUser.id,
-
-            user_email:
-              currentUser.email || "",
-
-            msg_id:
-              record.id,
-
-            recipient,
-
-            body:
-              message,
-
-            sender_id:
-              sender,
-
-            channel:
-              "APNs",
-
-            status:
-              "Submitted",
-
-            route_id:
-              route,
-
-            cost:
-
-              Number(cost) || 0
-          }
-        ]);
-
-
-    if (error) {
-
-      console.warn(
-        "Campaign Supabase save failed:",
-        error
-      );
-
-      return false;
-    }
-
-
-    return true;
-
-  } catch (error) {
-
-    console.warn(
-      "Campaign Supabase save exception:",
-      error
-    );
-
-    return false;
-  }
-}
-
 
 async function submitCampaign() {
+  parsedCampaignNumbers = parseInputNumbers(campaignNumbersArea?.value || "");
+  const message = mainMessageContent?.value.trim() || "";
 
-  parsedCampaignNumbers =
-    parseInputNumbers(
-      campaignNumbersArea?.value || ""
-    );
-
-
-  const message =
-    mainMessageContent?.value.trim() || "";
-
-
-  if (
-    parsedCampaignNumbers.length === 0
-  ) {
-
-    showToast(
-      "Please enter or upload at least one recipient number.",
-      "error"
-    );
-
+  if (parsedCampaignNumbers.length === 0) {
+    showToast("Please enter or upload at least one recipient number.", "error");
     campaignNumbersArea?.focus();
-
     return;
   }
-
 
   if (!message) {
-
-    showToast(
-      "Message content is required.",
-      "error"
-    );
-
+    showToast("Message content is required.", "error");
     mainMessageContent?.focus();
-
     return;
   }
 
+  await refreshWalletBalance();
 
-  const route =
-    getSelectedRoute();
+  const route = getSelectedRoute();
+  const totalCost = calculateCampaignCost();
 
-
-  const totalCost =
-    calculateCampaignCost();
-
-
-  if (
-    currentWalletBalance <
-    totalCost
-  ) {
-
-    showToast(
-      `Insufficient balance. Required ${money(totalCost)}, available ${money(currentWalletBalance)}.`,
-      "error"
-    );
-
+  if (currentWalletBalance < totalCost) {
+    showToast(`Insufficient balance. Required ${money(totalCost)}, available ${money(currentWalletBalance)}.`, "error");
     return;
   }
 
+  if (!btnSubmitCampaign) return;
 
-  if (!btnSubmitCampaign) {
-    return;
-  }
-
-
-  btnSubmitCampaign.disabled =
-    true;
-
-
-  const originalText =
-    btnSubmitCampaign.innerHTML;
-
-
-  btnSubmitCampaign.innerHTML =
-    `
-      <span class="button-loading-spinner"></span>
-      Preparing submission...
-    `;
-
+  const originalText = btnSubmitCampaign.innerHTML;
+  btnSubmitCampaign.disabled = true;
+  btnSubmitCampaign.innerHTML = `<span class="button-loading-spinner"></span> Preparing submission...`;
 
   try {
+    const sender = senderIdInput?.value.trim() || "iMessage-Direct";
 
-    /*
-     * This is intentionally a simulation:
-     * no messaging provider/API is called.
-     */
+    // Current platform workflow records the submission locally in Outbox.
+    // A provider integration can replace this boundary later without changing the UI flow.
+    saveCampaignRecordsToOutbox(parsedCampaignNumbers, route, sender);
+    addLocalSpend(totalCost);
+    await refreshWalletBalance();
 
-    for (
-      const recipient
-      of parsedCampaignNumbers
-    ) {
+    if (successRecipientCount) successRecipientCount.textContent = String(parsedCampaignNumbers.length);
+    if (successRouteName) successRouteName.textContent = route.name;
+    if (successCampaignCost) successCampaignCost.textContent = money(totalCost);
 
-      const record =
-        saveRecordToOutbox(
-          recipient,
-          message,
-          route.name,
-          route.price,
-          senderIdInput?.value.trim() ||
-            "iMessage-Direct"
-        );
-
-
-      await saveCampaignToSupabase(
-        recipient,
-        message,
-        route.name,
-        route.price,
-        senderIdInput?.value.trim() ||
-          "iMessage-Direct",
-        record
-      );
-
-    }
-
-
-    /*
-     * For the local wallet experience,
-     * reserve the calculated campaign amount.
-     */
-    const newBalance =
-      Math.max(
-        0,
-        currentWalletBalance -
-          totalCost
-      );
-
-
-    const key =
-      walletStorageKey();
-
-
-    if (key) {
-
-      localStorage.setItem(
-        key,
-        newBalance.toFixed(2)
-      );
-
-    }
-
-
-    renderWalletBalance(
-      newBalance
-    );
-
-
-    if (successRecipientCount) {
-      successRecipientCount.textContent =
-        parsedCampaignNumbers.length;
-    }
-
-
-    if (successRouteName) {
-      successRouteName.textContent =
-        route.name;
-    }
-
-
-    if (successCampaignCost) {
-      successCampaignCost.textContent =
-        money(totalCost);
-    }
-
-
-    closeModal(
-      document.getElementById(
-        "topUpModal"
-      )
-    );
-
-
-    openModal(
-      campaignSuccessModal
-    );
-
-
+    openModal(campaignSuccessModal);
     await loadOutboxRecords();
-
-
   } catch (error) {
-
-    console.error(
-      "Campaign submission error:",
-      error
-    );
-
-    showToast(
-      "Unable to submit campaign.",
-      "error"
-    );
-
+    console.error("Campaign submission error:", error);
+    showToast("Unable to submit campaign.", "error");
   } finally {
-
-    btnSubmitCampaign.disabled =
-      false;
-
-    btnSubmitCampaign.innerHTML =
-      originalText;
-
+    btnSubmitCampaign.disabled = false;
+    btnSubmitCampaign.innerHTML = originalText;
   }
-
 }
 
+btnSubmitCampaign?.addEventListener("click", submitCampaign);
+btnSuccessClose?.addEventListener("click", () => closeModal(campaignSuccessModal));
+btnSuccessGoOutbox?.addEventListener("click", async () => {
+  closeModal(campaignSuccessModal);
+  await switchView("viewOutbox");
+});
 
-if (btnSubmitCampaign) {
+btnClearOutboxRecords?.addEventListener("click", async () => {
+  if (!window.confirm("Clear all campaign records for this account?")) return;
+  localStorage.removeItem(outboxStorageKey());
+  await loadOutboxRecords();
+  showToast("Outbox records cleared.", "success");
+});
 
-  btnSubmitCampaign.addEventListener(
-    "click",
-    submitCampaign
-  );
+btnFilterSearch?.addEventListener("click", async () => {
+  await loadOutboxRecords();
+  showToast("Outbox refreshed.", "success");
+});
 
+profileButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    openModal(accountModal);
+    userDropdownMenu?.classList.add("hidden");
+  });
+});
+
+closeAccountModal?.addEventListener("click", () => closeModal(accountModal));
+closeAccountModalBtn?.addEventListener("click", () => closeModal(accountModal));
+
+if (userMenuBtn && userDropdownMenu) {
+  userMenuBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    userDropdownMenu.classList.toggle("hidden");
+  });
+  document.addEventListener("click", () => userDropdownMenu.classList.add("hidden"));
+  userDropdownMenu.addEventListener("click", (event) => event.stopPropagation());
 }
 
-
-// =========================================================
-// SUCCESS MODAL
-// =========================================================
-
-if (btnSuccessClose) {
-
-  btnSuccessClose.addEventListener(
-    "click",
-    () => {
-      closeModal(
-        campaignSuccessModal
-      );
-    }
-  );
-
-}
-
-
-if (btnSuccessGoOutbox) {
-
-  btnSuccessGoOutbox.addEventListener(
-    "click",
-    () => {
-
-      closeModal(
-        campaignSuccessModal
-      );
-
-      switchView(
-        "viewOutbox"
-      );
-
-    }
-  );
-
-}
-
-
-// =========================================================
-// CLEAR OUTBOX
-// =========================================================
-
-if (btnClearOutboxRecords) {
-
-  btnClearOutboxRecords.addEventListener(
-    "click",
-    async () => {
-
-      const confirmed =
-        window.confirm(
-          "Clear all campaign records for this account?"
-        );
-
-
-      if (!confirmed) {
-        return;
-      }
-
-
-      try {
-
-        localStorage.removeItem(
-          outboxStorageKey()
-        );
-
-        await loadOutboxRecords();
-
-        showToast(
-          "Outbox records cleared.",
-          "success"
-        );
-
-      } catch (error) {
-
-        showToast(
-          "Could not clear outbox.",
-          "error"
-        );
-
-      }
-
-    }
-  );
-
-}
-
-
-if (btnFilterSearch) {
-
-  btnFilterSearch.addEventListener(
-    "click",
-    async () => {
-
-      await loadOutboxRecords();
-
-      showToast(
-        "Outbox refreshed.",
-        "success"
-      );
-
-    }
-  );
-
-}
-
-
-// =========================================================
-// ACCOUNT MODAL
-// =========================================================
-
-if (btnShowProfile) {
-
-  btnShowProfile.addEventListener(
-    "click",
-    () => {
-
-      openModal(
-        accountModal
-      );
-
-      if (userDropdownMenu) {
-        userDropdownMenu.classList.add(
-          "hidden"
-        );
-      }
-
-    }
-  );
-
-}
-
-
-if (closeAccountModal) {
-
-  closeAccountModal.addEventListener(
-    "click",
-    () => {
-      closeModal(
-        accountModal
-      );
-    }
-  );
-
-}
-
-
-if (closeAccountModalBtn) {
-
-  closeAccountModalBtn.addEventListener(
-    "click",
-    () => {
-      closeModal(
-        accountModal
-      );
-    }
-  );
-
-}
-
-
-// =========================================================
-// USER DROPDOWN
-// =========================================================
-
-if (
-  userMenuBtn &&
-  userDropdownMenu
-) {
-
-  userMenuBtn.addEventListener(
-    "click",
-    (event) => {
-
-      event.stopPropagation();
-
-      userDropdownMenu.classList.toggle(
-        "hidden"
-      );
-
-    }
-  );
-
-
-  document.addEventListener(
-    "click",
-    () => {
-
-      userDropdownMenu.classList.add(
-        "hidden"
-      );
-
-    }
-  );
-
-
-  userDropdownMenu.addEventListener(
-    "click",
-    (event) => {
-      event.stopPropagation();
-    }
-  );
-
-}
-
-
-// =========================================================
-// AUTH / USER INITIALIZATION
-// =========================================================
+logoutButton?.addEventListener("click", async () => {
+  try {
+    await supabase?.auth.signOut();
+  } finally {
+    window.location.href = "index.html";
+  }
+});
 
 async function initDashboard() {
-
   startLiveClock();
-
+  ensureCustomAmountUI();
+  ensurePaymentRequestModal();
 
   if (!supabase) {
-
-    console.error(
-      "Supabase is not configured."
-    );
-
+    console.error("Supabase is not configured.");
     return;
   }
 
-
   try {
-
-    const {
-      data: {
-        session
-      },
-      error
-    } =
-      await supabase.auth.getSession();
-
-
-    if (
-      error ||
-      !session
-    ) {
-
-      window.location.href =
-        "index.html";
-
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session?.user) {
+      window.location.href = "index.html";
       return;
     }
 
-
-    currentUser =
-      session.user;
-
+    currentUser = session.user;
 
     const fullName =
       currentUser.user_metadata?.full_name ||
@@ -2276,210 +759,49 @@ async function initDashboard() {
       currentUser.email?.split("@")[0] ||
       "User";
 
+    const email = currentUser.email || "N/A";
+    const uid = currentUser.id || "N/A";
+    const role = currentUser.user_metadata?.role || currentUser.app_metadata?.role || "consumer";
+    const accountCode = "0016C" + (uid.replace(/\D/g, "").slice(0, 3) || "136");
 
-    const email =
-      currentUser.email ||
-      "N/A";
-
-
-    const uid =
-      currentUser.id ||
-      "N/A";
-
-
-    const role =
-      currentUser.user_metadata?.role ||
-      currentUser.app_metadata?.role ||
-      "consumer";
-
-
-    const accountCode =
-      "0016C" +
-      (
-        uid
-          .replace(/\D/g, "")
-          .slice(0, 3) ||
-        "136"
-      );
-
-
-    // User details
-    if (welcomeName) {
-      welcomeName.textContent =
-        fullName;
-    }
-
-
-    if (welcomeEmail) {
-      welcomeEmail.textContent =
-        email;
-    }
-
-
-    if (accountRole) {
-      accountRole.textContent =
-        role;
-    }
-
-
-    if (headerName) {
-      headerName.textContent =
-        accountCode;
-    }
-
-
-    if (dashWelcomeId) {
-      dashWelcomeId.textContent =
-        accountCode;
-    }
-
-
-    if (dropdownUserTitle) {
-      dropdownUserTitle.textContent =
-        accountCode;
-    }
-
-
-    if (modalUserName) {
-      modalUserName.textContent =
-        `${fullName} (${accountCode})`;
-    }
-
-
-    if (modalUserEmail) {
-      modalUserEmail.textContent =
-        email;
-    }
-
-
-    if (usdtUserEmail) {
-      usdtUserEmail.value =
-        email;
-    }
-
-
-    if (headerAvatar) {
-      headerAvatar.textContent =
-        fullName
-          .charAt(0)
-          .toUpperCase();
-    }
-
-
-    if (userId) {
-      userId.textContent =
-        uid;
-    }
-
-
-    if (createdAt) {
-
-      createdAt.textContent =
-        formatDateTime(
-          currentUser.created_at
-        );
-
-    }
-
-
-    if (accountStatus) {
-      accountStatus.textContent =
-        "ACTIVE";
-    }
-
+    if (welcomeName) welcomeName.textContent = fullName;
+    if (welcomeEmail) welcomeEmail.textContent = email;
+    if (accountRole) accountRole.textContent = role;
+    if (headerName) headerName.textContent = accountCode;
+    if (dashWelcomeId) dashWelcomeId.textContent = accountCode;
+    if (dropdownUserTitle) dropdownUserTitle.textContent = accountCode;
+    if (modalUserName) modalUserName.textContent = `${fullName} (${accountCode})`;
+    if (modalUserEmail) modalUserEmail.textContent = email;
+    if (usdtUserEmail) usdtUserEmail.value = email;
+    if (headerAvatar) headerAvatar.textContent = fullName.charAt(0).toUpperCase();
+    if (userId) userId.textContent = uid;
+    if (createdAt) createdAt.textContent = formatDateTime(currentUser.created_at);
+    if (accountStatus) accountStatus.textContent = "ACTIVE";
 
     await refreshWalletBalance();
-
     updateRecipientCount();
-
     updateMessageCounter();
-
     updateRouteUI();
-
     await loadOutboxRecords();
-
     await loadPaymentHistory();
 
-
-    // Session listener
-    supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-
-        if (
-          event === "SIGNED_OUT" ||
-          !newSession
-        ) {
-
-          window.location.href =
-            "index.html";
-
-        }
-
-      }
-    );
-
-
+    supabase.auth.onAuthStateChange((event, newSession) => {
+      if (event === "SIGNED_OUT" || !newSession) window.location.href = "index.html";
+    });
   } catch (error) {
-
-    console.error(
-      "Dashboard initialization error:",
-      error
-    );
-
+    console.error("Dashboard initialization error:", error);
     if (dashboardMessage) {
-
-      dashboardMessage.textContent =
-        "Unable to load your account.";
-
-      dashboardMessage.classList.remove(
-        "hidden"
-      );
-
+      dashboardMessage.textContent = "Unable to load your account.";
+      dashboardMessage.classList.remove("hidden");
     }
-
   }
-
 }
 
-
-// =========================================================
-// LOGOUT
-// =========================================================
-
-if (logoutButton) {
-
-  logoutButton.addEventListener(
-    "click",
-    async () => {
-
-      try {
-
-        if (supabase) {
-          await supabase.auth.signOut();
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Logout error:",
-          error
-        );
-
-      } finally {
-
-        window.location.href =
-          "index.html";
-
-      }
-
-    }
-  );
-
-}
-
-
-// =========================================================
-// INITIALIZE
-// =========================================================
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && currentUser) {
+    refreshWalletBalance();
+    loadPaymentHistory();
+  }
+});
 
 initDashboard();
