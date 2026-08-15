@@ -65,7 +65,7 @@
             <div class="form-group">
               <div class="label-row">
                 <label for="loginPassword" class="form-label">Password</label>
-                <a href="#" class="forgot-link" tabindex="-1">Forgot?</a>
+                <button id="forgotPasswordLink" class="forgot-link" type="button">Forgot password?</button>
               </div>
               <div class="password-wrapper">
                 <input
@@ -181,6 +181,27 @@
 
             <button type="submit" id="signupSubmitBtn" class="btn btn-primary btn-block btn-glow" style="margin-top: 0.75rem;">
               <span class="btn-text">Create Account</span>
+              <span class="btn-spinner hidden"></span>
+            </button>
+          </form>
+
+          <!-- Password Recovery Form -->
+          <form id="resetPasswordForm" class="auth-form hidden" novalidate>
+            <div class="recovery-heading">
+              <span class="eyebrow">SECURE RECOVERY</span>
+              <h2>Create a new password</h2>
+              <p>Enter a strong new password for your iMessage Hub account.</p>
+            </div>
+            <div class="form-group">
+              <label for="resetPassword" class="form-label">New Password</label>
+              <input id="resetPassword" class="form-input" type="password" minlength="8" autocomplete="new-password" required>
+            </div>
+            <div class="form-group">
+              <label for="resetPasswordConfirm" class="form-label">Confirm New Password</label>
+              <input id="resetPasswordConfirm" class="form-input" type="password" minlength="8" autocomplete="new-password" required>
+            </div>
+            <button id="resetPasswordSubmitBtn" class="btn btn-primary btn-block btn-glow" type="submit">
+              <span class="btn-text">Update Password</span>
               <span class="btn-spinner hidden"></span>
             </button>
           </form>
