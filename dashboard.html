@@ -830,57 +830,91 @@
           Workspace / Outbox
         </div>
 
+        <div class="outbox-summary-grid" aria-label="Outbox summary">
+          <article class="outbox-summary-card">
+            <span>Total Messages</span>
+            <strong id="outboxTotalCount">0</strong>
+            <small>Selected period</small>
+          </article>
+          <article class="outbox-summary-card">
+            <span>Submitted</span>
+            <strong id="outboxSubmittedCount">0</strong>
+            <small>Awaiting provider result</small>
+          </article>
+          <article class="outbox-summary-card outbox-success-card">
+            <span>Delivered</span>
+            <strong id="outboxDeliveredCount">0</strong>
+            <small>Confirmed provider status</small>
+          </article>
+          <article class="outbox-summary-card outbox-danger-card">
+            <span>Failed</span>
+            <strong id="outboxFailedCount">0</strong>
+            <small>Provider failures</small>
+          </article>
+          <article id="outboxDemoCard" class="outbox-summary-card outbox-demo-card hidden">
+            <span>Demo Delivered</span>
+            <strong id="outboxDemoDeliveredCount">0</strong>
+            <small>Simulated UI status</small>
+          </article>
+          <article class="outbox-summary-card outbox-charge-card">
+            <span>Charges Deducted</span>
+            <strong id="outboxTotalCharges">$0.00</strong>
+            <small>For displayed records</small>
+          </article>
+        </div>
 
-        <div class="portal-card">
-
-          <div class="portal-card-header">
-
+        <div class="portal-card outbox-filter-card">
+          <div class="outbox-filter-heading">
             <div>
-
-              <span class="eyebrow">
-                ACTIVITY
-              </span>
-
-              <h2>
-                Outbox Records
-              </h2>
-
-              <p>
-                Campaign activity and delivery records.
-              </p>
-
+              <span class="eyebrow">HISTORY FILTER</span>
+              <h2>Message Activity</h2>
+              <p>Select a date and time range to review sending history.</p>
             </div>
-
-
-            <div class="card-actions">
-
-              <button
-                id="btnFilterSearch"
-                class="btn-secondary"
-                type="button"
-              >
-                Refresh
-              </button>
-
-              <button
-                id="btnClearOutboxRecords"
-                class="btn-danger-outline"
-                type="button"
-              >
-                Clear
-              </button>
-
-            </div>
-
           </div>
 
+          <div class="outbox-filter-grid">
+            <label>
+              <span>From</span>
+              <input id="outboxFromDate" class="portal-input" type="datetime-local">
+            </label>
+            <label>
+              <span>To</span>
+              <input id="outboxToDate" class="portal-input" type="datetime-local">
+            </label>
+            <label>
+              <span>Status</span>
+              <select id="outboxStatusFilter" class="portal-input">
+                <option value="all">All statuses</option>
+                <option value="submitted">Submitted</option>
+                <option value="delivered">Delivered</option>
+                <option value="failed">Failed</option>
+                <option value="demo-delivered">Demo Delivered</option>
+              </select>
+            </label>
+            <div class="outbox-filter-actions">
+              <button id="btnApplyOutboxFilters" class="btn-primary" type="button">Apply Filter</button>
+              <button id="btnResetOutboxFilters" class="btn-secondary" type="button">Reset</button>
+            </div>
+          </div>
+          <div id="outboxFilterMessage" class="outbox-filter-message" role="status"></div>
+        </div>
+
+        <div class="portal-card">
+          <div class="portal-card-header">
+            <div>
+              <span class="eyebrow">ACTIVITY</span>
+              <h2>Outbox Records</h2>
+              <p>Campaign activity, delivery records and message charges.</p>
+            </div>
+            <div class="card-actions">
+              <button id="btnFilterSearch" class="btn-secondary" type="button">Refresh</button>
+              <button id="btnClearOutboxRecords" class="btn-danger-outline" type="button">Clear</button>
+            </div>
+          </div>
 
           <div class="table-wrapper">
-
             <table class="outbox-table">
-
               <thead>
-
                 <tr>
                   <th>ID</th>
                   <th>Type</th>
@@ -892,33 +926,16 @@
                   <th>Time</th>
                   <th>State</th>
                 </tr>
-
               </thead>
-
               <tbody id="outboxRecordsTbody"></tbody>
-
             </table>
-
           </div>
 
-
-          <div
-            id="outboxNoDataNotice"
-            class="empty-state"
-          >
-
+          <div id="outboxNoDataNotice" class="empty-state">
             <div class="empty-icon">○</div>
-
-            <h3>
-              No campaign records yet
-            </h3>
-
-            <p>
-              Submit a campaign to see activity here.
-            </p>
-
+            <h3>No records match this filter</h3>
+            <p>Change the selected period or submit a campaign.</p>
           </div>
-
         </div>
 
       </section>
