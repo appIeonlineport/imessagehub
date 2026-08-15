@@ -40,6 +40,12 @@ const els = {
   senderIdInput: $("senderIdInput"),
   mainMessageContent: $("mainMessageContent"),
   wordsAndItemsCounter: $("wordsAndItemsCounter"),
+  campaignPreviewTime: $("campaignPreviewTime"),
+  campaignPreviewSender: $("campaignPreviewSender"),
+  campaignPreviewBubble: $("campaignPreviewBubble"),
+  campaignPreviewCharacters: $("campaignPreviewCharacters"),
+  campaignPreviewSegments: $("campaignPreviewSegments"),
+  campaignPreviewRecipients: $("campaignPreviewRecipients"),
   btnSubmitCampaign: $("btnSubmitCampaign"),
   campaignRouteInput: $("campaignRouteInput"),
   campaignSelectedRoute: $("campaignSelectedRoute"),
@@ -332,6 +338,9 @@ function updateRecipientCount() {
     els.recipientCount.textContent = `${count} recipient${count === 1 ? "" : "s"}`;
   }
   if (els.recipientCountLarge) els.recipientCountLarge.textContent = String(count);
+  if (els.campaignPreviewRecipients) {
+    els.campaignPreviewRecipients.textContent = String(count);
+  }
   updateCampaignCost();
 }
 
@@ -351,6 +360,37 @@ function updateMessageCounter() {
   if (els.wordsAndItemsCounter) {
     els.wordsAndItemsCounter.textContent = `${length} / 160 characters`;
   }
+
+  if (els.campaignPreviewCharacters) {
+    els.campaignPreviewCharacters.textContent = `${length} / 160`;
+  }
+  if (els.campaignPreviewSegments) {
+    els.campaignPreviewSegments.textContent = length ? "1" : "0";
+  }
+
+  if (els.campaignPreviewBubble) {
+    const message = els.mainMessageContent?.value || "";
+    els.campaignPreviewBubble.textContent = message || "Your message preview will appear here.";
+    els.campaignPreviewBubble.classList.toggle("is-placeholder", !message);
+    els.campaignPreviewBubble.classList.remove("preview-bubble-updated");
+    requestAnimationFrame(() => {
+      els.campaignPreviewBubble?.classList.add("preview-bubble-updated");
+    });
+  }
+}
+
+function updateCampaignPreviewSender() {
+  if (!els.campaignPreviewSender) return;
+  els.campaignPreviewSender.textContent =
+    els.senderIdInput?.value.trim() || "iMessage-Direct";
+}
+
+function updateCampaignPreviewTime() {
+  if (!els.campaignPreviewTime) return;
+  els.campaignPreviewTime.textContent = new Intl.DateTimeFormat("en", {
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date());
 }
 
 els.campaignNumbersArea?.addEventListener("input", () => {
@@ -358,6 +398,10 @@ els.campaignNumbersArea?.addEventListener("input", () => {
   updateRecipientCount();
 });
 els.mainMessageContent?.addEventListener("input", updateMessageCounter);
+els.senderIdInput?.addEventListener("input", updateCampaignPreviewSender);
+updateMessageCounter();
+updateCampaignPreviewSender();
+updateCampaignPreviewTime();
 
 if (els.btnTriggerUpload && els.bulkFileInput) {
   els.btnTriggerUpload.addEventListener("click", () => els.bulkFileInput.click());
