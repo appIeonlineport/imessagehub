@@ -7,7 +7,7 @@ export default defineConfig({
         index: "index.html",
         dashboard: "dashboard.html",
         admin: "admin.html",
-        contacts: "contacts.html" // Naya page add kiya
+        campaigns: "campaigns.html"
       },
     },
   },
