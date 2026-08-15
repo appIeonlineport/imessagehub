@@ -1,0 +1,83 @@
+/* iMessage Hub — premium iOS-inspired dashboard theme */
+:root{--ios-blue:#147ef5;--ios-blue2:#27b4ff;--ios-navy:#0b1d3a;--ios-text:#14213d;--ios-muted:#75829a;--ios-bg:#f5f8ff;--ios-card:#fff;--ios-border:#e5edf8;--ios-green:#15b86b;--ios-purple:#9b51ff;--ios-orange:#ff7d4d;--ios-shadow:0 18px 50px rgba(37,84,145,.10);--ios-radius:26px}
+html,body{background:radial-gradient(circle at 20% 0%,rgba(49,138,255,.08),transparent 30%),linear-gradient(180deg,#f9fbff 0,#f4f7fc 100%)!important;color:var(--ios-text)!important}
+body{overflow-x:hidden}
+.platform-layout{background:transparent!important}
+.platform-main{background:transparent!important}
+.platform-content-area{max-width:1500px!important;padding-top:28px!important}
+.breadcrumb-bar{font-size:12px!important;color:#7d8da8!important;letter-spacing:.01em}
+.portal-card,.cred-card,.stat-box-panel{border:1px solid rgba(214,225,242,.9)!important;border-radius:24px!important;box-shadow:var(--ios-shadow)!important;background:rgba(255,255,255,.94)!important;backdrop-filter:blur(20px)}
+
+/* Header */
+.platform-topbar{height:84px!important;padding:0 26px!important;background:rgba(255,255,255,.88)!important;border-bottom:1px solid rgba(219,228,242,.9)!important;box-shadow:0 8px 28px rgba(46,80,124,.06)!important;backdrop-filter:blur(24px)!important}
+.topbar-left-controls{min-width:0!important}
+.sidebar-toggle-btn{width:48px!important;height:48px!important;border-radius:15px!important;border:1px solid #dfe8f5!important;background:linear-gradient(180deg,#fff,#f8fbff)!important;box-shadow:0 8px 20px rgba(40,77,122,.07)!important;font-size:19px!important}
+.topbar-brand-center{position:absolute!important;left:50%!important;transform:translateX(-50%)!important;gap:0!important;animation:none!important;height:56px!important;display:flex!important;align-items:center!important}
+.ios-brand-shell{position:relative;display:flex;align-items:center;height:58px;min-width:232px;justify-content:center}
+.ios-brand-logo{display:block;width:220px;height:auto;max-height:58px;object-fit:contain}
+.ios-plane-orbit{position:absolute;right:-6px;top:0;width:42px;height:42px;pointer-events:none;animation:iosOrbit 3.8s ease-in-out infinite}
+.ios-plane-orbit::before{content:"";position:absolute;inset:2px;border:1.6px dashed rgba(20,126,245,.32);border-radius:50%;animation:iosSpin 5s linear infinite}
+.ios-plane-orbit::after{content:"➤";position:absolute;right:-2px;top:7px;color:#13b866;font-size:21px;font-weight:900;filter:drop-shadow(0 5px 6px rgba(19,184,102,.28));transform:rotate(-34deg)}
+@keyframes iosOrbit{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(8px,-4px) rotate(4deg)}}
+@keyframes iosSpin{to{transform:rotate(360deg)}}
+.topbar-brand-mark,.topbar-brand-name{display:none!important}
+.topbar-right-controls{gap:10px!important}
+.topbar-balance-pill{min-height:46px!important;border-radius:16px!important;padding:0 12px!important;background:linear-gradient(180deg,#fff,#f4f9ff)!important;border:1px solid #d8e7fb!important;box-shadow:0 8px 20px rgba(33,112,223,.08)!important}
+.topbar-balance-pill>span:first-child{display:none!important}.balance-number{font-size:18px!important;letter-spacing:-.03em!important;color:#0e6ad3!important}.btn-topup-mini{width:28px!important;height:28px!important;border-radius:9px!important;font-size:18px!important;box-shadow:0 6px 16px rgba(20,126,245,.25)!important}
+.user-dropdown-trigger{min-height:48px!important;border-radius:16px!important;padding:0 9px!important;background:linear-gradient(180deg,#fff,#f7faff)!important;border:1px solid #e0e8f3!important;box-shadow:0 8px 20px rgba(38,70,109,.07)!important}
+.user-avatar-circle{width:36px!important;height:36px!important;border-radius:50%!important;background:radial-gradient(circle at 30% 20%,#57c9ff 0,#147ef5 48%,#3155ff 100%)!important;color:#fff!important;border:3px solid #fff!important;box-shadow:0 7px 16px rgba(20,126,245,.28),inset 0 1px 0 rgba(255,255,255,.45)!important;font-size:15px!important}
+.user-account-id{display:none!important}
+
+/* Desktop sidebar: cleaner navy glass */
+.platform-sidebar{background:linear-gradient(180deg,#09172e 0%,#0b1f40 60%,#08152a 100%)!important;border-right:1px solid rgba(255,255,255,.05)!important}
+.platform-logo-box{border-radius:16px!important;background:linear-gradient(145deg,#55c4ff,#147ef5 58%,#3156ff)!important;box-shadow:0 12px 28px rgba(20,126,245,.28)!important}
+.menu-item{border-radius:14px!important;min-height:46px!important}.menu-item.active{background:linear-gradient(90deg,rgba(29,132,255,.25),rgba(66,211,255,.09))!important;box-shadow:inset 3px 0 0 #41caff!important}
+
+/* Hero */
+.welcome-saas-banner{min-height:390px!important;padding:48px 50px!important;border-radius:32px!important;grid-template-columns:minmax(0,1.08fr) minmax(390px,.92fr)!important;background:radial-gradient(circle at 85% 20%,rgba(50,191,255,.33),transparent 24%),radial-gradient(circle at 50% 110%,rgba(34,114,255,.33),transparent 38%),linear-gradient(135deg,#082f68 0%,#0c55b5 48%,#1487ff 100%)!important;box-shadow:0 28px 70px rgba(16,83,167,.22)!important;position:relative!important;overflow:hidden!important}
+.welcome-saas-banner::before,.welcome-saas-banner::after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.08);width:520px;height:180px;right:-120px;top:40px;transform:rotate(-12deg);pointer-events:none}.welcome-saas-banner::after{top:120px;right:-70px;opacity:.65}
+.welcome-heading{font-size:clamp(38px,4.3vw,62px)!important;line-height:1.05!important;letter-spacing:-.045em!important;margin:10px 0 18px!important;color:white!important;max-width:680px!important}.welcome-sub-lead{font-size:16px!important;line-height:1.7!important;color:rgba(255,255,255,.76)!important;max-width:570px!important}.welcome-saas-banner .eyebrow{font-size:11px!important;letter-spacing:.16em!important;color:#42c6ff!important}.btn-get-started{min-height:56px!important;border-radius:17px!important;padding:0 24px!important;background:#fff!important;color:#0d68cf!important;font-size:16px!important;box-shadow:0 15px 30px rgba(5,31,70,.20)!important;margin-top:14px!important}
+.messaging-hero-animation{filter:drop-shadow(0 20px 28px rgba(0,0,0,.14))}
+.message-flight{position:relative}.message-flight::after{content:"➤";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-28deg);width:45px;height:45px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 30%,#65f0a4,#16b96b);color:white;font-size:20px;box-shadow:0 0 0 9px rgba(67,225,144,.12),0 12px 30px rgba(9,145,77,.3);animation:planePulse 2.4s ease-in-out infinite}
+@keyframes planePulse{50%{transform:translate(-50%,-56%) rotate(-20deg) scale(1.08);box-shadow:0 0 0 16px rgba(67,225,144,.07),0 15px 34px rgba(9,145,77,.34)}}
+
+/* Custom dashboard additions */
+.ios-dashboard-extras{margin:26px 0 8px}.ios-section-head{display:flex;align-items:center;justify-content:space-between;margin:22px 4px 12px}.ios-section-head h3{margin:0;font-size:12px;letter-spacing:.055em;text-transform:uppercase;color:#71819e}.ios-section-head button{border:0;background:transparent;color:#147ef5;font-size:12px;font-weight:750}
+.ios-overview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.ios-metric-card{display:flex;align-items:center;gap:14px;padding:20px;border:1px solid #e5edf8;border-radius:24px;background:rgba(255,255,255,.96);box-shadow:0 14px 38px rgba(41,78,125,.08);min-width:0}.ios-metric-icon{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:21px;box-shadow:0 10px 24px rgba(20,126,245,.22);flex:0 0 auto}.ios-metric-icon.blue{background:linear-gradient(145deg,#4ec7ff,#147ef5 60%,#3551ff)}.ios-metric-icon.green{background:linear-gradient(145deg,#5fe29a,#12b86b)}.ios-metric-icon.purple{background:linear-gradient(145deg,#c282ff,#8f43f5)}.ios-metric-icon.orange{background:linear-gradient(145deg,#ff9c70,#ff6e43)}.ios-metric-copy{min-width:0}.ios-metric-label{font-size:12px;color:#73819a;font-weight:700}.ios-metric-value{display:block;font-size:28px;line-height:1.05;color:#11203e;letter-spacing:-.04em;margin-top:4px}.ios-metric-sub{display:block;font-size:10px;color:#94a0b5;margin-top:5px}.ios-metric-sub.good{color:#15a861}.ios-metric-sub.bad{color:#ee4d4d}
+.ios-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.ios-quick-card{border:1px solid #e5edf8;border-radius:22px;background:#fff;box-shadow:0 12px 34px rgba(41,78,125,.07);min-height:118px;padding:17px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#172440;font-weight:750}.ios-quick-card:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(41,78,125,.10)}.ios-quick-icon{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:21px;background:#edf6ff;color:#147ef5}.ios-quick-card[data-action="contacts"] .ios-quick-icon{background:#eafaf1;color:#12a65d}.ios-quick-card[data-action="reports"] .ios-quick-icon{background:#f3eaff;color:#9146ea}.ios-quick-card[data-action="balance"] .ios-quick-icon{background:#fff0e7;color:#f27b2a}
+.ios-recent-list{display:grid;gap:10px}.ios-recent-item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:13px;padding:14px 16px;border:1px solid #e5edf8;border-radius:21px;background:#fff;box-shadow:0 10px 28px rgba(41,78,125,.055)}.ios-recent-icon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#4dc6ff,#147ef5 60%,#3158ff);color:#fff}.ios-recent-main{min-width:0}.ios-recent-title{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ios-recent-meta{font-size:10px;color:#8793a7;margin-top:3px}.ios-recent-status{padding:6px 9px;border-radius:999px;background:#e8f8ef;color:#0c8c4a;font-size:9px;font-weight:800;text-transform:capitalize}
+
+/* Hide older dashboard cards that duplicate the new overview, but keep activity/account cards */
+#viewDashboard>.credential-cards-grid,#viewDashboard>.stats-overview-grid{display:none!important}
+.message-activity-card{margin-top:22px!important}
+
+/* Bottom mobile nav */
+.ios-bottom-nav{display:none}
+
+/* Small modal used by theme extras */
+.ios-mini-modal{position:fixed;inset:0;z-index:400;background:rgba(9,23,45,.38);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;padding:18px}.ios-mini-modal.open{display:flex}.ios-mini-sheet{width:min(520px,100%);background:#fff;border:1px solid #e5edf8;border-radius:28px;padding:22px;box-shadow:0 30px 80px rgba(20,45,80,.22)}.ios-mini-sheet h3{margin:0 0 8px}.ios-mini-sheet p{margin:0;color:#718097;font-size:13px;line-height:1.55}.ios-mini-sheet .btn-primary{margin-top:18px;width:100%;border-radius:15px}
+
+@media(max-width:1050px){.ios-overview-grid{grid-template-columns:repeat(2,1fr)}.ios-quick-grid{grid-template-columns:repeat(2,1fr)}.welcome-saas-banner{grid-template-columns:1fr!important}.messaging-hero-animation{min-height:210px}}
+
+@media(max-width:560px){
+  body{padding-bottom:86px}
+  .platform-topbar{height:72px!important;padding:0 10px!important;display:grid!important;grid-template-columns:48px minmax(0,1fr) auto!important;gap:7px!important}
+  .topbar-left-controls{display:contents!important}.sidebar-toggle-btn{grid-column:1!important;display:grid!important;width:44px!important;height:44px!important;border-radius:14px!important;z-index:160!important}
+  .topbar-brand-center{position:relative!important;left:auto!important;transform:none!important;grid-column:2!important;justify-self:center!important;width:100%!important;max-width:156px!important;height:48px!important;overflow:visible!important}
+  .ios-brand-shell{height:48px;min-width:0;width:100%;justify-content:center}.ios-brand-logo{width:148px;max-height:46px}.ios-plane-orbit{width:30px;height:30px;right:-8px;top:3px}.ios-plane-orbit::after{font-size:16px;top:5px}
+  .topbar-right-controls{grid-column:3!important;gap:5px!important;margin:0!important}.topbar-balance-pill{min-height:42px!important;padding:0 7px!important;border-radius:14px!important}.balance-number{font-size:14px!important}.btn-topup-mini{width:24px!important;height:24px!important;border-radius:8px!important;font-size:16px!important}
+  .user-dropdown-trigger{min-height:42px!important;padding:0 5px!important;border-radius:14px!important}.user-avatar-circle{width:32px!important;height:32px!important;font-size:13px!important}.user-dropdown-trigger>span:last-child{font-size:11px!important}
+  .platform-content-area{padding:15px 11px 26px!important}
+  .breadcrumb-bar{display:none!important}
+  .welcome-saas-banner{padding:28px 22px!important;border-radius:28px!important;min-height:0!important;gap:18px!important;margin-bottom:18px!important}
+  .welcome-heading{font-size:clamp(35px,10.8vw,48px)!important;line-height:1.07!important;margin:8px 0 14px!important}.welcome-sub-lead{font-size:14px!important;line-height:1.58!important}.btn-get-started{min-height:52px!important;font-size:15px!important;border-radius:16px!important;padding:0 20px!important}
+  .messaging-hero-animation{height:190px!important;min-height:190px!important;transform:none!important;margin:0 -8px -4px!important;gap:8px!important;overflow:hidden!important}.phone{transform:scale(.82)!important}.message-flight{transform:scale(.78)!important}
+  .ios-dashboard-extras{margin-top:18px}.ios-section-head{margin:20px 3px 10px}.ios-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.ios-metric-card{padding:14px 12px;border-radius:20px;gap:10px;min-height:110px}.ios-metric-icon{width:42px;height:42px;font-size:18px}.ios-metric-value{font-size:23px}.ios-metric-label{font-size:11px}.ios-metric-sub{font-size:9px;line-height:1.25}
+  .ios-quick-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.ios-quick-card{min-height:95px;padding:10px 5px;border-radius:18px;font-size:9px;gap:7px}.ios-quick-icon{width:39px;height:39px;border-radius:13px;font-size:17px}
+  .ios-recent-item{padding:12px;border-radius:18px}.ios-recent-icon{width:38px;height:38px}.ios-recent-status{font-size:8px;padding:5px 7px}
+  .portal-card{border-radius:22px!important;padding:16px!important}.portal-card-header{gap:8px!important}.portal-card-header h2{font-size:16px!important}.portal-card-header p{font-size:10px!important}.chart-total{font-size:10px!important}
+  .ios-bottom-nav{display:grid;position:fixed;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));z-index:210;grid-template-columns:repeat(5,1fr);background:rgba(255,255,255,.92);border:1px solid rgba(220,229,242,.95);border-radius:24px;padding:8px 5px;box-shadow:0 18px 46px rgba(34,67,110,.18);backdrop-filter:blur(24px)}.ios-bottom-nav button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;color:#68758c;font-size:8px;font-weight:700;padding:4px 1px}.ios-bottom-nav button .nav-ico{font-size:18px;line-height:1}.ios-bottom-nav button.active{color:#147ef5}.ios-bottom-nav button.active .nav-ico{filter:drop-shadow(0 4px 8px rgba(20,126,245,.24))}
+  .platform-sidebar{display:flex!important;width:min(82vw,286px)!important;transform:translateX(-105%)!important;transition:transform .22s ease!important;z-index:230!important}.platform-sidebar .platform-brand-text,.platform-sidebar .nav-section-title,.platform-sidebar .menu-item span:not(.menu-icon),.platform-sidebar .gateway-title,.platform-sidebar .gateway-uptime{display:initial!important}.platform-sidebar .sidebar-brand-box{justify-content:flex-start!important;padding:16px 18px!important}.platform-sidebar .menu-item{justify-content:flex-start!important;padding:0 13px!important}.platform-sidebar .menu-icon{width:18px!important}body.mobile-sidebar-open .platform-sidebar{transform:translateX(0)!important}body.mobile-sidebar-open::after{z-index:220!important}
+  .user-dropdown-menu{position:fixed!important;top:70px!important;right:10px!important;width:min(280px,calc(100vw - 20px))!important}
+}
+@media(max-width:390px){.topbar-brand-center{max-width:138px!important}.ios-brand-logo{width:132px}.balance-number{font-size:13px!important}.topbar-balance-pill{padding:0 6px!important}.btn-topup-mini{display:none!important}.ios-overview-grid{gap:8px}.ios-metric-card{padding:12px 10px}.ios-metric-icon{width:38px;height:38px}.ios-metric-value{font-size:21px}.ios-quick-grid{gap:6px}.ios-quick-card{font-size:8px}.welcome-saas-banner{padding:25px 18px!important}}
