@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>iMessage Hub - Campaigns</title>
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <div class="saas-container">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">iM</div>
+        <h2>iMessage Hub</h2>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="/dashboard.html" class="nav-item">Dashboard</a>
+        <a href="#" class="nav-item disabled">Messages <span class="badge">Soon</span></a>
+        <a href="/campaigns.html" class="nav-item active">Campaigns</a>
+        <a href="#" class="nav-item disabled">Billing <span class="badge">Soon</span></a>
+      </nav>
+      
+      <div class="sidebar-bottom">
+        <button id="logoutButton" class="secondary-button logout-sidebar">Sign out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <header class="topbar-modern">
+        <div>
+          <h1 class="page-title">Create Campaign</h1>
+        </div>
+        <div class="topbar-right">
+          <span class="status-indicator">SECURE</span>
+        </div>
+      </header>
+
+      <div class="content-scroll">
+        <form id="campaignForm">
+          
+          <!-- STEP 1: Route & Campaign Name -->
+          <section class="panel">
+            <div class="panel-header"><h2>1. Campaign Details</h2></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <label>Campaign Name
+                <input type="text" id="campName" placeholder="e.g. Diwali Offer Blast" required>
+              </label>
+              <label>Select Route
+                <select id="campRoute" style="width: 100%; min-height: 46px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 10px; background: #0f0f16; color: var(--text); outline: none;">
+                  <option value="imessage">Apple iMessage (Premium)</option>
+                  <option value="sms">Standard SMS</option>
+                  <option value="whatsapp">WhatsApp API</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <!-- STEP 2: Audience (Numbers) -->
+          <section class="panel">
+            <div class="panel-header">
+              <h2>2. Audience (Target Numbers)</h2>
+            </div>
+            <p style="color: var(--muted); font-size: 13px; margin-bottom: 12px;">Type numbers manually (comma separated) OR upload a file.</p>
+            
+            <label style="margin-bottom: 15px;">Manual Entry
+              <textarea id="campNumbers" placeholder="e.g. 9876543210, 9123456789..." style="width: 100%; min-height: 100px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 10px; background: #0f0f16; color: var(--text); outline: none; resize: vertical;"></textarea>
+            </label>
+
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <span style="color: var(--muted); font-size: 14px; font-weight: bold;">OR</span>
+              <label style="flex: 1; cursor: pointer;">
+                <div style="border: 1px dashed var(--primary); padding: 15px; border-radius: 10px; text-align: center; background: rgba(0, 240, 255, 0.05); color: var(--primary); font-weight: 600;">
+                  📁 Click to Upload Contacts (CSV/TXT)
+                  <input type="file" id="campFile" accept=".csv, .txt" style="display: none;">
+                </div>
+              </label>
+            </div>
+            <div id="fileInfo" style="margin-top: 10px; font-size: 13px; color: var(--success); font-weight: 600;"></div>
+          </section>
+
+          <!-- STEP 3: Message Content -->
+          <section class="panel">
+            <div class="panel-header"><h2>3. Message Content</h2></div>
+            <label>Your Message
+              <textarea id="campMessage" placeholder="Type your promotional or transactional message here..." required style="width: 100%; min-height: 120px; padding: 11px 13px; border: 1px solid var(--border); border-radius: 10px; background: #0f0f16; color: var(--text); outline: none; resize: vertical;"></textarea>
+            </label>
+          </section>
+
+          <!-- SUBMIT -->
+          <div style="display: flex; justify-content: flex-end; align-items: center; gap: 20px; margin-bottom: 40px;">
+            <div id="campaignAlert" class="message hidden" style="margin: 0; padding: 10px 15px;"></div>
+            <button type="submit" class="primary-button" style="width: auto; padding: 0 40px; font-size: 16px;">🚀 Launch Campaign</button>
+          </div>
+
+        </form>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="/src/campaigns.js"></script>
+</body>
+</html>
