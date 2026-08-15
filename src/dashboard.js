@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 
 const supabase =
   SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY
@@ -22,6 +23,7 @@ const els = {
   createdAt: $("createdAt"),
   logoutButton: $("logoutButton"),
   dashboardMessage: $("dashboardMessage"),
+  demoModeBanner: $("demoModeBanner"),
   headerName: $("headerName"),
   headerAvatar: $("headerAvatar"),
   dashWelcomeId: $("dashWelcomeId"),
@@ -620,10 +622,17 @@ async function loadPaymentHistory() {
   renderPaymentHistory(data || []);
 }
 
-function outboxStatusLabel(status) {
+function outboxStatusLabel(status, createdAt) {
   const value = String(status || "pending").toLowerCase();
   if (value === "delivered") return "Delivered";
   if (value === "failed") return "Failed";
+
+  // Demo mode is intentionally labelled in the UI. It never mutates the
+  // database and must not be used as proof of real provider delivery.
+  const ageMs = Date.now() - new Date(createdAt).getTime();
+  if (DEMO_MODE && Number.isFinite(ageMs) && ageMs >= 12000) {
+    return "Demo Delivered";
+  }
   return "Submitted";
 }
 
@@ -644,7 +653,8 @@ function renderOutboxRecords(records) {
     const routeName = route?.displayName || "Route";
     const totalRecipients = Number(campaign.total_recipients || campaign.recipient_count || 0);
     const perMessageCost = totalRecipients > 0 ? Number(campaign.total_cost || 0) / totalRecipients : 0;
-    const label = outboxStatusLabel(record.status);
+    const label = outboxStatusLabel(record.status, record.created_at);
+    const delivered = label === "Delivered" || label === "Demo Delivered";
 
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -652,11 +662,11 @@ function renderOutboxRecords(records) {
       <td>Messaging</td>
       <td><strong>${routeName}</strong></td>
       <td>${money(perMessageCost, 3)}</td>
-      <td><span class="status-pill ${label === "Delivered" ? "status-success" : ""}">${label}</span></td>
+      <td><span class="status-pill ${delivered ? "status-success" : ""}">${label}</span></td>
       <td><strong>${record.phone || "—"}</strong></td>
       <td>${campaign.sender_id || "iMessage-Direct"}</td>
       <td>${formatDateTime(record.created_at)}</td>
-      <td><span class="outbox-state">${label === "Failed" ? "FAILED" : label === "Delivered" ? "DELIVERED" : "SUBMITTED"}</span></td>`;
+      <td><span class="outbox-state">${label === "Failed" ? "FAILED" : delivered ? label.toUpperCase() : "SUBMITTED"}</span></td>`;
     els.outboxRecordsTbody.appendChild(row);
   });
 }
@@ -901,6 +911,7 @@ async function initDashboard() {
   ensureCustomAmountUI();
   ensurePaymentRequestModal();
   correctDecorativeStatusCopy();
+  els.demoModeBanner?.classList.toggle("hidden", !DEMO_MODE);
 
   if (!supabase) {
     if (els.dashboardMessage) {
@@ -930,6 +941,12 @@ async function initDashboard() {
       loadPaymentHistory(),
       loadOutboxRecords()
     ]);
+
+    if (DEMO_MODE) {
+      window.setInterval(() => {
+        if (currentUser) loadOutboxRecords();
+      }, 2000);
+    }
 
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT" || !session) window.location.href = "index.html";
