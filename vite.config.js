@@ -98,8 +98,8 @@ const mobileJs = String.raw`
 })();
 `;
 
-const mobileDashboardFixes = {
-  name: "mobile-dashboard-fixes-inline",
+const dashboardTheme = {
+  name: "imessage-ios-dashboard-theme",
   transformIndexHtml: {
     order: "post",
     handler(html) {
@@ -108,7 +108,9 @@ const mobileDashboardFixes = {
         html,
         tags: [
           { tag: "style", children: mobileCss, injectTo: "head" },
-          { tag: "script", children: mobileJs, injectTo: "body" }
+          { tag: "link", attrs: { rel: "stylesheet", href: "/ios-theme.css" }, injectTo: "head" },
+          { tag: "script", children: mobileJs, injectTo: "body" },
+          { tag: "script", attrs: { src: "/ios-theme.js", defer: true }, injectTo: "body" }
         ]
       };
     }
@@ -116,7 +118,7 @@ const mobileDashboardFixes = {
 };
 
 export default defineConfig({
-  plugins: [mobileDashboardFixes],
+  plugins: [dashboardTheme],
   build: {
     rollupOptions: {
       input: {
