@@ -50,6 +50,47 @@ function formatDate(value) {
   });
 }
 
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function showAccessProblem(signedInEmail = "") {
+  const main = document.querySelector(".platform-content-area");
+  if (!main) return;
+
+  main.innerHTML = `
+    <div class="portal-card" style="max-width:720px;margin:40px auto;">
+      <div class="portal-card-header">
+        <div>
+          <span class="eyebrow">ADMIN ACCESS</span>
+          <h2>Admin account required</h2>
+          <p>This browser is signed in with a non-admin account.</p>
+        </div>
+      </div>
+      <div class="account-info-grid">
+        <div class="account-info-item">
+          <span>Signed-in email</span>
+          <strong>${escapeHtml(signedInEmail || "No active session")}</strong>
+        </div>
+        <div class="account-info-item">
+          <span>Authorized admin</span>
+          <strong>${escapeHtml(PRIMARY_ADMIN_EMAIL)}</strong>
+        </div>
+      </div>
+      <div class="modal-actions" style="margin-top:18px;">
+        <button id="adminAccessSignOut" class="btn-primary" type="button">Sign out and use admin account</button>
+      </div>
+    </div>`;
+
+  document.getElementById("adminAccessSignOut")?.addEventListener("click", async () => {
+    try {
+      await supabase?.auth.signOut();
+    } finally {
+      window.location.href = "index.html";
+    }
+  });
+}
+
 async function verifyAdminAccess() {
   if (!supabase) {
     showToast("Supabase configuration is missing.", "error");
@@ -57,49 +98,151 @@ async function verifyAdminAccess() {
   }
 
   try {
+    // getUser() verifies the current user with Supabase instead of trusting a stale local session.
     const {
-      data: { session },
+      data: { user },
       error
-    } = await supabase.auth.getSession();
+    } = await supabase.auth.getUser();
 
-    if (error || !session?.user) {
-      window.location.href = "index.html";
+    if (error || !user) {
+      window.location.replace("index.html");
       return false;
     }
 
-    const user = session.user;
-    const email = String(user.email || "").trim().toLowerCase();
+    const email = normalizeEmail(user.email);
+    const allowedEmail = normalizeEmail(PRIMARY_ADMIN_EMAIL);
 
-    // Primary admin account is authenticated by Supabase and explicitly allowed.
-    // Database RLS still controls privileged writes such as top-up approval.
-    if (email === PRIMARY_ADMIN_EMAIL) {
+    if (email === allowedEmail) {
       return true;
     }
 
-    // Additional admins can be granted access through public.profiles.
-    try {
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, role, status")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (!profileError && profile?.role === "admin" && profile?.status === "active") {
-        return true;
-      }
-    } catch (profileError) {
-      console.warn("Admin profile lookup failed:", profileError);
-    }
-
-    showToast("Admin access required.", "error");
-    setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 900);
+    // Do not silently throw the user back to the customer dashboard.
+    // Show exactly which account is signed in so access problems are obvious.
+    showAccessProblem(email);
     return false;
   } catch (error) {
     console.error("Admin authorization error:", error);
     showToast("Unable to verify admin access.", "error");
     return false;
+  }
+}
+
+function createRouteManagementPanel() {
+  if (document.getElementById("routeManagementPanel")) return;
+
+  const contentArea = document.querySelector(".platform-content-area");
+  if (!contentArea) return;
+
+  const panel = document.createElement("div");
+  panel.id = "routeManagementPanel";
+  panel.className = "panel";
+  panel.innerHTML = `
+    <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+      <div>
+        <h3 class="panel-title">Route Management</h3>
+        <p style="margin-top:4px;font-size:.78rem;color:#7b8798;">Manage messaging route availability and pricing.</p>
+      </div>
+      <button id="btnRefreshRoutes" class="btn-secondary" type="button">Refresh Routes</button>
+    </div>
+    <div id="routesLoading" style="padding:1rem;color:#7b8798;font-size:.8rem;">Loading routes...</div>
+    <div id="routesList" style="display:flex;flex-direction:column;gap:.75rem;"></div>`;
+
+  contentArea.insertBefore(panel, contentArea.firstChild);
+  document.getElementById("btnRefreshRoutes")?.addEventListener("click", loadRoutes);
+}
+
+async function loadRoutes() {
+  const loading = document.getElementById("routesLoading");
+  const list = document.getElementById("routesList");
+  if (!list || !supabase) return;
+
+  if (loading) {
+    loading.textContent = "Loading routes...";
+    loading.classList.remove("hidden");
+  }
+  list.innerHTML = "";
+
+  try {
+    const { data, error } = await supabase
+      .from("routes")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    if (!Array.isArray(data) || data.length === 0) {
+      list.innerHTML = `<div style="padding:1rem;border:1px dashed #d9e2ec;border-radius:12px;color:#7b8798;">No routes configured.</div>`;
+      return;
+    }
+
+    data.forEach((route) => list.appendChild(createRouteRow(route)));
+  } catch (error) {
+    console.warn("Route loading unavailable:", error);
+    list.innerHTML = `<div style="padding:1rem;border:1px dashed #d9e2ec;border-radius:12px;color:#7b8798;">Route controls are currently unavailable.</div>`;
+  } finally {
+    loading?.classList.add("hidden");
+  }
+}
+
+function createRouteRow(route) {
+  const row = document.createElement("div");
+  row.style.cssText = "display:grid;grid-template-columns:minmax(180px,1fr) 120px 150px 110px;align-items:center;gap:1rem;padding:1rem;border:1px solid #e5ebf3;border-radius:12px;background:#fff;";
+
+  const info = document.createElement("div");
+  info.innerHTML = `<strong style="display:block;font-size:.9rem;">${escapeHtml(route.name)}</strong><span style="display:block;margin-top:3px;font-size:.72rem;color:#7b8798;">${escapeHtml(route.code)}</span>`;
+
+  const status = document.createElement("span");
+  status.className = `status-pill ${route.enabled ? "status-success" : ""}`;
+  status.textContent = route.enabled ? "ACTIVE" : "DISABLED";
+
+  const price = document.createElement("input");
+  price.type = "number";
+  price.min = "0";
+  price.step = "0.001";
+  price.value = Number(route.price_per_message || 0).toFixed(3);
+  price.className = "portal-input";
+  price.style.minHeight = "38px";
+
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = route.enabled ? "btn-secondary" : "btn-primary";
+  toggle.textContent = route.enabled ? "Turn OFF" : "Turn ON";
+
+  price.addEventListener("change", async () => {
+    const value = Number.parseFloat(price.value);
+    if (!Number.isFinite(value) || value < 0) {
+      showToast("Enter a valid route price.", "error");
+      price.value = Number(route.price_per_message || 0).toFixed(3);
+      return;
+    }
+    await updateRoute(route.id, { price_per_message: value }, price);
+  });
+
+  toggle.addEventListener("click", async () => {
+    await updateRoute(route.id, { enabled: !route.enabled }, toggle);
+  });
+
+  row.append(info, status, price, toggle);
+  return row;
+}
+
+async function updateRoute(id, changes, control) {
+  if (!supabase) return;
+  if (control) control.disabled = true;
+
+  try {
+    const { error } = await supabase
+      .from("routes")
+      .update({ ...changes, updated_at: new Date().toISOString() })
+      .eq("id", id);
+
+    if (error) throw error;
+    showToast("Route updated successfully.", "success");
+    await loadRoutes();
+  } catch (error) {
+    showToast(`Route update failed: ${error.message}`, "error");
+  } finally {
+    if (control) control.disabled = false;
   }
 }
 
@@ -137,10 +280,10 @@ function renderTable(requests) {
   adminEmptyState?.classList.add("hidden");
 
   requests.forEach((request) => {
-    const status = String(request.status || "pending").trim().toLowerCase();
+    const statusText = String(request.status || "pending").trim().toLowerCase();
     const amount = Number.parseFloat(request.amount || 0) || 0;
-    const isPending = status === "pending";
-    const isPaid = ["paid", "approved", "completed"].includes(status);
+    const isPending = statusText === "pending";
+    const isPaid = ["paid", "approved", "completed"].includes(statusText);
 
     if (isPending) pending += 1;
     if (isPaid) totalApproved += amount;
@@ -158,16 +301,11 @@ function renderTable(requests) {
 
     const txCell = document.createElement("td");
     const txWrap = document.createElement("div");
-    txWrap.style.display = "flex";
-    txWrap.style.alignItems = "center";
-    txWrap.style.gap = "8px";
+    txWrap.style.cssText = "display:flex;align-items:center;gap:8px;";
 
     const txCode = document.createElement("code");
     txCode.className = "code-pill";
-    txCode.style.maxWidth = "190px";
-    txCode.style.overflow = "hidden";
-    txCode.style.textOverflow = "ellipsis";
-    txCode.style.whiteSpace = "nowrap";
+    txCode.style.cssText = "max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
     txCode.textContent = request.tx_hash || "No Hash";
 
     const copyButton = document.createElement("button");
@@ -191,26 +329,18 @@ function renderTable(requests) {
     dateCell.textContent = formatDate(request.created_at);
 
     const statusCell = document.createElement("td");
-    const statusBadge = document.createElement("span");
-    statusBadge.className = `status-pill ${isPaid ? "status-success" : ""}`;
-    statusBadge.textContent = status.toUpperCase();
-    statusCell.appendChild(statusBadge);
+    statusCell.innerHTML = `<span class="status-pill ${isPaid ? "status-success" : ""}">${escapeHtml(statusText.toUpperCase())}</span>`;
 
     const actionCell = document.createElement("td");
-
     if (isPending) {
-      const approveButton = document.createElement("button");
-      approveButton.type = "button";
-      approveButton.className = "btn-primary";
-      approveButton.textContent = "Approve & Credit";
-      approveButton.addEventListener("click", () => handleApprove(request, approveButton));
-      actionCell.appendChild(approveButton);
+      const approve = document.createElement("button");
+      approve.type = "button";
+      approve.className = "btn-primary";
+      approve.textContent = "Approve & Credit";
+      approve.addEventListener("click", () => handleApprove(request, approve));
+      actionCell.appendChild(approve);
     } else if (isPaid) {
-      const approvedText = document.createElement("span");
-      approvedText.textContent = "✓ Credited";
-      approvedText.style.color = "#087548";
-      approvedText.style.fontWeight = "800";
-      actionCell.appendChild(approvedText);
+      actionCell.innerHTML = `<span style="color:#087548;font-weight:800;">✓ Credited</span>`;
     } else {
       actionCell.textContent = "—";
     }
@@ -224,10 +354,10 @@ function renderTable(requests) {
 }
 
 async function handleApprove(request, button) {
-  const id = request.id;
-  const amount = Number.parseFloat(request.amount || 0) || 0;
+  if (!supabase) return;
 
-  if (!id || amount <= 0) {
+  const amount = Number.parseFloat(request.amount || 0) || 0;
+  if (!request.id || amount <= 0) {
     showToast("Invalid payment request.", "error");
     return;
   }
@@ -236,21 +366,21 @@ async function handleApprove(request, button) {
   button.textContent = "Approving...";
 
   try {
-    const { data: updated, error } = await supabase
+    const { data, error } = await supabase
       .from("topup_requests")
       .update({
         status: "paid",
         approved_at: new Date().toISOString()
       })
-      .eq("id", id)
+      .eq("id", request.id)
       .eq("status", "pending")
       .select()
       .single();
 
     if (error) throw error;
-    if (!updated) throw new Error("Payment was already processed or is no longer pending.");
+    if (!data) throw new Error("Payment request is no longer pending.");
 
-    showToast(`Payment of $${amount.toFixed(2)} approved and credited.`, "success");
+    showToast(`Payment of $${amount.toFixed(2)} approved.`, "success");
     await fetchRequests();
   } catch (error) {
     console.error("Payment approval error:", error);
@@ -273,7 +403,7 @@ btnRefreshAdmin?.addEventListener("click", async () => {
   const original = btnRefreshAdmin.textContent;
   btnRefreshAdmin.textContent = "Refreshing...";
   try {
-    await fetchRequests();
+    await Promise.all([fetchRequests(), loadRoutes()]);
     showToast("Admin data refreshed.", "success");
   } finally {
     btnRefreshAdmin.disabled = false;
@@ -285,11 +415,12 @@ async function initializeAdmin() {
   const authorized = await verifyAdminAccess();
   if (!authorized) return;
 
-  await fetchRequests();
+  createRouteManagementPanel();
+  await Promise.all([fetchRequests(), loadRoutes()]);
 
-  supabase?.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_OUT" || !session) {
-      window.location.href = "index.html";
+  supabase?.auth.onAuthStateChange((event) => {
+    if (event === "SIGNED_OUT") {
+      window.location.replace("index.html");
     }
   });
 }
