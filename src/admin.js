@@ -8,13 +8,30 @@ const supabase =
     ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
     : null;
 
-const adminLogoutBtn = document.getElementById("adminLogoutBtn");
-const adminTableBody = document.getElementById("adminTableBody");
-const adminEmptyState = document.getElementById("adminEmptyState");
-const pendingCount = document.getElementById("pendingCount");
-const approvedVolume = document.getElementById("approvedVolume");
-const btnRefreshAdmin = document.getElementById("btnRefreshAdmin");
-const toastContainer = document.getElementById("toastContainer");
+const $ = (id) => document.getElementById(id);
+const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+const adminLogoutBtn = $("adminLogoutBtn");
+const adminTableBody = $("adminTableBody");
+const adminEmptyState = $("adminEmptyState");
+const pendingCount = $("pendingCount");
+const approvedVolume = $("approvedVolume");
+const btnRefreshAdmin = $("btnRefreshAdmin");
+const btnRefreshRoutes = $("btnRefreshRoutes");
+const btnRefreshUsers = $("btnRefreshUsers");
+const routesLoading = $("routesLoading");
+const routesList = $("routesList");
+const toastContainer = $("toastContainer");
+const adminUsersBody = $("adminUsersBody");
+const adminUsersEmpty = $("adminUsersEmpty");
+const adminCampaignBody = $("adminCampaignBody");
+const adminCampaignEmpty = $("adminCampaignEmpty");
+const adminTotalUsers = $("adminTotalUsers");
+const adminWalletTotal = $("adminWalletTotal");
+const adminTopupTotal = $("adminTopupTotal");
+const adminCampaignTotal = $("adminCampaignTotal");
+const adminViewButtons = $$('[data-admin-view]');
+const adminViewPanels = $$(".admin-view-panel");
 
 function showToast(message, type = "info") {
   if (!toastContainer) return;
@@ -37,6 +54,10 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function money(value, digits = 2) {
+  return `$${(Number(value) || 0).toFixed(digits)}`;
+}
+
 function formatDate(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "—";
@@ -53,6 +74,13 @@ function displayRouteName(route) {
   if (route?.code === "US-A") return "Route A";
   if (route?.code === "US-B") return "Route B";
   return route?.name || route?.code || "Route";
+}
+
+function displayCampaignStatus(status) {
+  const value = String(status || "processing").toLowerCase();
+  if (["failed", "cancelled"].includes(value)) return "FAILED";
+  if (value === "delivered") return "DELIVERED";
+  return "SUBMITTED";
 }
 
 function showAccessProblem(email = "") {
@@ -83,7 +111,7 @@ function showAccessProblem(email = "") {
       </div>
     </div>`;
 
-  document.getElementById("adminAccessSignOut")?.addEventListener("click", async () => {
+  $("adminAccessSignOut")?.addEventListener("click", async () => {
     await supabase?.auth.signOut();
     window.location.href = "index.html";
   });
@@ -110,13 +138,9 @@ async function verifyAdminAccess() {
 
     if (profileError) throw profileError;
 
-    if (
-      profile &&
-      ["admin", "owner"].includes(String(profile.role || "").toLowerCase()) &&
-      String(profile.status || "").toLowerCase() === "active"
-    ) {
-      return true;
-    }
+    const role = String(profile?.role || "").toLowerCase();
+    const status = String(profile?.status || "").toLowerCase();
+    if (["admin", "owner"].includes(role) && status === "active") return true;
 
     showAccessProblem(user.email || "");
     return false;
@@ -127,57 +151,50 @@ async function verifyAdminAccess() {
   }
 }
 
-function createRouteManagementPanel() {
-  if (document.getElementById("routeManagementPanel")) return;
-  const contentArea = document.querySelector(".platform-content-area");
-  if (!contentArea) return;
+async function switchAdminView(viewId) {
+  adminViewPanels.forEach((panel) => panel.classList.add("hidden"));
+  $(viewId)?.classList.remove("hidden");
+  adminViewButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.adminView === viewId);
+  });
 
-  const panel = document.createElement("div");
-  panel.id = "routeManagementPanel";
-  panel.className = "panel";
-  panel.innerHTML = `
-    <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;">
-      <div>
-        <h3 class="panel-title">Route Management</h3>
-        <p style="margin-top:4px;font-size:.78rem;color:#7b8798;">Manage messaging route availability and pricing.</p>
-      </div>
-      <button id="btnRefreshRoutes" class="btn-secondary" type="button">Refresh Routes</button>
-    </div>
-    <div id="routesLoading" style="padding:1rem;color:#7b8798;font-size:.8rem;">Loading routes...</div>
-    <div id="routesList" style="display:flex;flex-direction:column;gap:.75rem;"></div>`;
-
-  contentArea.insertBefore(panel, contentArea.firstChild);
-  document.getElementById("btnRefreshRoutes")?.addEventListener("click", loadRoutes);
+  if (viewId === "adminUsersView") {
+    await loadUsersAndActivity();
+  } else {
+    await Promise.all([fetchRequests(), loadRoutes()]);
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-async function loadRoutes() {
-  const loading = document.getElementById("routesLoading");
-  const list = document.getElementById("routesList");
-  if (!list || !supabase) return;
+adminViewButtons.forEach((button) => {
+  button.addEventListener("click", () => switchAdminView(button.dataset.adminView));
+});
 
-  loading?.classList.remove("hidden");
-  list.innerHTML = "";
+async function loadRoutes() {
+  if (!routesList || !supabase) return;
+  routesLoading?.classList.remove("hidden");
+  routesList.innerHTML = "";
 
   try {
     const { data, error } = await supabase
       .from("routes")
-      .select("id,name,code,enabled,price_per_message,updated_at")
+      .select("id,name,code,enabled,price_per_message,updated_at,created_at")
       .order("created_at", { ascending: true });
 
     if (error) throw error;
 
     if (!data?.length) {
-      list.innerHTML = `<div style="padding:1rem;border:1px dashed #d9e2ec;border-radius:12px;color:#7b8798;">No routes configured.</div>`;
+      routesList.innerHTML = `<div style="padding:1rem;border:1px dashed #d9e2ec;border-radius:12px;color:#7b8798;">No routes configured.</div>`;
       return;
     }
 
-    data.forEach((route) => list.appendChild(createRouteRow(route)));
+    data.forEach((route) => routesList.appendChild(createRouteRow(route)));
   } catch (error) {
     console.error("Route loading error:", error);
-    list.innerHTML = `<div style="padding:1rem;border:1px dashed #d9e2ec;border-radius:12px;color:#7b8798;">Route controls are currently unavailable.</div>`;
+    routesList.innerHTML = `<div style="padding:1rem;border:1px dashed #d9e2ec;border-radius:12px;color:#7b8798;">Route controls are currently unavailable.</div>`;
     showToast(`Could not load routes: ${error.message}`, "error");
   } finally {
-    loading?.classList.add("hidden");
+    routesLoading?.classList.add("hidden");
   }
 }
 
@@ -254,16 +271,15 @@ async function fetchRequests() {
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    renderTable(data || []);
+    renderRequests(data || []);
   } catch (error) {
     console.error("Top-up request error:", error);
     showToast(`Could not load payment requests: ${error.message}`, "error");
   }
 }
 
-function renderTable(requests) {
+function renderRequests(requests) {
   if (!adminTableBody) return;
-
   adminTableBody.innerHTML = "";
   let pending = 0;
   let totalApproved = 0;
@@ -287,12 +303,11 @@ function renderTable(requests) {
     if (isPaid) totalApproved += amount;
 
     const row = document.createElement("tr");
-
     const userCell = document.createElement("td");
     userCell.innerHTML = `<strong>${escapeHtml(request.user_email || request.user_id || "N/A")}</strong>`;
 
     const amountCell = document.createElement("td");
-    amountCell.textContent = `$${amount.toFixed(2)}`;
+    amountCell.textContent = money(amount);
 
     const networkCell = document.createElement("td");
     networkCell.innerHTML = `<span class="status-pill">${escapeHtml(request.network || "TRC20")}</span>`;
@@ -300,12 +315,10 @@ function renderTable(requests) {
     const txCell = document.createElement("td");
     const txWrap = document.createElement("div");
     txWrap.style.cssText = "display:flex;align-items:center;gap:8px;";
-
     const txCode = document.createElement("code");
     txCode.className = "code-pill";
     txCode.style.cssText = "max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
     txCode.textContent = request.tx_hash || "No Hash";
-
     const copyButton = document.createElement("button");
     copyButton.type = "button";
     copyButton.className = "btn-secondary";
@@ -319,7 +332,6 @@ function renderTable(requests) {
         showToast("Could not copy transaction hash.", "error");
       }
     });
-
     txWrap.append(txCode, copyButton);
     txCell.appendChild(txWrap);
 
@@ -348,24 +360,20 @@ function renderTable(requests) {
   });
 
   if (pendingCount) pendingCount.textContent = String(pending);
-  if (approvedVolume) approvedVolume.textContent = `$${totalApproved.toFixed(2)}`;
+  if (approvedVolume) approvedVolume.textContent = money(totalApproved);
 }
 
 async function handleApprove(request, button) {
   if (!supabase || !request?.id) return;
-
   button.disabled = true;
   button.textContent = "Approving...";
 
   try {
-    const { error } = await supabase.rpc("approve_topup", {
-      p_topup_id: request.id
-    });
-
+    const { error } = await supabase.rpc("approve_topup", { p_topup_id: request.id });
     if (error) throw error;
 
-    showToast(`Payment of $${Number(request.amount || 0).toFixed(2)} approved and credited.`, "success");
-    await fetchRequests();
+    showToast(`Payment of ${money(request.amount)} approved and credited.`, "success");
+    await Promise.all([fetchRequests(), loadUsersAndActivity()]);
   } catch (error) {
     console.error("Payment approval error:", error);
     showToast(`Approval failed: ${error.message}`, "error");
@@ -374,11 +382,102 @@ async function handleApprove(request, button) {
   }
 }
 
-adminLogoutBtn?.addEventListener("click", async () => {
+async function loadUsersAndActivity() {
+  if (!supabase) return;
+
   try {
-    await supabase?.auth.signOut();
+    const [usersResult, campaignsResult] = await Promise.all([
+      supabase.rpc("admin_users_overview"),
+      supabase.rpc("admin_campaign_activity")
+    ]);
+
+    if (usersResult.error) throw usersResult.error;
+    if (campaignsResult.error) throw campaignsResult.error;
+
+    renderUsers(usersResult.data || []);
+    renderCampaignActivity(campaignsResult.data || []);
+  } catch (error) {
+    console.error("Admin users/activity error:", error);
+    showToast(`Could not load users: ${error.message}`, "error");
+  }
+}
+
+function renderUsers(users) {
+  if (!adminUsersBody) return;
+  adminUsersBody.innerHTML = "";
+
+  const walletTotal = users.reduce((sum, user) => sum + (Number(user.wallet_balance) || 0), 0);
+  const topupTotal = users.reduce((sum, user) => sum + (Number(user.approved_topups) || 0), 0);
+  const campaignTotal = users.reduce((sum, user) => sum + (Number(user.campaign_count) || 0), 0);
+
+  if (adminTotalUsers) adminTotalUsers.textContent = String(users.length);
+  if (adminWalletTotal) adminWalletTotal.textContent = money(walletTotal);
+  if (adminTopupTotal) adminTopupTotal.textContent = money(topupTotal);
+  if (adminCampaignTotal) adminCampaignTotal.textContent = String(campaignTotal);
+
+  if (!users.length) {
+    adminUsersEmpty?.classList.remove("hidden");
+    return;
+  }
+  adminUsersEmpty?.classList.add("hidden");
+
+  users.forEach((user) => {
+    const row = document.createElement("tr");
+    const role = String(user.role || "agent").toUpperCase();
+    const status = String(user.status || "active").toUpperCase();
+    row.innerHTML = `
+      <td>
+        <strong style="display:block;">${escapeHtml(user.full_name || "User")}</strong>
+        <span style="display:block;margin-top:3px;color:#7b8798;">${escapeHtml(user.email || user.user_id || "—")}</span>
+      </td>
+      <td><span class="status-pill ${status === "ACTIVE" ? "status-success" : ""}">${escapeHtml(role)} · ${escapeHtml(status)}</span></td>
+      <td><strong>${money(user.wallet_balance)}</strong></td>
+      <td><strong style="color:#087548;">${money(user.approved_topups)}</strong></td>
+      <td>${money(user.pending_topups)}</td>
+      <td>${Number(user.campaign_count) || 0}</td>
+      <td>${money(user.total_campaign_spend)}</td>
+      <td><code class="code-pill">${escapeHtml(user.latest_source_file || "Manual / none")}</code></td>
+      <td>${formatDate(user.last_activity)}</td>`;
+    adminUsersBody.appendChild(row);
+  });
+}
+
+function renderCampaignActivity(campaigns) {
+  if (!adminCampaignBody) return;
+  adminCampaignBody.innerHTML = "";
+
+  if (!campaigns.length) {
+    adminCampaignEmpty?.classList.remove("hidden");
+    return;
+  }
+  adminCampaignEmpty?.classList.add("hidden");
+
+  campaigns.forEach((campaign) => {
+    const status = displayCampaignStatus(campaign.campaign_status);
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><strong>${escapeHtml(campaign.user_email || campaign.user_id || "—")}</strong></td>
+      <td>${escapeHtml(campaign.campaign_name || "Campaign")}</td>
+      <td><code class="code-pill">${escapeHtml(campaign.source_file_name || "Manual entry")}</code></td>
+      <td>${escapeHtml(campaign.route_name || "Route")}</td>
+      <td>${Number(campaign.total_recipients) || 0}</td>
+      <td>${money(campaign.total_cost)}</td>
+      <td><span class="status-pill ${status === "DELIVERED" ? "status-success" : ""}">${status}</span></td>
+      <td>${formatDate(campaign.created_at)}</td>`;
+    adminCampaignBody.appendChild(row);
+  });
+}
+
+btnRefreshRoutes?.addEventListener("click", async () => {
+  btnRefreshRoutes.disabled = true;
+  const original = btnRefreshRoutes.textContent;
+  btnRefreshRoutes.textContent = "Refreshing...";
+  try {
+    await loadRoutes();
+    showToast("Routes refreshed.", "success");
   } finally {
-    window.location.href = "index.html";
+    btnRefreshRoutes.disabled = false;
+    btnRefreshRoutes.textContent = original || "Refresh Routes";
   }
 });
 
@@ -386,7 +485,6 @@ btnRefreshAdmin?.addEventListener("click", async () => {
   btnRefreshAdmin.disabled = true;
   const original = btnRefreshAdmin.textContent;
   btnRefreshAdmin.textContent = "Refreshing...";
-
   try {
     await Promise.all([fetchRequests(), loadRoutes()]);
     showToast("Admin data refreshed.", "success");
@@ -396,11 +494,31 @@ btnRefreshAdmin?.addEventListener("click", async () => {
   }
 });
 
+btnRefreshUsers?.addEventListener("click", async () => {
+  btnRefreshUsers.disabled = true;
+  const original = btnRefreshUsers.textContent;
+  btnRefreshUsers.textContent = "Refreshing...";
+  try {
+    await loadUsersAndActivity();
+    showToast("User activity refreshed.", "success");
+  } finally {
+    btnRefreshUsers.disabled = false;
+    btnRefreshUsers.textContent = original || "Refresh Users";
+  }
+});
+
+adminLogoutBtn?.addEventListener("click", async () => {
+  try {
+    await supabase?.auth.signOut();
+  } finally {
+    window.location.href = "index.html";
+  }
+});
+
 async function initializeAdmin() {
   const authorized = await verifyAdminAccess();
   if (!authorized) return;
 
-  createRouteManagementPanel();
   await Promise.all([fetchRequests(), loadRoutes()]);
 
   supabase?.auth.onAuthStateChange((event, session) => {
