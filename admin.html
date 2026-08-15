@@ -22,12 +22,12 @@
 
     <nav class="platform-menu">
       <div class="nav-section-title">Administration</div>
-      <button class="menu-item active" type="button">
+      <button id="btnAdminTopups" class="menu-item active" data-admin-view="adminTopupsView" type="button">
         <span>▣</span><span>USDT Top-ups</span>
       </button>
-      <a href="dashboard.html" class="menu-item">
-        <span>⌂</span><span>User Portal</span>
-      </a>
+      <button id="btnAdminUsers" class="menu-item" data-admin-view="adminUsersView" type="button">
+        <span>◉</span><span>Users</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -54,74 +54,185 @@
     </header>
 
     <main class="platform-content-area">
-      <div class="breadcrumb-bar">Administration / USDT Verification Queue</div>
-
-      <div class="admin-head">
-        <div>
-          <span class="eyebrow">ADMINISTRATION</span>
-          <h2>USDT Verification Queue</h2>
-          <p style="margin-top:6px;color:var(--text-secondary);font-size:12px;">
-            Review submitted top-up requests and credit approved balances.
-          </p>
-        </div>
-        <span class="admin-badge">SUPERADMIN</span>
-      </div>
-
-      <div class="admin-stats">
-        <div>
-          <small>Pending Approvals</small>
-          <b id="pendingCount" style="color:#d99400;">0</b>
-          <small style="margin-top:4px;">Awaiting verification</small>
-        </div>
-        <div>
-          <small>Approved Volume</small>
-          <b id="approvedVolume" style="color:#16a36a;">$0.00</b>
-          <small style="margin-top:4px;">Balance credited</small>
-        </div>
-        <div>
-          <small>Network</small>
-          <b>TRC20</b>
-          <small style="margin-top:4px;">USDT payments</small>
-        </div>
-        <div>
-          <small>Console Status</small>
-          <b style="color:#16a36a;">ONLINE</b>
-          <small style="margin-top:4px;">Ready for review</small>
-        </div>
-      </div>
-
-      <div class="portal-card">
-        <div class="portal-card-header">
-          <div>
-            <h2>Payment Verification</h2>
-            <p>Review transaction hashes before approving credits.</p>
+      <section id="adminTopupsView" class="admin-view-panel">
+        <div id="routeManagementPanel" class="panel">
+          <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+            <div>
+              <h3 class="panel-title">Route Management</h3>
+              <p style="margin-top:4px;font-size:.78rem;color:#7b8798;">Manage messaging route availability and pricing.</p>
+            </div>
+            <button id="btnRefreshRoutes" class="btn-secondary" type="button">Refresh Routes</button>
           </div>
-          <button id="btnRefreshAdmin" class="btn-secondary" type="button">Refresh Queue</button>
+          <div id="routesLoading" style="padding:1rem;color:#7b8798;font-size:.8rem;">Loading routes...</div>
+          <div id="routesList" style="display:flex;flex-direction:column;gap:.75rem;"></div>
         </div>
 
-        <div class="table-wrapper">
-          <table class="outbox-table">
-            <thead>
-              <tr>
-                <th>User / Email</th>
-                <th>Amount</th>
-                <th>Network</th>
-                <th>TxID / Hash</th>
-                <th>Submitted</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="adminTableBody"></tbody>
-          </table>
+        <div class="breadcrumb-bar">Administration / USDT Verification Queue</div>
+
+        <div class="admin-head">
+          <div>
+            <span class="eyebrow">ADMINISTRATION</span>
+            <h2>USDT Verification Queue</h2>
+            <p style="margin-top:6px;color:#7b8798;font-size:12px;">Review submitted top-up requests and credit approved balances.</p>
+          </div>
+          <span class="admin-badge">SUPERADMIN</span>
         </div>
 
-        <div class="empty-state hidden" id="adminEmptyState">
-          <div class="empty-icon">✓</div>
-          <h3>No pending requests</h3>
-          <p>New top-up submissions will appear here.</p>
+        <div class="admin-stats">
+          <div>
+            <small>Pending Approvals</small>
+            <b id="pendingCount" style="color:#d99400;">0</b>
+            <small style="margin-top:4px;">Awaiting verification</small>
+          </div>
+          <div>
+            <small>Approved Volume</small>
+            <b id="approvedVolume" style="color:#16a36a;">$0.00</b>
+            <small style="margin-top:4px;">Balance credited</small>
+          </div>
+          <div>
+            <small>Network</small>
+            <b>TRC20</b>
+            <small style="margin-top:4px;">USDT payments</small>
+          </div>
+          <div>
+            <small>Console Status</small>
+            <b style="color:#16a36a;">ONLINE</b>
+            <small style="margin-top:4px;">Ready for review</small>
+          </div>
         </div>
-      </div>
+
+        <div class="portal-card">
+          <div class="portal-card-header">
+            <div>
+              <h2>Payment Verification</h2>
+              <p>Review transaction hashes before approving credits.</p>
+            </div>
+            <button id="btnRefreshAdmin" class="btn-secondary" type="button">Refresh Queue</button>
+          </div>
+
+          <div class="table-wrapper">
+            <table class="outbox-table">
+              <thead>
+                <tr>
+                  <th>User / Email</th>
+                  <th>Amount</th>
+                  <th>Network</th>
+                  <th>TxID / Hash</th>
+                  <th>Submitted</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="empty-state hidden" id="adminEmptyState">
+            <div class="empty-icon">✓</div>
+            <h3>No payment requests</h3>
+            <p>New top-up submissions will appear here.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="adminUsersView" class="admin-view-panel hidden">
+        <div class="breadcrumb-bar">Administration / Users</div>
+
+        <div class="admin-head">
+          <div>
+            <span class="eyebrow">ACCOUNT CONTROL</span>
+            <h2>Users & Activity</h2>
+            <p style="margin-top:6px;color:#7b8798;font-size:12px;">Review user accounts, wallet balances, top-ups and campaign activity.</p>
+          </div>
+          <button id="btnRefreshUsers" class="btn-secondary" type="button">Refresh Users</button>
+        </div>
+
+        <div class="admin-stats">
+          <div>
+            <small>Total Users</small>
+            <b id="adminTotalUsers">0</b>
+            <small style="margin-top:4px;">Registered accounts</small>
+          </div>
+          <div>
+            <small>Total Wallet Balance</small>
+            <b id="adminWalletTotal" style="color:#147ef5;">$0.00</b>
+            <small style="margin-top:4px;">Current balances</small>
+          </div>
+          <div>
+            <small>Approved Top-ups</small>
+            <b id="adminTopupTotal" style="color:#16a36a;">$0.00</b>
+            <small style="margin-top:4px;">Credited volume</small>
+          </div>
+          <div>
+            <small>Campaigns</small>
+            <b id="adminCampaignTotal">0</b>
+            <small style="margin-top:4px;">Submitted campaigns</small>
+          </div>
+        </div>
+
+        <div class="portal-card">
+          <div class="portal-card-header">
+            <div>
+              <h2>User Accounts</h2>
+              <p>Balance, top-up totals and account activity by user.</p>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="outbox-table" style="min-width:1250px;">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Wallet</th>
+                  <th>Approved Top-ups</th>
+                  <th>Pending Top-ups</th>
+                  <th>Campaigns</th>
+                  <th>Campaign Spend</th>
+                  <th>Latest Source</th>
+                  <th>Last Activity</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersBody"></tbody>
+            </table>
+          </div>
+          <div id="adminUsersEmpty" class="empty-state hidden">
+            <div class="empty-icon">◉</div>
+            <h3>No users found</h3>
+            <p>Registered users will appear here.</p>
+          </div>
+        </div>
+
+        <div class="portal-card">
+          <div class="portal-card-header">
+            <div>
+              <h2>Campaign & File Activity</h2>
+              <p>See which account submitted each campaign and which recipient file was used.</p>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="outbox-table" style="min-width:1050px;">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Campaign</th>
+                  <th>Source File</th>
+                  <th>Route</th>
+                  <th>Recipients</th>
+                  <th>Cost</th>
+                  <th>Status</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody id="adminCampaignBody"></tbody>
+            </table>
+          </div>
+          <div id="adminCampaignEmpty" class="empty-state hidden">
+            <div class="empty-icon">↗</div>
+            <h3>No campaign activity yet</h3>
+            <p>Submitted campaigns will appear here.</p>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 </div>
