@@ -52,6 +52,19 @@ const els = {
   outboxNoDataNotice: $("outboxNoDataNotice"),
   btnClearOutboxRecords: $("btnClearOutboxRecords"),
   btnFilterSearch: $("btnFilterSearch"),
+  outboxFromDate: $("outboxFromDate"),
+  outboxToDate: $("outboxToDate"),
+  outboxStatusFilter: $("outboxStatusFilter"),
+  btnApplyOutboxFilters: $("btnApplyOutboxFilters"),
+  btnResetOutboxFilters: $("btnResetOutboxFilters"),
+  outboxFilterMessage: $("outboxFilterMessage"),
+  outboxTotalCount: $("outboxTotalCount"),
+  outboxSubmittedCount: $("outboxSubmittedCount"),
+  outboxDeliveredCount: $("outboxDeliveredCount"),
+  outboxFailedCount: $("outboxFailedCount"),
+  outboxDemoDeliveredCount: $("outboxDemoDeliveredCount"),
+  outboxTotalCharges: $("outboxTotalCharges"),
+  outboxDemoCard: $("outboxDemoCard"),
   paymentHistoryList: $("paymentHistoryList"),
   topUpModal: $("topUpModal"),
   closeTopUpModal: $("closeTopUpModal"),
@@ -92,6 +105,7 @@ let parsedCampaignNumbers = [];
 let selectedSourceFileName = "";
 let routeByDisplayName = new Map();
 let routeById = new Map();
+let outboxRecordsCache = [];
 
 function money(value, digits = 2) {
   return `$${(Number(value) || 0).toFixed(digits)}`;
@@ -636,9 +650,37 @@ function outboxStatusLabel(status, createdAt) {
   return "Submitted";
 }
 
+function outboxRecordCost(record) {
+  const campaign = record.campaigns || {};
+  const totalRecipients = Number(campaign.total_recipients || campaign.recipient_count || 0);
+  return totalRecipients > 0 ? Number(campaign.total_cost || 0) / totalRecipients : 0;
+}
+
+function renderOutboxSummary(records) {
+  const summary = records.reduce((totals, record) => {
+    const label = outboxStatusLabel(record.status, record.created_at);
+    totals.total += 1;
+    totals.charges += outboxRecordCost(record);
+    if (label === "Delivered") totals.delivered += 1;
+    else if (label === "Failed") totals.failed += 1;
+    else if (label === "Demo Delivered") totals.demoDelivered += 1;
+    else totals.submitted += 1;
+    return totals;
+  }, { total: 0, submitted: 0, delivered: 0, failed: 0, demoDelivered: 0, charges: 0 });
+
+  if (els.outboxTotalCount) els.outboxTotalCount.textContent = summary.total.toLocaleString();
+  if (els.outboxSubmittedCount) els.outboxSubmittedCount.textContent = summary.submitted.toLocaleString();
+  if (els.outboxDeliveredCount) els.outboxDeliveredCount.textContent = summary.delivered.toLocaleString();
+  if (els.outboxFailedCount) els.outboxFailedCount.textContent = summary.failed.toLocaleString();
+  if (els.outboxDemoDeliveredCount) els.outboxDemoDeliveredCount.textContent = summary.demoDelivered.toLocaleString();
+  if (els.outboxTotalCharges) els.outboxTotalCharges.textContent = money(summary.charges);
+  els.outboxDemoCard?.classList.toggle("hidden", !DEMO_MODE);
+}
+
 function renderOutboxRecords(records) {
   if (!els.outboxRecordsTbody) return;
   els.outboxRecordsTbody.innerHTML = "";
+  renderOutboxSummary(records || []);
 
   if (!records?.length) {
     els.outboxNoDataNotice?.classList.remove("hidden");
@@ -651,10 +693,10 @@ function renderOutboxRecords(records) {
     const campaign = record.campaigns || {};
     const route = routeById.get(campaign.route_id);
     const routeName = route?.displayName || "Route";
-    const totalRecipients = Number(campaign.total_recipients || campaign.recipient_count || 0);
-    const perMessageCost = totalRecipients > 0 ? Number(campaign.total_cost || 0) / totalRecipients : 0;
+    const perMessageCost = outboxRecordCost(record);
     const label = outboxStatusLabel(record.status, record.created_at);
     const delivered = label === "Delivered" || label === "Demo Delivered";
+    const statusClass = delivered ? "status-success" : label === "Failed" ? "status-failed" : "";
 
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -662,7 +704,7 @@ function renderOutboxRecords(records) {
       <td>Messaging</td>
       <td><strong>${routeName}</strong></td>
       <td>${money(perMessageCost, 3)}</td>
-      <td><span class="status-pill ${delivered ? "status-success" : ""}">${label}</span></td>
+      <td><span class="status-pill ${statusClass}">${label}</span></td>
       <td><strong>${record.phone || "—"}</strong></td>
       <td>${campaign.sender_id || "iMessage-Direct"}</td>
       <td>${formatDateTime(record.created_at)}</td>
@@ -671,8 +713,38 @@ function renderOutboxRecords(records) {
   });
 }
 
+function applyOutboxFilters() {
+  const fromValue = els.outboxFromDate?.value;
+  const toValue = els.outboxToDate?.value;
+  const fromTime = fromValue ? new Date(fromValue).getTime() : null;
+  const toTime = toValue ? new Date(toValue).getTime() : null;
+  const selectedStatus = els.outboxStatusFilter?.value || "all";
+
+  if (fromTime && toTime && fromTime > toTime) {
+    if (els.outboxFilterMessage) els.outboxFilterMessage.textContent = "The From date must be earlier than the To date.";
+    showToast("Please select a valid date range.", "error");
+    return;
+  }
+
+  const filtered = outboxRecordsCache.filter((record) => {
+    const createdTime = new Date(record.created_at).getTime();
+    const label = outboxStatusLabel(record.status, record.created_at).toLowerCase().replace(" ", "-");
+    const matchesDate = (!fromTime || createdTime >= fromTime) && (!toTime || createdTime <= toTime);
+    const matchesStatus = selectedStatus === "all" || label === selectedStatus;
+    return matchesDate && matchesStatus;
+  });
+
+  renderOutboxRecords(filtered);
+  if (els.outboxFilterMessage) {
+    els.outboxFilterMessage.textContent = `Showing ${filtered.length.toLocaleString()} of ${outboxRecordsCache.length.toLocaleString()} loaded messages.`;
+  }
+}
+
 async function loadOutboxRecords() {
-  if (!supabase || !currentUser) return renderOutboxRecords([]);
+  if (!supabase || !currentUser) {
+    outboxRecordsCache = [];
+    return applyOutboxFilters();
+  }
 
   const { data, error } = await supabase
     .from("campaign_messages")
@@ -703,7 +775,8 @@ async function loadOutboxRecords() {
     return;
   }
 
-  renderOutboxRecords(data || []);
+  outboxRecordsCache = data || [];
+  applyOutboxFilters();
 }
 
 async function submitCampaign() {
@@ -804,6 +877,15 @@ els.btnSuccessGoOutbox?.addEventListener("click", async () => {
 els.btnFilterSearch?.addEventListener("click", async () => {
   await loadOutboxRecords();
   showToast("Outbox refreshed.", "success");
+});
+
+els.btnApplyOutboxFilters?.addEventListener("click", applyOutboxFilters);
+els.btnResetOutboxFilters?.addEventListener("click", () => {
+  if (els.outboxFromDate) els.outboxFromDate.value = "";
+  if (els.outboxToDate) els.outboxToDate.value = "";
+  if (els.outboxStatusFilter) els.outboxStatusFilter.value = "all";
+  applyOutboxFilters();
+  showToast("Outbox filters reset.", "success");
 });
 
 els.btnClearOutboxRecords?.addEventListener("click", async () => {
@@ -944,7 +1026,7 @@ async function initDashboard() {
 
     if (DEMO_MODE) {
       window.setInterval(() => {
-        if (currentUser) loadOutboxRecords();
+        if (currentUser) applyOutboxFilters();
       }, 2000);
     }
 
