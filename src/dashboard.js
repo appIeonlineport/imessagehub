@@ -21,14 +21,17 @@ if (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY) {
   }
 }
 
+
 // =========================================================
 // DOM
 // =========================================================
 
+// Dashboard
 const welcomeName = document.getElementById("welcomeName");
 const welcomeEmail = document.getElementById("welcomeEmail");
 const accountStatus = document.getElementById("accountStatus");
 const walletBalance = document.getElementById("walletBalance");
+const walletBalanceTop = document.getElementById("walletBalanceTop");
 const accountRole = document.getElementById("accountRole");
 const userId = document.getElementById("userId");
 const createdAt = document.getElementById("createdAt");
@@ -41,104 +44,202 @@ const dashWelcomeId = document.getElementById("dashWelcomeId");
 const dropdownUserTitle = document.getElementById("dropdownUserTitle");
 const liveClockDisplay = document.getElementById("liveClockDisplay");
 
+
+// Navigation
 const menuItems = document.querySelectorAll("[data-view]");
 const viewPanels = document.querySelectorAll(".view-panel");
 const btnGetStarted = document.getElementById("btnGetStarted");
 
+
+// User menu
 const userMenuBtn = document.getElementById("userMenuBtn");
 const userDropdownMenu = document.getElementById("userDropdownMenu");
 const btnShowProfile = document.getElementById("btnShowProfile");
 const btnOpenTopUpFromMenu =
   document.getElementById("btnOpenTopUpFromMenu");
+
 const topbarBalanceBtn =
   document.getElementById("topbarBalanceBtn");
+
 const btnSidebarTopUp =
   document.getElementById("btnSidebarTopUp");
 
+const btnDashboardTopUp =
+  document.getElementById("btnDashboardTopUp");
+
+
+// Campaign
 const campaignNumbersArea =
   document.getElementById("campaignNumbersArea");
+
 const bulkFileInput =
   document.getElementById("bulkFileInput");
+
 const btnTriggerUpload =
   document.getElementById("btnTriggerUpload");
+
 const senderIdInput =
   document.getElementById("senderIdInput");
+
 const mainMessageContent =
   document.getElementById("mainMessageContent");
+
 const wordsAndItemsCounter =
   document.getElementById("wordsAndItemsCounter");
+
 const btnSubmitCampaign =
   document.getElementById("btnSubmitCampaign");
 
-const campaignProgressBox =
-  document.getElementById("campaignProgressBox");
-const campaignProgressText =
-  document.getElementById("campaignProgressText");
-const campaignProgressPercent =
-  document.getElementById("campaignProgressPercent");
-const campaignProgressBarFill =
-  document.getElementById("campaignProgressBarFill");
 
+// Route
+const campaignRouteInput =
+  document.getElementById("campaignRouteInput");
+
+const routeCards =
+  document.querySelectorAll(".route-card");
+
+const routeRadios =
+  document.querySelectorAll(
+    'input[name="campaignRoute"]'
+  );
+
+const campaignSelectedRoute =
+  document.getElementById("campaignSelectedRoute");
+
+const campaignEstimatedCost =
+  document.getElementById("campaignEstimatedCost");
+
+const recipientCount =
+  document.getElementById("recipientCount");
+
+const recipientCountLarge =
+  document.getElementById("recipientCountLarge");
+
+
+// Outbox
 const outboxRecordsTbody =
   document.getElementById("outboxRecordsTbody");
+
 const outboxNoDataNotice =
   document.getElementById("outboxNoDataNotice");
+
 const btnClearOutboxRecords =
   document.getElementById("btnClearOutboxRecords");
+
 const btnFilterSearch =
   document.getElementById("btnFilterSearch");
 
+
+// Payment history
+const paymentHistoryList =
+  document.getElementById("paymentHistoryList");
+
+
+// Top-up
 const topUpModal =
   document.getElementById("topUpModal");
+
 const closeTopUpModal =
   document.getElementById("closeTopUpModal");
+
 const cancelTopUpBtn =
   document.getElementById("cancelTopUpBtn");
+
 const btnSubmitPaid =
   document.getElementById("btnSubmitPaid");
+
 const copyUsdtAddressBtn =
   document.getElementById("copyUsdtAddressBtn");
+
 const usdtWalletAddress =
   document.getElementById("usdtWalletAddress");
+
 const usdtUserEmail =
   document.getElementById("usdtUserEmail");
+
 const usdtTxHash =
   document.getElementById("usdtTxHash");
+
 const usdtAmountDisplay =
   document.getElementById("usdtAmountDisplay");
+
 const usdtTimer =
   document.getElementById("usdtTimer");
 
+
+// Account
 const accountModal =
   document.getElementById("accountModal");
+
 const closeAccountModal =
   document.getElementById("closeAccountModal");
+
 const closeAccountModalBtn =
   document.getElementById("closeAccountModalBtn");
+
 const modalUserName =
   document.getElementById("modalUserName");
+
 const modalUserEmail =
   document.getElementById("modalUserEmail");
 
+
+// Success modal
+const campaignSuccessModal =
+  document.getElementById("campaignSuccessModal");
+
+const successRecipientCount =
+  document.getElementById("successRecipientCount");
+
+const successRouteName =
+  document.getElementById("successRouteName");
+
+const successCampaignCost =
+  document.getElementById("successCampaignCost");
+
+const btnSuccessGoOutbox =
+  document.getElementById("btnSuccessGoOutbox");
+
+const btnSuccessClose =
+  document.getElementById("btnSuccessClose");
+
+
+// Toast
 const toastContainer =
   document.getElementById("toastContainer");
+
 
 // =========================================================
 // STATE
 // =========================================================
 
 let currentUser = null;
-let selectedTopUpAmount = 99.0;
+
+let selectedTopUpAmount = 99;
+
 let countdownInterval = null;
 
 let parsedCampaignNumbers = [];
 
-let availableRoutes = [];
-let selectedRoute = null;
+let currentWalletBalance = 0;
+
+
+// Route prices
+const ROUTES = {
+  "Route A": 0.030,
+  "Route B": 0.045
+};
+
 
 // =========================================================
-// TOAST
+// HELPERS
 // =========================================================
+
+function money(value) {
+  const number = Number(value) || 0;
+  return `$${number.toFixed(2)}`;
+}
+
 
 function showToast(message, type = "info") {
   if (!toastContainer) return;
@@ -161,59 +262,54 @@ function showToast(message, type = "info") {
   }, 3200);
 }
 
-// =========================================================
-// HELPERS
-// =========================================================
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+function openModal(modal) {
+  if (modal) {
+    modal.classList.remove("hidden");
+  }
 }
 
-function getSelectedRoutePrice() {
-  return Number(
-    selectedRoute?.price_per_message || 0
-  );
+
+function closeModal(modal) {
+  if (modal) {
+    modal.classList.add("hidden");
+  }
 }
 
-function getEstimatedCampaignCost() {
-  return (
-    parsedCampaignNumbers.length *
-    getSelectedRoutePrice()
-  );
-}
 
 // =========================================================
 // LIVE CLOCK
 // =========================================================
 
 function startLiveClock() {
-  function update() {
+  function updateClock() {
     const now = new Date();
 
-    const pad = (n) =>
-      n.toString().padStart(2, "0");
+    const pad = (value) =>
+      String(value).padStart(2, "0");
 
     const formatted =
-      `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
-      `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+      `${now.getFullYear()}-` +
+      `${pad(now.getMonth() + 1)}-` +
+      `${pad(now.getDate())} ` +
+      `${pad(now.getHours())}:` +
+      `${pad(now.getMinutes())}:` +
+      `${pad(now.getSeconds())}`;
 
     if (liveClockDisplay) {
-      liveClockDisplay.textContent = formatted;
+      liveClockDisplay.textContent =
+        formatted;
     }
   }
 
-  update();
+  updateClock();
 
-  setInterval(update, 1000);
+  setInterval(updateClock, 1000);
 }
 
+
 // =========================================================
-// VIEW SWITCHING
+// NAVIGATION
 // =========================================================
 
 function switchView(targetViewId) {
@@ -228,13 +324,23 @@ function switchView(targetViewId) {
     target.classList.remove("hidden");
   }
 
-  menuItems.forEach((menu) => {
-    menu.classList.toggle(
+  menuItems.forEach((item) => {
+    const view =
+      item.getAttribute("data-view");
+
+    item.classList.toggle(
       "active",
-      menu.getAttribute("data-view") ===
-        targetViewId
+      view === targetViewId
     );
   });
+
+  if (targetViewId === "viewOutbox") {
+    loadOutboxRecords();
+  }
+
+  if (targetViewId === "viewPaymentHistory") {
+    loadPaymentHistory();
+  }
 
   window.scrollTo({
     top: 0,
@@ -242,635 +348,1836 @@ function switchView(targetViewId) {
   });
 }
 
-menuItems.forEach((button) => {
-  button.addEventListener("click", (event) => {
+
+menuItems.forEach((item) => {
+  item.addEventListener("click", (event) => {
     event.preventDefault();
 
-    const viewId =
-      button.getAttribute("data-view");
+    const view =
+      item.getAttribute("data-view");
 
-    if (viewId) {
-      switchView(viewId);
+    if (view) {
+      switchView(view);
     }
   });
 });
 
+
 if (btnGetStarted) {
   btnGetStarted.addEventListener(
     "click",
-    () => switchView("viewNewCampaign")
+    () => {
+      switchView("viewNewCampaign");
+    }
   );
 }
 
-// =========================================================
-// PAYMENT TIMER
-// =========================================================
-
-function startPaymentTimer() {
-  if (countdownInterval) {
-    clearInterval(countdownInterval);
-  }
-
-  let totalSeconds = 20 * 60;
-
-  function updateDisplay() {
-    const mins =
-      Math.floor(totalSeconds / 60);
-
-    const secs =
-      totalSeconds % 60;
-
-    if (usdtTimer) {
-      usdtTimer.textContent =
-        `${mins.toString().padStart(2, "0")}:${secs
-          .toString()
-          .padStart(2, "0")}`;
-    }
-
-    if (totalSeconds <= 0) {
-      clearInterval(countdownInterval);
-
-      if (usdtTimer) {
-        usdtTimer.textContent = "Expired";
-      }
-
-      return;
-    }
-
-    totalSeconds--;
-  }
-
-  updateDisplay();
-
-  countdownInterval =
-    setInterval(updateDisplay, 1000);
-}
-
-// =========================================================
-// DASHBOARD INIT
-// =========================================================
-
-async function initDashboard() {
-  startLiveClock();
-
-  if (!supabase) {
-    return;
-  }
-
-  try {
-    const {
-      data: { session },
-      error
-    } = await supabase.auth.getSession();
-
-    if (error || !session) {
-      window.location.href = "index.html";
-      return;
-    }
-
-    currentUser = session.user;
-
-    const fullName =
-      currentUser.user_metadata?.full_name ||
-      currentUser.user_metadata?.name ||
-      currentUser.email?.split("@")[0] ||
-      "User";
-
-    const emailStr =
-      currentUser.email || "N/A";
-
-    const userIdStr =
-      currentUser.id || "N/A";
-
-    const roleStr =
-      currentUser.user_metadata?.role ||
-      "consumer";
-
-    const cachedBalance =
-      localStorage.getItem(
-        `wallet_${emailStr}`
-      );
-
-    const walletStr = cachedBalance
-      ? `$${parseFloat(cachedBalance).toFixed(2)}`
-      : currentUser.user_metadata
-          ?.wallet_balance ||
-        "$0.00";
-
-    const accountCode =
-      "0016C" +
-      (
-        userIdStr
-          .replace(/\D/g, "")
-          .slice(0, 3) || "136"
-      );
-
-    if (welcomeName) {
-      welcomeName.textContent = fullName;
-    }
-
-    if (welcomeEmail) {
-      welcomeEmail.textContent = emailStr;
-    }
-
-    if (walletBalance) {
-      walletBalance.textContent = walletStr;
-    }
-
-    const walletBalanceTop =
-      document.getElementById(
-        "walletBalanceTop"
-      );
-
-    if (walletBalanceTop) {
-      walletBalanceTop.textContent =
-        walletStr;
-    }
-
-    if (accountRole) {
-      accountRole.textContent = roleStr;
-    }
-
-    if (headerName) {
-      headerName.textContent =
-        accountCode;
-    }
-
-    if (headerAvatar) {
-      headerAvatar.textContent =
-        fullName
-          .charAt(0)
-          .toUpperCase();
-    }
-
-    if (dashWelcomeId) {
-      dashWelcomeId.textContent =
-        accountCode;
-    }
-
-    if (dropdownUserTitle) {
-      dropdownUserTitle.textContent =
-        accountCode;
-    }
-
-    if (modalUserName) {
-      modalUserName.textContent =
-        `${fullName} (${accountCode})`;
-    }
-
-    if (modalUserEmail) {
-      modalUserEmail.textContent =
-        emailStr;
-    }
-
-    if (usdtUserEmail) {
-      usdtUserEmail.value =
-        emailStr;
-    }
-
-    if (createdAt) {
-      createdAt.textContent =
-        currentUser.created_at
-          ? new Date(
-              currentUser.created_at
-            ).toLocaleString()
-          : "—";
-    }
-
-    if (userId) {
-      userId.textContent =
-        userIdStr;
-    }
-
-    loadOutboxRecords();
-
-    await loadCampaignRoutes();
-
-    supabase.auth.onAuthStateChange(
-      (event, newSession) => {
-        if (
-          event === "SIGNED_OUT" ||
-          !newSession
-        ) {
-          window.location.href =
-            "index.html";
-        }
-      }
-    );
-
-  } catch (error) {
-    console.error(
-      "Dashboard error:",
-      error
-    );
-  }
-}
 
 // =========================================================
 // ROUTES
 // =========================================================
 
-async function loadCampaignRoutes() {
-  if (!supabase) return;
+function getSelectedRoute() {
+  const selected =
+    document.querySelector(
+      'input[name="campaignRoute"]:checked'
+    );
 
-  try {
-    const {
-      data,
-      error
-    } = await supabase
-      .from("routes")
-      .select(
-        "id, name, code, price_per_message, enabled"
-      )
-      .eq("enabled", true)
-      .order("created_at", {
-        ascending: true
-      });
+  if (selected) {
+    return {
+      name: selected.value,
+      price:
+        Number(
+          selected.getAttribute("data-price")
+        ) || ROUTES[selected.value] || 0
+    };
+  }
 
-    if (error) {
-      throw error;
+  const fallback =
+    campaignRouteInput?.value || "Route A";
+
+  return {
+    name: fallback,
+    price: ROUTES[fallback] || 0.030
+  };
+}
+
+
+function updateRouteUI() {
+  const route =
+    getSelectedRoute();
+
+  if (campaignRouteInput) {
+    campaignRouteInput.value =
+      route.name;
+  }
+
+  if (campaignSelectedRoute) {
+    campaignSelectedRoute.textContent =
+      route.name;
+  }
+
+  routeCards.forEach((card) => {
+    const radio =
+      card.querySelector(
+        'input[name="campaignRoute"]'
+      );
+
+    card.classList.toggle(
+      "active",
+      Boolean(radio?.checked)
+    );
+  });
+
+  updateCampaignCost();
+}
+
+
+routeRadios.forEach((radio) => {
+  radio.addEventListener(
+    "change",
+    updateRouteUI
+  );
+});
+
+
+routeCards.forEach((card) => {
+  card.addEventListener(
+    "click",
+    () => {
+      const radio =
+        card.querySelector(
+          'input[name="campaignRoute"]'
+        );
+
+      if (radio) {
+        radio.checked = true;
+        updateRouteUI();
+      }
     }
+  );
+});
 
-    availableRoutes =
-      Array.isArray(data)
-        ? data
-        : [];
+
+if (campaignRouteInput) {
+  campaignRouteInput.addEventListener(
+    "change",
+    () => {
+      const selected =
+        campaignRouteInput.value;
+
+      const radio =
+        document.querySelector(
+          `input[name="campaignRoute"][value="${selected}"]`
+        );
+
+      if (radio) {
+        radio.checked = true;
+      }
+
+      updateRouteUI();
+    }
+  );
+}
+
+
+// =========================================================
+// RECIPIENT PARSING
+// =========================================================
+
+function parseInputNumbers(text) {
+  if (!text) return [];
+
+  const values =
+    text.split(/[\n,;]+/);
+
+  const cleaned =
+    values
+      .map((value) => value.trim())
+      .filter(Boolean);
+
+  /*
+   * Keep the existing loose validation so that
+   * international numbers with +, spaces or
+   * country codes are accepted.
+   */
+  return cleaned.filter(
+    (value) =>
+      value.replace(/\D/g, "").length >= 7
+  );
+}
+
+
+function updateRecipientCount() {
+  parsedCampaignNumbers =
+    parseInputNumbers(
+      campaignNumbersArea?.value || ""
+    );
+
+  const count =
+    parsedCampaignNumbers.length;
+
+  if (recipientCount) {
+    recipientCount.textContent =
+      `${count} recipient${count === 1 ? "" : "s"}`;
+  }
+
+  if (recipientCountLarge) {
+    recipientCountLarge.textContent =
+      count.toString();
+  }
+
+  updateCampaignCost();
+}
+
+
+if (campaignNumbersArea) {
+  campaignNumbersArea.addEventListener(
+    "input",
+    updateRecipientCount
+  );
+}
+
+
+// =========================================================
+// CAMPAIGN COST
+// =========================================================
+
+function calculateCampaignCost() {
+  const route =
+    getSelectedRoute();
+
+  const count =
+    parsedCampaignNumbers.length;
+
+  return count * route.price;
+}
+
+
+function updateCampaignCost() {
+  const route =
+    getSelectedRoute();
+
+  const cost =
+    parsedCampaignNumbers.length *
+    route.price;
+
+  if (campaignEstimatedCost) {
+    campaignEstimatedCost.textContent =
+      money(cost);
+  }
+}
+
+
+// =========================================================
+// MESSAGE COUNTER
+// =========================================================
+
+function updateMessageCounter() {
+  if (!mainMessageContent) return;
+
+  const length =
+    mainMessageContent.value.length;
+
+  if (wordsAndItemsCounter) {
+    wordsAndItemsCounter.textContent =
+      `${length} / 160 characters`;
+  }
+}
+
+
+if (mainMessageContent) {
+  mainMessageContent.addEventListener(
+    "input",
+    updateMessageCounter
+  );
+}
+
+
+// =========================================================
+// FILE UPLOAD
+// =========================================================
+
+if (btnTriggerUpload && bulkFileInput) {
+
+  btnTriggerUpload.addEventListener(
+    "click",
+    () => {
+      bulkFileInput.click();
+    }
+  );
+
+
+  bulkFileInput.addEventListener(
+    "change",
+    (event) => {
+
+      const file =
+        event.target.files?.[0];
+
+      if (!file) return;
+
+      const reader =
+        new FileReader();
+
+      reader.onload =
+        (loadEvent) => {
+
+          const content =
+            String(
+              loadEvent.target.result || ""
+            );
+
+          if (campaignNumbersArea) {
+            campaignNumbersArea.value =
+              content;
+          }
+
+          updateRecipientCount();
+
+          showToast(
+            `${parsedCampaignNumbers.length} recipients loaded from ${file.name}.`,
+            "success"
+          );
+        };
+
+      reader.onerror = () => {
+        showToast(
+          "Unable to read the selected file.",
+          "error"
+        );
+      };
+
+      reader.readAsText(file);
+
+      // Allow the same file to be selected again.
+      bulkFileInput.value = "";
+    }
+  );
+}
+
+
+// =========================================================
+// WALLET
+// =========================================================
+
+function walletStorageKey() {
+  return currentUser?.email
+    ? `wallet_${currentUser.email}`
+    : null;
+}
+
+
+async function calculateWalletBalance() {
+
+  if (!currentUser) {
+    return 0;
+  }
+
+
+  // Local wallet value has priority.
+  const key =
+    walletStorageKey();
+
+  if (key) {
+    const localValue =
+      localStorage.getItem(key);
 
     if (
-      availableRoutes.length === 0
+      localValue !== null &&
+      localValue !== ""
     ) {
-      selectedRoute = null;
-      renderRouteSelector();
-      updateCampaignSummary();
+      const parsed =
+        Number.parseFloat(localValue);
 
-      showToast(
-        "No messaging routes are currently available.",
-        "error"
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+  }
+
+
+  /*
+   * If no local balance exists, calculate approved
+   * top-ups belonging to the current user.
+   */
+  if (supabase) {
+
+    try {
+
+      const { data, error } =
+        await supabase
+          .from("topup_requests")
+          .select("amount,status")
+          .eq(
+            "user_id",
+            currentUser.id
+          )
+          .in(
+            "status",
+            [
+              "paid",
+              "approved",
+              "completed"
+            ]
+          );
+
+      if (!error && Array.isArray(data)) {
+
+        return data.reduce(
+          (total, item) =>
+            total +
+            (Number(item.amount) || 0),
+          0
+        );
+      }
+
+    } catch (error) {
+
+      console.warn(
+        "Wallet lookup failed:",
+        error
       );
+
+    }
+  }
+
+  return 0;
+}
+
+
+function renderWalletBalance(balance) {
+
+  currentWalletBalance =
+    Number(balance) || 0;
+
+  const formatted =
+    money(currentWalletBalance);
+
+  if (walletBalance) {
+    walletBalance.textContent =
+      formatted;
+  }
+
+  if (walletBalanceTop) {
+    walletBalanceTop.textContent =
+      formatted;
+  }
+}
+
+
+async function refreshWalletBalance() {
+
+  const balance =
+    await calculateWalletBalance();
+
+  renderWalletBalance(balance);
+}
+
+
+// =========================================================
+// TOP-UP TIMER
+// =========================================================
+
+function startPaymentTimer() {
+
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
+  let totalSeconds =
+    20 * 60;
+
+
+  function updateTimer() {
+
+    const mins =
+      Math.floor(
+        totalSeconds / 60
+      );
+
+    const secs =
+      totalSeconds % 60;
+
+
+    if (usdtTimer) {
+
+      usdtTimer.textContent =
+        `${String(mins).padStart(2, "0")}:` +
+        `${String(secs).padStart(2, "0")}`;
+
+    }
+
+
+    if (totalSeconds <= 0) {
+
+      clearInterval(
+        countdownInterval
+      );
+
+      if (usdtTimer) {
+        usdtTimer.textContent =
+          "Expired";
+      }
 
       return;
     }
 
-    if (
-      !selectedRoute ||
-      !availableRoutes.some(
-        (route) =>
-          route.id ===
-          selectedRoute.id
-      )
-    ) {
-      selectedRoute =
-        availableRoutes[0];
-    } else {
-      selectedRoute =
-        availableRoutes.find(
-          (route) =>
-            route.id ===
-            selectedRoute.id
-        ) || availableRoutes[0];
-    }
 
-    renderRouteSelector();
-    updateCampaignSummary();
-
-  } catch (error) {
-    console.error(
-      "Route loading error:",
-      error
-    );
-
-    showToast(
-      "Unable to load messaging routes.",
-      "error"
-    );
+    totalSeconds--;
   }
+
+
+  updateTimer();
+
+  countdownInterval =
+    setInterval(
+      updateTimer,
+      1000
+    );
 }
 
-// =========================================================
-// ROUTE SELECTOR
-// =========================================================
 
-function renderRouteSelector() {
-  const campaignForm =
-    document.querySelector(
-      "#viewNewCampaign .campaign-form"
-    );
+function openTopUpModal() {
 
-  if (!campaignForm) return;
+  openModal(topUpModal);
 
-  let routeSection =
-    document.getElementById(
-      "campaignRouteSection"
-    );
-
-  if (!routeSection) {
-    routeSection =
-      document.createElement("div");
-
-    routeSection.id =
-      "campaignRouteSection";
-
-    routeSection.className =
-      "form-section";
-
-    campaignForm.insertBefore(
-      routeSection,
-      campaignForm.firstChild
-    );
+  if (usdtUserEmail && currentUser) {
+    usdtUserEmail.value =
+      currentUser.email || "";
   }
 
-  routeSection.innerHTML = "";
+  startPaymentTimer();
+}
 
-  const label =
-    document.createElement("label");
 
-  label.className =
-    "portal-label";
+if (topbarBalanceBtn) {
+  topbarBalanceBtn.addEventListener(
+    "click",
+    openTopUpModal
+  );
+}
 
-  label.textContent =
-    "Messaging Route";
+if (btnSidebarTopUp) {
+  btnSidebarTopUp.addEventListener(
+    "click",
+    openTopUpModal
+  );
+}
 
-  const select =
-    document.createElement("select");
+if (btnDashboardTopUp) {
+  btnDashboardTopUp.addEventListener(
+    "click",
+    openTopUpModal
+  );
+}
 
-  select.id =
-    "campaignRouteSelect";
+if (btnOpenTopUpFromMenu) {
+  btnOpenTopUpFromMenu.addEventListener(
+    "click",
+    () => {
+      openTopUpModal();
 
-  select.className =
-    "portal-input";
-
-  if (
-    availableRoutes.length === 0
-  ) {
-    const option =
-      document.createElement("option");
-
-    option.value = "";
-
-    option.textContent =
-      "No routes available";
-
-    select.appendChild(option);
-
-    select.disabled = true;
-
-  } else {
-
-    availableRoutes.forEach(
-      (route) => {
-
-        const option =
-          document.createElement(
-            "option"
-          );
-
-        option.value =
-          route.id;
-
-        option.textContent =
-          `${route.name} — $${Number(
-            route.price_per_message
-          ).toFixed(3)} / message`;
-
-        if (
-          selectedRoute &&
-          selectedRoute.id ===
-            route.id
-        ) {
-          option.selected = true;
-        }
-
-        select.appendChild(
-          option
+      if (userDropdownMenu) {
+        userDropdownMenu.classList.add(
+          "hidden"
         );
       }
-    );
-
-    select.addEventListener(
-      "change",
-      () => {
-
-        selectedRoute =
-          availableRoutes.find(
-            (route) =>
-              route.id ===
-              select.value
-          ) || null;
-
-        updateCampaignSummary();
-      }
-    );
-  }
-
-  routeSection.appendChild(label);
-  routeSection.appendChild(select);
-
-  const routeInfo =
-    document.createElement("div");
-
-  routeInfo.id =
-    "campaignRouteInfo";
-
-  routeInfo.style.marginTop =
-    "8px";
-
-  routeInfo.style.fontSize =
-    "12px";
-
-  routeInfo.style.color =
-    "var(--text-secondary, #6b7280)";
-
-  routeSection.appendChild(
-    routeInfo
+    }
   );
-
-  updateCampaignSummary();
 }
 
-// =========================================================
-// LIVE CAMPAIGN SUMMARY
-// =========================================================
 
-function updateCampaignSummary() {
-  const routeInfo =
-    document.getElementById(
-      "campaignRouteInfo"
+if (closeTopUpModal) {
+  closeTopUpModal.addEventListener(
+    "click",
+    () => closeModal(topUpModal)
+  );
+}
+
+
+if (cancelTopUpBtn) {
+  cancelTopUpBtn.addEventListener(
+    "click",
+    () => closeModal(topUpModal)
+  );
+}
+
+
+// Top-up tiers
+document
+  .querySelectorAll(".tier-pill")
+  .forEach((pill) => {
+
+    pill.addEventListener(
+      "click",
+      () => {
+
+        document
+          .querySelectorAll(".tier-pill")
+          .forEach((item) => {
+            item.classList.remove(
+              "active"
+            );
+          });
+
+        pill.classList.add("active");
+
+        selectedTopUpAmount =
+          Number(
+            pill.getAttribute(
+              "data-amount"
+            )
+          ) || 99;
+
+        if (usdtAmountDisplay) {
+          usdtAmountDisplay.textContent =
+            money(selectedTopUpAmount);
+        }
+
+      }
     );
 
-  const campaignForm =
-    document.querySelector(
-      "#viewNewCampaign .campaign-form"
-    );
+  });
 
-  if (!campaignForm) return;
 
-  const recipientCount =
-    parsedCampaignNumbers.length;
+// Copy wallet
+if (
+  copyUsdtAddressBtn &&
+  usdtWalletAddress
+) {
 
-  const price =
-    getSelectedRoutePrice();
+  copyUsdtAddressBtn.addEventListener(
+    "click",
+    async () => {
 
-  const estimatedCost =
-    getEstimatedCampaignCost();
+      try {
 
-  if (routeInfo) {
+        await navigator.clipboard.writeText(
+          usdtWalletAddress.value
+        );
 
-    if (!selectedRoute) {
-      routeInfo.textContent =
-        "Select a messaging route to continue.";
-    } else {
-      routeInfo.textContent =
-        `${recipientCount} recipient${
-          recipientCount === 1
-            ? ""
-            : "s"
-        } × $${price.toFixed(3)} = $${estimatedCost.toFixed(3)}`;
+        const original =
+          copyUsdtAddressBtn.textContent;
+
+        copyUsdtAddressBtn.textContent =
+          "Copied";
+
+        showToast(
+          "TRC20 wallet address copied.",
+          "success"
+        );
+
+        setTimeout(() => {
+
+          copyUsdtAddressBtn.textContent =
+            original || "Copy";
+
+        }, 1800);
+
+      } catch (error) {
+
+        showToast(
+          "Could not copy wallet address.",
+          "error"
+        );
+
+      }
+
     }
+  );
+
+}
+
+
+// Submit top-up
+if (btnSubmitPaid) {
+
+  btnSubmitPaid.addEventListener(
+    "click",
+    async () => {
+
+      const txHash =
+        usdtTxHash?.value.trim() || "";
+
+      if (!txHash) {
+
+        showToast(
+          "Please enter the TRC20 transaction hash.",
+          "error"
+        );
+
+        usdtTxHash?.focus();
+
+        return;
+      }
+
+
+      if (!currentUser) {
+
+        showToast(
+          "Your account session has expired.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      btnSubmitPaid.disabled = true;
+
+      btnSubmitPaid.textContent =
+        "Submitting...";
+
+
+      const newRequest = {
+
+        id:
+          typeof crypto?.randomUUID ===
+          "function"
+            ? crypto.randomUUID()
+            : `req_${Date.now()}`,
+
+        user_id:
+          currentUser.id,
+
+        user_email:
+          currentUser.email || "",
+
+        amount:
+          selectedTopUpAmount,
+
+        network:
+          "TRC20",
+
+        wallet_address:
+          usdtWalletAddress?.value || "",
+
+        tx_hash:
+          txHash,
+
+        status:
+          "pending",
+
+        created_at:
+          new Date().toISOString()
+
+      };
+
+
+      let savedToSupabase = false;
+
+
+      if (supabase) {
+
+        try {
+
+          const { error } =
+            await supabase
+              .from("topup_requests")
+              .insert([
+                newRequest
+              ]);
+
+          if (!error) {
+            savedToSupabase = true;
+          } else {
+            console.error(
+              "Top-up insert error:",
+              error
+            );
+          }
+
+        } catch (error) {
+
+          console.error(
+            "Top-up insert exception:",
+            error
+          );
+
+        }
+
+      }
+
+
+      // Keep local request history for the current browser.
+      try {
+
+        const existing =
+          JSON.parse(
+            localStorage.getItem(
+              "imessagehub_topups"
+            ) || "[]"
+          );
+
+        existing.unshift(
+          newRequest
+        );
+
+        localStorage.setItem(
+          "imessagehub_topups",
+          JSON.stringify(existing)
+        );
+
+      } catch (error) {
+
+        console.warn(
+          "Local top-up storage failed:",
+          error
+        );
+
+      }
+
+
+      closeModal(topUpModal);
+
+      if (usdtTxHash) {
+        usdtTxHash.value = "";
+      }
+
+      btnSubmitPaid.disabled = false;
+
+      btnSubmitPaid.textContent =
+        "PAID";
+
+
+      showToast(
+        savedToSupabase
+          ? "Payment submitted for verification."
+          : "Payment request saved.",
+        "success"
+      );
+
+
+      await loadPaymentHistory();
+
+    }
+  );
+
+}
+
+
+// =========================================================
+// PAYMENT HISTORY
+// =========================================================
+
+function renderPaymentHistory(records) {
+
+  if (!paymentHistoryList) {
+    return;
   }
 
-  let summary =
-    document.getElementById(
-      "campaignLiveSummary"
-    );
+  paymentHistoryList.innerHTML = "";
 
-  if (!summary) {
 
-    summary =
-      document.createElement("div");
+  if (
+    !Array.isArray(records) ||
+    records.length === 0
+  ) {
 
-    summary.id =
-      "campaignLiveSummary";
-
-    summary.style.marginTop =
-      "4px";
-
-    summary.style.marginBottom =
-      "12px";
-
-    summary.style.padding =
-      "16px";
-
-    summary.style.borderRadius =
-      "12px";
-
-    summary.style.border =
-      "1px solid var(--border-color, #e5e7eb)";
-
-    summary.style.background =
-      "rgba(255,255,255,0.04)";
-
-    const submitButton =
-      document.getElementById(
-        "btnSubmitCampaign"
-      );
-
-    if (submitButton) {
-      campaignForm.insertBefore(
-        summary,
-        submitButton
-      );
-    } else {
-      campaignForm.appendChild(
-        summary
-      );
-    }
-  }
-
-  if (!selectedRoute) {
-
-    summary.innerHTML = `
-      <div style="
-        display:flex;
-        align-items:center;
-        gap:10px;
-      ">
-        <strong>
-          Select a route
-        </strong>
-
-        <span style="
-          font-size:12px;
-          color:var(--text-secondary, #6b7280);
-        ">
-          Choose the messaging route before submitting.
-        </span>
+    paymentHistoryList.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">$</div>
+        <h3>No payments yet</h3>
+        <p>
+          Your submitted top-up requests will appear here.
+        </p>
       </div>
     `;
 
     return;
   }
 
-  summary.innerHTML = `
-    <div style="
-      display:grid;
-      grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-      gap:16px;
-    ">
 
-      <div>
-        <div style="
-          font-size:10px;
-          font-weight:700;
-          letter-spacing:.06em;
-          color:var(--text-secondary, #6b7280);
-          margin-bottom:5px;
-        ">
-          ROUTE
-        </div>
+  records.forEach((record) => {
 
-        <strong style="font-size:14px;">
-          ${escapeHtml(
-            selectedRoute.name
-          )}
-        </strong>
+    const status =
+      String(
+        record.status || "pending"
+      ).toLowerCase();
 
-        <div style="
-          margin-top:2px;
-          font-size:11px;
-          color:var(--text-secondary, #6b7280);
-        ">
-          ${escapeHtml(
-            selectedRoute.code
-          )}
-        </div>
+
+    const statusLabel =
+      status.toUpperCase();
+
+
+    const amount =
+      Number(record.amount) || 0;
+
+
+    const date =
+      new Date(
+        record.created_at ||
+        Date.now()
+      );
+
+
+    const item =
+      document.createElement("div");
+
+    item.className =
+      "payment-history-item";
+
+
+    item.innerHTML = `
+      <div class="payment-history-main">
+        <strong>${money(amount)}</strong>
+        <span>USDT ${record.network || "TRC20"}</span>
       </div>
 
-      <div>
-        <div style="
-          font-size:10px;
-          font-weight:700;
-          letter-spacing:.06em;
-          color:var(--text-secondary, #6b7280);
-          margin-bottom:5px;
-        ">
-          RECIPIENTS
-        </div>
-
-        <strong style="font-size:18px;">
-          ${recipientCount}
-        </strong>
+      <div class="payment-history-tx">
+        <span>TxID</span>
+        <code>${record.tx_hash || "—"}</code>
       </div>
 
-      <div>
-        <div style="
-          font-size:10px;
-          font-weight:700;
-          letter-spacing:.06em;
-          color:var(--text-secondary, #6b7280);
-          margin-bottom:5px;
-        ">
-          ESTIMATED COST
-        </div>
-
-        <strong style="font-size:18px;">
-          $${estimatedCost.toFixed(3)}
-        </strong>
+      <div class="payment-history-date">
+        ${date.toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        })}
       </div>
 
-    </div>
-  `;
+      <span class="status-pill ${status === "paid" || status === "approved" || status === "completed"
+        ? "status-success"
+        : ""}">
+        ${statusLabel}
+      </span>
+    `;
+
+
+    paymentHistoryList.appendChild(
+      item
+    );
+
+  });
+
 }
+
+
+async function loadPaymentHistory() {
+
+  let records = [];
+
+
+  if (supabase && currentUser) {
+
+    try {
+
+      const { data, error } =
+        await supabase
+          .from("topup_requests")
+          .select("*")
+          .eq(
+            "user_id",
+            currentUser.id
+          )
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          );
+
+      if (!error && Array.isArray(data)) {
+        records = data;
+      }
+
+    } catch (error) {
+
+      console.warn(
+        "Payment history lookup failed:",
+        error
+      );
+
+    }
+
+  }
+
+
+  // Local fallback / merge
+  try {
+
+    const local =
+      JSON.parse(
+        localStorage.getItem(
+          "imessagehub_topups"
+        ) || "[]"
+      );
+
+
+    if (Array.isArray(local)) {
+
+      const ids =
+        new Set(
+          records.map(
+            (item) => item.id
+          )
+        );
+
+
+      local.forEach((item) => {
+
+        if (
+          !ids.has(item.id) &&
+          (
+            !currentUser ||
+            item.user_id ===
+              currentUser.id
+          )
+        ) {
+          records.push(item);
+        }
+
+      });
+
+    }
+
+  } catch (error) {
+    console.warn(
+      "Local payment history failed:",
+      error
+    );
+  }
+
+
+  records.sort(
+    (a, b) =>
+      new Date(
+        b.created_at || 0
+      ) -
+      new Date(
+        a.created_at || 0
+      )
+  );
+
+
+  renderPaymentHistory(records);
+}
+
+
+// =========================================================
+// OUTBOX
+// =========================================================
+
+function outboxStorageKey() {
+
+  return currentUser?.email
+    ? `outbox_${currentUser.email}`
+    : "outbox_default";
+
+}
+
+
+async function loadOutboxRecords() {
+
+  let records = [];
+
+
+  // Local records
+  try {
+
+    records =
+      JSON.parse(
+        localStorage.getItem(
+          outboxStorageKey()
+        ) || "[]"
+      );
+
+  } catch (error) {
+
+    records = [];
+
+  }
+
+
+  // Optional Supabase records
+  if (supabase && currentUser) {
+
+    try {
+
+      const { data, error } =
+        await supabase
+          .from("campaign_messages")
+          .select("*")
+          .eq(
+            "user_id",
+            currentUser.id
+          )
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          );
+
+
+      if (
+        !error &&
+        Array.isArray(data)
+      ) {
+
+        const existingIds =
+          new Set(
+            records.map(
+              (record) =>
+                record.msg_id ||
+                record.id
+            )
+          );
+
+
+        data.forEach((item) => {
+
+          const identifier =
+            item.msg_id ||
+            item.id;
+
+          if (
+            !existingIds.has(
+              identifier
+            )
+          ) {
+
+            records.push({
+              id:
+                item.msg_id ||
+                item.id,
+
+              recipient:
+                item.recipient,
+
+              body:
+                item.body,
+
+              route:
+                item.route ||
+                item.sender_id ||
+                "Route A",
+
+              cost:
+                Number(item.cost) ||
+                0,
+
+              sender:
+                item.sender_id ||
+                "iMessage-Direct",
+
+              time:
+                item.created_at,
+
+              status:
+                item.status ||
+                "Submitted"
+            });
+
+          }
+
+        });
+
+      }
+
+    } catch (error) {
+
+      console.warn(
+        "Outbox Supabase lookup failed:",
+        error
+      );
+
+    }
+
+  }
+
+
+  renderOutboxRecords(records);
+}
+
+
+function renderOutboxRecords(records) {
+
+  if (!outboxRecordsTbody) {
+    return;
+  }
+
+
+  outboxRecordsTbody.innerHTML = "";
+
+
+  if (
+    !Array.isArray(records) ||
+    records.length === 0
+  ) {
+
+    if (outboxNoDataNotice) {
+      outboxNoDataNotice.classList.remove(
+        "hidden"
+      );
+    }
+
+    return;
+  }
+
+
+  if (outboxNoDataNotice) {
+    outboxNoDataNotice.classList.add(
+      "hidden"
+    );
+  }
+
+
+  records.forEach((record) => {
+
+    const row =
+      document.createElement("tr");
+
+
+    const route =
+      record.route ||
+      "Route A";
+
+
+    const cost =
+      Number(record.cost) || 0;
+
+
+    const status =
+      record.status ||
+      "Submitted";
+
+
+    const sender =
+      record.sender ||
+      "iMessage-Direct";
+
+
+    const time =
+      record.time ||
+      record.created_at ||
+      new Date().toISOString();
+
+
+    row.innerHTML = `
+      <td>
+        <span class="outbox-id">
+          ${record.id || "—"}
+        </span>
+      </td>
+
+      <td>
+        Messaging
+      </td>
+
+      <td>
+        <strong>${route}</strong>
+      </td>
+
+      <td>
+        ${money(cost)}
+      </td>
+
+      <td>
+        <span class="status-pill status-success">
+          ${status}
+        </span>
+      </td>
+
+      <td>
+        <strong>${record.recipient || "—"}</strong>
+      </td>
+
+      <td>
+        ${sender}
+      </td>
+
+      <td>
+        ${formatDateTime(time)}
+      </td>
+
+      <td>
+        <span class="outbox-state">
+          SUBMITTED
+        </span>
+      </td>
+    `;
+
+
+    outboxRecordsTbody.appendChild(
+      row
+    );
+
+  });
+
+}
+
+
+function formatDateTime(value) {
+
+  const date =
+    new Date(value);
+
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+
+  return date.toLocaleString(
+    "en-US",
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }
+  );
+}
+
+
+function saveRecordToOutbox(
+  recipient,
+  text,
+  route,
+  cost,
+  sender
+) {
+
+  const key =
+    outboxStorageKey();
+
+
+  let records = [];
+
+
+  try {
+
+    records =
+      JSON.parse(
+        localStorage.getItem(
+          key
+        ) || "[]"
+      );
+
+  } catch (error) {
+
+    records = [];
+
+  }
+
+
+  const record = {
+
+    id:
+      "MSG-" +
+      Math.random()
+        .toString(36)
+        .slice(2, 10)
+        .toUpperCase(),
+
+    recipient,
+
+    body:
+      text,
+
+    route,
+
+    cost,
+
+    sender,
+
+    time:
+      new Date().toISOString(),
+
+    status:
+      "Submitted"
+
+  };
+
+
+  records.unshift(
+    record
+  );
+
+
+  localStorage.setItem(
+    key,
+    JSON.stringify(records)
+  );
+
+
+  return record;
+}
+
+
+// =========================================================
+// CAMPAIGN SUBMISSION
+// =========================================================
+
+async function saveCampaignToSupabase(
+  recipient,
+  message,
+  route,
+  cost,
+  sender,
+  record
+) {
+
+  if (
+    !supabase ||
+    !currentUser
+  ) {
+    return false;
+  }
+
+
+  try {
+
+    const { error } =
+      await supabase
+        .from("campaign_messages")
+        .insert([
+          {
+            user_id:
+              currentUser.id,
+
+            user_email:
+              currentUser.email || "",
+
+            msg_id:
+              record.id,
+
+            recipient,
+
+            body:
+              message,
+
+            sender_id:
+              sender,
+
+            channel:
+              "APNs",
+
+            status:
+              "Submitted",
+
+            route_id:
+              route,
+
+            cost:
+
+              Number(cost) || 0
+          }
+        ]);
+
+
+    if (error) {
+
+      console.warn(
+        "Campaign Supabase save failed:",
+        error
+      );
+
+      return false;
+    }
+
+
+    return true;
+
+  } catch (error) {
+
+    console.warn(
+      "Campaign Supabase save exception:",
+      error
+    );
+
+    return false;
+  }
+}
+
+
+async function submitCampaign() {
+
+  parsedCampaignNumbers =
+    parseInputNumbers(
+      campaignNumbersArea?.value || ""
+    );
+
+
+  const message =
+    mainMessageContent?.value.trim() || "";
+
+
+  if (
+    parsedCampaignNumbers.length === 0
+  ) {
+
+    showToast(
+      "Please enter or upload at least one recipient number.",
+      "error"
+    );
+
+    campaignNumbersArea?.focus();
+
+    return;
+  }
+
+
+  if (!message) {
+
+    showToast(
+      "Message content is required.",
+      "error"
+    );
+
+    mainMessageContent?.focus();
+
+    return;
+  }
+
+
+  const route =
+    getSelectedRoute();
+
+
+  const totalCost =
+    calculateCampaignCost();
+
+
+  if (
+    currentWalletBalance <
+    totalCost
+  ) {
+
+    showToast(
+      `Insufficient balance. Required ${money(totalCost)}, available ${money(currentWalletBalance)}.`,
+      "error"
+    );
+
+    return;
+  }
+
+
+  if (!btnSubmitCampaign) {
+    return;
+  }
+
+
+  btnSubmitCampaign.disabled =
+    true;
+
+
+  const originalText =
+    btnSubmitCampaign.innerHTML;
+
+
+  btnSubmitCampaign.innerHTML =
+    `
+      <span class="button-loading-spinner"></span>
+      Preparing submission...
+    `;
+
+
+  try {
+
+    /*
+     * This is intentionally a simulation:
+     * no messaging provider/API is called.
+     */
+
+    for (
+      const recipient
+      of parsedCampaignNumbers
+    ) {
+
+      const record =
+        saveRecordToOutbox(
+          recipient,
+          message,
+          route.name,
+          route.price,
+          senderIdInput?.value.trim() ||
+            "iMessage-Direct"
+        );
+
+
+      await saveCampaignToSupabase(
+        recipient,
+        message,
+        route.name,
+        route.price,
+        senderIdInput?.value.trim() ||
+          "iMessage-Direct",
+        record
+      );
+
+    }
+
+
+    /*
+     * For the local wallet experience,
+     * reserve the calculated campaign amount.
+     */
+    const newBalance =
+      Math.max(
+        0,
+        currentWalletBalance -
+          totalCost
+      );
+
+
+    const key =
+      walletStorageKey();
+
+
+    if (key) {
+
+      localStorage.setItem(
+        key,
+        newBalance.toFixed(2)
+      );
+
+    }
+
+
+    renderWalletBalance(
+      newBalance
+    );
+
+
+    if (successRecipientCount) {
+      successRecipientCount.textContent =
+        parsedCampaignNumbers.length;
+    }
+
+
+    if (successRouteName) {
+      successRouteName.textContent =
+        route.name;
+    }
+
+
+    if (successCampaignCost) {
+      successCampaignCost.textContent =
+        money(totalCost);
+    }
+
+
+    closeModal(
+      document.getElementById(
+        "topUpModal"
+      )
+    );
+
+
+    openModal(
+      campaignSuccessModal
+    );
+
+
+    await loadOutboxRecords();
+
+
+  } catch (error) {
+
+    console.error(
+      "Campaign submission error:",
+      error
+    );
+
+    showToast(
+      "Unable to submit campaign.",
+      "error"
+    );
+
+  } finally {
+
+    btnSubmitCampaign.disabled =
+      false;
+
+    btnSubmitCampaign.innerHTML =
+      originalText;
+
+  }
+
+}
+
+
+if (btnSubmitCampaign) {
+
+  btnSubmitCampaign.addEventListener(
+    "click",
+    submitCampaign
+  );
+
+}
+
+
+// =========================================================
+// SUCCESS MODAL
+// =========================================================
+
+if (btnSuccessClose) {
+
+  btnSuccessClose.addEventListener(
+    "click",
+    () => {
+      closeModal(
+        campaignSuccessModal
+      );
+    }
+  );
+
+}
+
+
+if (btnSuccessGoOutbox) {
+
+  btnSuccessGoOutbox.addEventListener(
+    "click",
+    () => {
+
+      closeModal(
+        campaignSuccessModal
+      );
+
+      switchView(
+        "viewOutbox"
+      );
+
+    }
+  );
+
+}
+
+
+// =========================================================
+// CLEAR OUTBOX
+// =========================================================
+
+if (btnClearOutboxRecords) {
+
+  btnClearOutboxRecords.addEventListener(
+    "click",
+    async () => {
+
+      const confirmed =
+        window.confirm(
+          "Clear all campaign records for this account?"
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      try {
+
+        localStorage.removeItem(
+          outboxStorageKey()
+        );
+
+        await loadOutboxRecords();
+
+        showToast(
+          "Outbox records cleared.",
+          "success"
+        );
+
+      } catch (error) {
+
+        showToast(
+          "Could not clear outbox.",
+          "error"
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+if (btnFilterSearch) {
+
+  btnFilterSearch.addEventListener(
+    "click",
+    async () => {
+
+      await loadOutboxRecords();
+
+      showToast(
+        "Outbox refreshed.",
+        "success"
+      );
+
+    }
+  );
+
+}
+
+
+// =========================================================
+// ACCOUNT MODAL
+// =========================================================
+
+if (btnShowProfile) {
+
+  btnShowProfile.addEventListener(
+    "click",
+    () => {
+
+      openModal(
+        accountModal
+      );
+
+      if (userDropdownMenu) {
+        userDropdownMenu.classList.add(
+          "hidden"
+        );
+      }
+
+    }
+  );
+
+}
+
+
+if (closeAccountModal) {
+
+  closeAccountModal.addEventListener(
+    "click",
+    () => {
+      closeModal(
+        accountModal
+      );
+    }
+  );
+
+}
+
+
+if (closeAccountModalBtn) {
+
+  closeAccountModalBtn.addEventListener(
+    "click",
+    () => {
+      closeModal(
+        accountModal
+      );
+    }
+  );
+
+}
+
 
 // =========================================================
 // USER DROPDOWN
@@ -890,921 +2197,250 @@ if (
       userDropdownMenu.classList.toggle(
         "hidden"
       );
+
     }
   );
+
 
   document.addEventListener(
     "click",
     () => {
+
       userDropdownMenu.classList.add(
         "hidden"
       );
+
     }
   );
-}
 
-// =========================================================
-// MODALS
-// =========================================================
 
-function openModal(modal) {
-  if (modal) {
-    modal.classList.remove(
-      "hidden"
-    );
-  }
-}
-
-function closeModal(modal) {
-  if (modal) {
-    modal.classList.add(
-      "hidden"
-    );
-  }
-}
-
-function handleOpenTopUp() {
-  openModal(topUpModal);
-  startPaymentTimer();
-}
-
-if (topbarBalanceBtn) {
-  topbarBalanceBtn.addEventListener(
+  userDropdownMenu.addEventListener(
     "click",
-    handleOpenTopUp
-  );
-}
-
-if (btnSidebarTopUp) {
-  btnSidebarTopUp.addEventListener(
-    "click",
-    handleOpenTopUp
-  );
-}
-
-if (btnOpenTopUpFromMenu) {
-  btnOpenTopUpFromMenu.addEventListener(
-    "click",
-    handleOpenTopUp
-  );
-}
-
-if (closeTopUpModal) {
-  closeTopUpModal.addEventListener(
-    "click",
-    () => closeModal(topUpModal)
-  );
-}
-
-if (cancelTopUpBtn) {
-  cancelTopUpBtn.addEventListener(
-    "click",
-    () => closeModal(topUpModal)
-  );
-}
-
-if (btnShowProfile) {
-  btnShowProfile.addEventListener(
-    "click",
-    () => openModal(accountModal)
-  );
-}
-
-if (closeAccountModal) {
-  closeAccountModal.addEventListener(
-    "click",
-    () => closeModal(accountModal)
-  );
-}
-
-if (closeAccountModalBtn) {
-  closeAccountModalBtn.addEventListener(
-    "click",
-    () => closeModal(accountModal)
-  );
-}
-
-// =========================================================
-// COPY USDT
-// =========================================================
-
-if (
-  copyUsdtAddressBtn &&
-  usdtWalletAddress
-) {
-
-  copyUsdtAddressBtn.addEventListener(
-    "click",
-    async () => {
-
-      try {
-
-        await navigator.clipboard.writeText(
-          usdtWalletAddress.value
-        );
-
-        copyUsdtAddressBtn.textContent =
-          "Copied!";
-
-        showToast(
-          "TRC20 address copied.",
-          "success"
-        );
-
-        setTimeout(() => {
-          copyUsdtAddressBtn.textContent =
-            "Copy";
-        }, 2000);
-
-      } catch (error) {
-
-        showToast(
-          "Could not copy address.",
-          "error"
-        );
-      }
-    }
-  );
-}
-
-// =========================================================
-// TOP-UP TIERS
-// =========================================================
-
-document
-  .querySelectorAll(".tier-pill")
-  .forEach((pill) => {
-
-    pill.addEventListener(
-      "click",
-      () => {
-
-        document
-          .querySelectorAll(
-            ".tier-pill"
-          )
-          .forEach((item) => {
-            item.classList.remove(
-              "active"
-            );
-          });
-
-        pill.classList.add(
-          "active"
-        );
-
-        selectedTopUpAmount =
-          parseFloat(
-            pill.getAttribute(
-              "data-amount"
-            )
-          );
-
-        if (usdtAmountDisplay) {
-          usdtAmountDisplay.textContent =
-            `$${selectedTopUpAmount.toFixed(2)}`;
-        }
-      }
-    );
-  });
-
-// =========================================================
-// TOP-UP SUBMISSION
-// =========================================================
-
-if (btnSubmitPaid) {
-
-  btnSubmitPaid.addEventListener(
-    "click",
-    async () => {
-
-      const txHash =
-        usdtTxHash
-          ? usdtTxHash.value.trim()
-          : "";
-
-      const email =
-        usdtUserEmail
-          ? usdtUserEmail.value.trim()
-          : currentUser?.email || "";
-
-      if (!txHash) {
-
-        alert(
-          "Please enter your TRC20 Transaction Hash / TxID."
-        );
-
-        if (usdtTxHash) {
-          usdtTxHash.focus();
-        }
-
-        return;
-      }
-
-      if (!currentUser) {
-        showToast(
-          "Your session has expired.",
-          "error"
-        );
-
-        return;
-      }
-
-      btnSubmitPaid.disabled =
-        true;
-
-      btnSubmitPaid.textContent =
-        "Submitting...";
-
-      const newRequest = {
-        id:
-          crypto.randomUUID
-            ? crypto.randomUUID()
-            : `req_${Date.now()}`,
-
-        user_id:
-          currentUser.id,
-
-        user_email:
-          email,
-
-        amount:
-          selectedTopUpAmount,
-
-        network:
-          "TRC20",
-
-        wallet_address:
-          usdtWalletAddress?.value ||
-          "TWhUtsbWiR3gQE6yi9CirRQSR1zKAR9FJd",
-
-        tx_hash:
-          txHash,
-
-        status:
-          "pending",
-
-        created_at:
-          new Date().toISOString()
-      };
-
-      try {
-
-        if (!supabase) {
-          throw new Error(
-            "Supabase is not configured."
-          );
-        }
-
-        const {
-          error
-        } = await supabase
-          .from("topup_requests")
-          .insert([newRequest]);
-
-        if (error) {
-          throw error;
-        }
-
-        closeModal(
-          topUpModal
-        );
-
-        if (usdtTxHash) {
-          usdtTxHash.value = "";
-        }
-
-        showToast(
-          "Payment submitted. Awaiting account approval.",
-          "success"
-        );
-
-      } catch (error) {
-
-        console.error(
-          "Top-up submission error:",
-          error
-        );
-
-        showToast(
-          `Payment submission failed: ${error.message}`,
-          "error"
-        );
-
-      } finally {
-
-        btnSubmitPaid.disabled =
-          false;
-
-        btnSubmitPaid.textContent =
-          "PAID";
-      }
-    }
-  );
-}
-
-// =========================================================
-// CAMPAIGN NUMBERS
-// =========================================================
-
-function parseInputNumbers(text) {
-  if (!text) return [];
-
-  const lines =
-    text.split(/[\n,;]+/);
-
-  return lines
-    .map((line) =>
-      line.trim()
-    )
-    .filter(
-      (line) =>
-        line.length >= 7
-    );
-}
-
-if (campaignNumbersArea) {
-
-  campaignNumbersArea.addEventListener(
-    "input",
-    () => {
-
-      parsedCampaignNumbers =
-        parseInputNumbers(
-          campaignNumbersArea.value
-        );
-
-      updateCampaignSummary();
-    }
-  );
-}
-
-// =========================================================
-// FILE UPLOAD
-// =========================================================
-
-if (
-  btnTriggerUpload &&
-  bulkFileInput
-) {
-
-  btnTriggerUpload.addEventListener(
-    "click",
-    () => bulkFileInput.click()
-  );
-
-  bulkFileInput.addEventListener(
-    "change",
     (event) => {
-
-      const file =
-        event.target.files[0];
-
-      if (!file) return;
-
-      const reader =
-        new FileReader();
-
-      reader.onload =
-        (readerEvent) => {
-
-          const content =
-            readerEvent.target.result;
-
-          if (
-            campaignNumbersArea
-          ) {
-
-            campaignNumbersArea.value =
-              content;
-
-            parsedCampaignNumbers =
-              parseInputNumbers(
-                content
-              );
-
-            updateCampaignSummary();
-
-            showToast(
-              `Loaded ${file.name} — ${parsedCampaignNumbers.length} recipients detected.`,
-              "success"
-            );
-          }
-        };
-
-      reader.readAsText(file);
+      event.stopPropagation();
     }
   );
+
 }
 
-// =========================================================
-// MESSAGE COUNTER
-// =========================================================
-
-if (
-  mainMessageContent &&
-  wordsAndItemsCounter
-) {
-
-  mainMessageContent.addEventListener(
-    "input",
-    () => {
-
-      const text =
-        mainMessageContent.value;
-
-      const len =
-        text.length;
-
-      const words =
-        text
-          .trim()
-          .split(/\s+/)
-          .filter(Boolean)
-          .length;
-
-      wordsAndItemsCounter.textContent =
-        `${words} / 160 words | 1 items (${len} chars)`;
-    }
-  );
-}
 
 // =========================================================
-// CAMPAIGN SUBMISSION
+// AUTH / USER INITIALIZATION
 // =========================================================
 
-if (btnSubmitCampaign) {
+async function initDashboard() {
 
-  btnSubmitCampaign.addEventListener(
-    "click",
-    async () => {
+  startLiveClock();
 
-      parsedCampaignNumbers =
-        parseInputNumbers(
-          campaignNumbersArea?.value ||
-            ""
-        );
 
-      const msg =
-        mainMessageContent
-          ?.value
-          .trim();
+  if (!supabase) {
 
-      // Route required
+    console.error(
+      "Supabase is not configured."
+    );
 
-      if (!selectedRoute) {
-
-        showToast(
-          "Please select a messaging route.",
-          "error"
-        );
-
-        return;
-      }
-
-      // Recipients required
-
-      if (
-        parsedCampaignNumbers.length ===
-        0
-      ) {
-
-        alert(
-          "Please enter or upload at least one phone number."
-        );
-
-        campaignNumbersArea?.focus();
-
-        return;
-      }
-
-      // Message required
-
-      if (!msg) {
-
-        alert(
-          "Message content is required."
-        );
-
-        mainMessageContent?.focus();
-
-        return;
-      }
-
-      const routePrice =
-        getSelectedRoutePrice();
-
-      const total =
-        parsedCampaignNumbers.length;
-
-      const estimatedCost =
-        total * routePrice;
-
-      btnSubmitCampaign.disabled =
-        true;
-
-      if (campaignProgressBox) {
-        campaignProgressBox.classList.remove(
-          "hidden"
-        );
-      }
-
-      let sent = 0;
-
-      const progressInterval =
-        setInterval(() => {
-
-          sent +=
-            Math.max(
-              1,
-              Math.floor(
-                total / 10
-              )
-            );
-
-          if (sent > total) {
-            sent = total;
-          }
-
-          const pct =
-            Math.floor(
-              (sent / total) *
-                100
-            );
-
-          if (
-            campaignProgressPercent
-          ) {
-            campaignProgressPercent.textContent =
-              `${pct}%`;
-          }
-
-          if (
-            campaignProgressText
-          ) {
-            campaignProgressText.textContent =
-              `Dispatching ${sent} / ${total}...`;
-          }
-
-          if (
-            campaignProgressBarFill
-          ) {
-            campaignProgressBarFill.style.width =
-              `${pct}%`;
-          }
-
-          if (sent >= total) {
-
-            clearInterval(
-              progressInterval
-            );
-
-            parsedCampaignNumbers.forEach(
-              (number) => {
-
-                saveRecordToOutbox(
-                  number,
-                  msg,
-                  selectedRoute,
-                  routePrice
-                );
-              }
-            );
-
-            setTimeout(() => {
-
-              if (
-                campaignProgressBox
-              ) {
-                campaignProgressBox.classList.add(
-                  "hidden"
-                );
-              }
-
-              btnSubmitCampaign.disabled =
-                false;
-
-              showToast(
-                `Campaign submitted for ${total} recipients.`,
-                "success"
-              );
-
-              switchView(
-                "viewOutbox"
-              );
-
-            }, 500);
-          }
-
-        }, 120);
-    }
-  );
-}
-
-// =========================================================
-// OUTBOX
-// =========================================================
-
-function loadOutboxRecords() {
-
-  const email =
-    currentUser?.email ||
-    "default";
-
-  let records = [];
-
-  try {
-    records =
-      JSON.parse(
-        localStorage.getItem(
-          `outbox_${email}`
-        ) || "[]"
-      );
-  } catch (error) {
-    records = [];
-  }
-
-  if (!outboxRecordsTbody) {
     return;
   }
 
-  outboxRecordsTbody.innerHTML =
-    "";
 
-  if (
-    records.length === 0
-  ) {
+  try {
 
-    if (outboxNoDataNotice) {
-      outboxNoDataNotice.classList.remove(
+    const {
+      data: {
+        session
+      },
+      error
+    } =
+      await supabase.auth.getSession();
+
+
+    if (
+      error ||
+      !session
+    ) {
+
+      window.location.href =
+        "index.html";
+
+      return;
+    }
+
+
+    currentUser =
+      session.user;
+
+
+    const fullName =
+      currentUser.user_metadata?.full_name ||
+      currentUser.user_metadata?.name ||
+      currentUser.email?.split("@")[0] ||
+      "User";
+
+
+    const email =
+      currentUser.email ||
+      "N/A";
+
+
+    const uid =
+      currentUser.id ||
+      "N/A";
+
+
+    const role =
+      currentUser.user_metadata?.role ||
+      currentUser.app_metadata?.role ||
+      "consumer";
+
+
+    const accountCode =
+      "0016C" +
+      (
+        uid
+          .replace(/\D/g, "")
+          .slice(0, 3) ||
+        "136"
+      );
+
+
+    // User details
+    if (welcomeName) {
+      welcomeName.textContent =
+        fullName;
+    }
+
+
+    if (welcomeEmail) {
+      welcomeEmail.textContent =
+        email;
+    }
+
+
+    if (accountRole) {
+      accountRole.textContent =
+        role;
+    }
+
+
+    if (headerName) {
+      headerName.textContent =
+        accountCode;
+    }
+
+
+    if (dashWelcomeId) {
+      dashWelcomeId.textContent =
+        accountCode;
+    }
+
+
+    if (dropdownUserTitle) {
+      dropdownUserTitle.textContent =
+        accountCode;
+    }
+
+
+    if (modalUserName) {
+      modalUserName.textContent =
+        `${fullName} (${accountCode})`;
+    }
+
+
+    if (modalUserEmail) {
+      modalUserEmail.textContent =
+        email;
+    }
+
+
+    if (usdtUserEmail) {
+      usdtUserEmail.value =
+        email;
+    }
+
+
+    if (headerAvatar) {
+      headerAvatar.textContent =
+        fullName
+          .charAt(0)
+          .toUpperCase();
+    }
+
+
+    if (userId) {
+      userId.textContent =
+        uid;
+    }
+
+
+    if (createdAt) {
+
+      createdAt.textContent =
+        formatDateTime(
+          currentUser.created_at
+        );
+
+    }
+
+
+    if (accountStatus) {
+      accountStatus.textContent =
+        "ACTIVE";
+    }
+
+
+    await refreshWalletBalance();
+
+    updateRecipientCount();
+
+    updateMessageCounter();
+
+    updateRouteUI();
+
+    await loadOutboxRecords();
+
+    await loadPaymentHistory();
+
+
+    // Session listener
+    supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+
+        if (
+          event === "SIGNED_OUT" ||
+          !newSession
+        ) {
+
+          window.location.href =
+            "index.html";
+
+        }
+
+      }
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Dashboard initialization error:",
+      error
+    );
+
+    if (dashboardMessage) {
+
+      dashboardMessage.textContent =
+        "Unable to load your account.";
+
+      dashboardMessage.classList.remove(
         "hidden"
       );
+
     }
 
-    return;
   }
 
-  if (outboxNoDataNotice) {
-    outboxNoDataNotice.classList.add(
-      "hidden"
-    );
-  }
-
-  records.forEach(
-    (record) => {
-
-      const routeName =
-        record.routeName ||
-        "Route";
-
-      const routeCode =
-        record.routeCode ||
-        "—";
-
-      const cost =
-        Number(
-          record.cost ||
-            record.routePrice ||
-            0
-        );
-
-      const tr =
-        document.createElement("tr");
-
-      tr.innerHTML = `
-        <td>
-          <span style="
-            font-family:var(--font-mono);
-            color:#1890ff;
-          ">
-            ${escapeHtml(record.id)}
-          </span>
-        </td>
-
-        <td>
-          Campaign
-        </td>
-
-        <td>
-          <strong>
-            ${escapeHtml(routeName)}
-          </strong>
-
-          <div style="
-            color:#8c8c8c;
-            font-size:.72rem;
-            margin-top:2px;
-          ">
-            ${escapeHtml(routeCode)}
-          </div>
-        </td>
-
-        <td>
-          $${cost.toFixed(3)}
-        </td>
-
-        <td>
-          <span style="
-            color:#52c41a;
-            font-weight:700;
-          ">
-            Success / Delivered
-          </span>
-        </td>
-
-        <td>
-          <strong>
-            ${escapeHtml(record.recipient)}
-          </strong>
-        </td>
-
-        <td>
-          ${escapeHtml(
-            record.sender ||
-              "iMessage-Direct"
-          )}
-        </td>
-
-        <td style="
-          color:#8c8c8c;
-          font-size:.8rem;
-        ">
-          ${escapeHtml(record.time)}
-        </td>
-
-        <td>
-          <span style="
-            background:rgba(82,196,26,.1);
-            color:#52c41a;
-            padding:2px 6px;
-            border-radius:4px;
-            font-weight:700;
-            font-size:.75rem;
-          ">
-            SENT
-          </span>
-        </td>
-      `;
-
-      outboxRecordsTbody.appendChild(
-        tr
-      );
-    }
-  );
 }
 
-// =========================================================
-// SAVE OUTBOX RECORD
-// =========================================================
-
-function saveRecordToOutbox(
-  recipient,
-  text,
-  route,
-  routePrice
-) {
-
-  const email =
-    currentUser?.email ||
-    "default";
-
-  let records = [];
-
-  try {
-
-    records =
-      JSON.parse(
-        localStorage.getItem(
-          `outbox_${email}`
-        ) || "[]"
-      );
-
-    if (!Array.isArray(records)) {
-      records = [];
-    }
-
-  } catch (error) {
-    records = [];
-  }
-
-  const randomId =
-    "1" +
-    Math.floor(
-      10000000 +
-        Math.random() *
-          90000000
-    );
-
-  const now =
-    new Date();
-
-  const pad =
-    (number) =>
-      number
-        .toString()
-        .padStart(2, "0");
-
-  const timeStr =
-    `${now.getFullYear()}-${pad(
-      now.getMonth() + 1
-    )}-${pad(
-      now.getDate()
-    )} ${pad(
-      now.getHours()
-    )}:${pad(
-      now.getMinutes()
-    )}:${pad(
-      now.getSeconds()
-    )}`;
-
-  records.unshift({
-    id: randomId,
-
-    recipient,
-
-    body: text,
-
-    time: timeStr,
-
-    status: "Success",
-
-    routeId:
-      route?.id || null,
-
-    routeName:
-      route?.name ||
-      "Route",
-
-    routeCode:
-      route?.code ||
-      "—",
-
-    routePrice:
-      Number(routePrice || 0),
-
-    cost:
-      Number(routePrice || 0),
-
-    sender:
-      senderIdInput?.value ||
-      "iMessage-Direct"
-  });
-
-  localStorage.setItem(
-    `outbox_${email}`,
-    JSON.stringify(records)
-  );
-
-  loadOutboxRecords();
-}
-
-// =========================================================
-// OUTBOX CLEAR
-// =========================================================
-
-if (btnClearOutboxRecords) {
-
-  btnClearOutboxRecords.addEventListener(
-    "click",
-    () => {
-
-      const email =
-        currentUser?.email ||
-        "default";
-
-      localStorage.removeItem(
-        `outbox_${email}`
-      );
-
-      loadOutboxRecords();
-
-      showToast(
-        "Outbox records cleared.",
-        "success"
-      );
-    }
-  );
-}
-
-// =========================================================
-// OUTBOX REFRESH
-// =========================================================
-
-if (btnFilterSearch) {
-
-  btnFilterSearch.addEventListener(
-    "click",
-    () => {
-
-      loadOutboxRecords();
-
-      showToast(
-        "Outbox records refreshed.",
-        "success"
-      );
-    }
-  );
-}
 
 // =========================================================
 // LOGOUT
@@ -1822,17 +2458,28 @@ if (logoutButton) {
           await supabase.auth.signOut();
         }
 
+      } catch (error) {
+
+        console.error(
+          "Logout error:",
+          error
+        );
+
       } finally {
 
         window.location.href =
           "index.html";
+
       }
+
     }
   );
+
 }
 
+
 // =========================================================
-// START
+// INITIALIZE
 // =========================================================
 
 initDashboard();
