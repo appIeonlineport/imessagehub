@@ -1,93 +1,150 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-  <title>iMessage Hub — Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="/src/styles.css">
+  <title>iMessage — Messaging Platform</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="/src/styles.css" />
 </head>
 
 <body>
 
   <div class="platform-layout">
 
-    <!-- =========================
+    <!-- =====================================================
          SIDEBAR
-         ========================= -->
+         ===================================================== -->
     <aside class="platform-sidebar">
 
+      <!-- BRAND -->
       <div class="sidebar-brand-box">
-        <div class="platform-logo-box">iM</div>
 
-        <div>
-          <span class="brand-title-main">iMessage Hub</span>
-          <span class="brand-sub-badge">Messaging Platform</span>
+        <div class="platform-logo-box">
+          iM
         </div>
+
+        <div class="platform-brand-text">
+          <span class="brand-title-main">
+            iMessage
+          </span>
+
+          <span class="brand-sub-badge">
+            MESSAGING PLATFORM
+          </span>
+        </div>
+
       </div>
 
+
+      <!-- NAVIGATION -->
       <nav class="platform-menu">
 
-        <div class="nav-section-title">Workspace</div>
+        <div class="nav-section-title">
+          Workspace
+        </div>
+
 
         <button
           class="menu-item active"
           data-view="viewDashboard"
           type="button"
         >
-          <span>▦</span>
+          <span class="menu-icon">▦</span>
           <span>Dashboard</span>
         </button>
+
 
         <button
           class="menu-item"
           data-view="viewNewCampaign"
           type="button"
         >
-          <span>✉</span>
+          <span class="menu-icon">✉</span>
           <span>New Campaign</span>
         </button>
+
 
         <button
           class="menu-item"
           data-view="viewOutbox"
           type="button"
         >
-          <span>↗</span>
+          <span class="menu-icon">↗</span>
           <span>Outbox</span>
         </button>
 
-        <div class="nav-section-title">Account</div>
+
+        <div class="nav-section-title">
+          Account
+        </div>
+
 
         <button
           class="menu-item"
           id="btnSidebarTopUp"
           type="button"
         >
-          <span>＋</span>
+          <span class="menu-icon">＋</span>
           <span>Top Up Balance</span>
         </button>
+
+
+        <button
+          class="menu-item"
+          data-view="viewPaymentHistory"
+          type="button"
+        >
+          <span class="menu-icon">◷</span>
+          <span>Payment History</span>
+        </button>
+
 
         <button
           class="menu-item"
           id="btnShowProfile"
           type="button"
         >
-          <span>◉</span>
+          <span class="menu-icon">◉</span>
           <span>Account</span>
+        </button>
+
+
+        <div class="nav-section-title">
+          Help
+        </div>
+
+
+        <button
+          class="menu-item"
+          data-view="viewSupport"
+          type="button"
+        >
+          <span class="menu-icon">?</span>
+          <span>Support</span>
         </button>
 
       </nav>
 
+
+      <!-- SIDEBAR FOOTER -->
       <div class="sidebar-footer">
 
         <div class="gateway-status-widget">
+
           <span class="status-indicator-dot online"></span>
 
           <div>
+
             <div class="gateway-title">
               Platform Online
             </div>
@@ -95,7 +152,9 @@
             <div class="gateway-uptime">
               All systems operational
             </div>
+
           </div>
+
         </div>
 
       </div>
@@ -103,12 +162,15 @@
     </aside>
 
 
-    <!-- =========================
-         MAIN
-         ========================= -->
+    <!-- =====================================================
+         MAIN APPLICATION
+         ===================================================== -->
     <main class="platform-main">
 
-      <!-- TOPBAR -->
+
+      <!-- ===================================================
+           TOPBAR
+           =================================================== -->
       <header class="platform-topbar">
 
         <div class="topbar-left-controls">
@@ -116,13 +178,13 @@
           <button
             class="sidebar-toggle-btn"
             type="button"
-            aria-label="Menu"
+            aria-label="Open menu"
           >
             ☰
           </button>
 
           <span class="platform-title-badge">
-            iMessage Hub
+            iMessage
           </span>
 
         </div>
@@ -131,17 +193,28 @@
         <div class="topbar-right-controls">
 
           <div class="topbar-meta-item">
-            <span>UTC</span>
-            <strong id="liveClockDisplay">—</strong>
+
+            <span>
+              UTC
+            </span>
+
+            <strong id="liveClockDisplay">
+              —
+            </strong>
+
           </div>
 
 
+          <!-- BALANCE -->
           <button
             id="topbarBalanceBtn"
             class="topbar-balance-pill"
             type="button"
           >
-            <span>Balance</span>
+
+            <span>
+              Balance
+            </span>
 
             <span
               id="walletBalanceTop"
@@ -153,9 +226,11 @@
             <span class="btn-topup-mini">
               +
             </span>
+
           </button>
 
 
+          <!-- USER -->
           <div class="user-dropdown-container">
 
             <button
@@ -178,7 +253,9 @@
                 Account
               </span>
 
-              <span>⌄</span>
+              <span>
+                ⌄
+              </span>
 
             </button>
 
@@ -200,6 +277,7 @@
 
               </div>
 
+
               <button
                 id="btnShowProfile"
                 class="dropdown-item"
@@ -207,6 +285,7 @@
               >
                 ◉ Account Profile
               </button>
+
 
               <button
                 id="btnOpenTopUpFromMenu"
@@ -216,7 +295,18 @@
                 ＋ Add Balance
               </button>
 
+
+              <button
+                class="dropdown-item"
+                type="button"
+                data-view="viewPaymentHistory"
+              >
+                ◷ Payment History
+              </button>
+
+
               <div class="dropdown-divider"></div>
+
 
               <button
                 id="logoutButton"
@@ -235,13 +325,15 @@
       </header>
 
 
-      <!-- CONTENT -->
+      <!-- ===================================================
+           CONTENT
+           =================================================== -->
       <section class="platform-content-area">
 
 
-        <!-- =========================
-             DASHBOARD VIEW
-             ========================= -->
+        <!-- =================================================
+             DASHBOARD
+             ================================================= -->
         <section
           id="viewDashboard"
           class="view-panel"
@@ -252,21 +344,29 @@
           </div>
 
 
+          <!-- HERO -->
           <div class="welcome-saas-banner">
 
             <div>
 
+              <span class="eyebrow">
+                MESSAGING WORKSPACE
+              </span>
+
               <h1 class="welcome-heading">
+
                 Welcome back,
                 <span id="welcomeName">
                   User
                 </span>
+
               </h1>
 
               <p class="welcome-sub-lead">
-                Manage your messaging campaigns,
-                balance and account from one place.
+                Manage campaigns, balance, delivery activity
+                and your account from one workspace.
               </p>
+
 
               <button
                 id="btnGetStarted"
@@ -274,9 +374,11 @@
                 type="button"
               >
                 Create Campaign
+                <span>→</span>
               </button>
 
             </div>
+
 
             <div class="illustration-graphic">
               ✉
@@ -295,9 +397,11 @@
               </div>
 
               <div class="cred-desc">
+
                 <strong id="welcomeEmail">
                   Loading...
                 </strong>
+
               </div>
 
               <span
@@ -329,7 +433,7 @@
           </div>
 
 
-          <!-- STAT CARDS -->
+          <!-- STATS -->
           <div class="stats-overview-grid">
 
             <article class="stat-box-panel">
@@ -339,6 +443,7 @@
               </div>
 
               <div>
+
                 <div class="stat-label">
                   Wallet Balance
                 </div>
@@ -349,10 +454,12 @@
                 >
                   $0.00
                 </strong>
+
               </div>
 
+
               <button
-                id="btnSidebarTopUp"
+                id="btnDashboardTopUp"
                 class="btn-small-primary"
                 type="button"
               >
@@ -369,6 +476,7 @@
               </div>
 
               <div>
+
                 <div class="stat-label">
                   Account Role
                 </div>
@@ -379,6 +487,7 @@
                 >
                   consumer
                 </strong>
+
               </div>
 
             </article>
@@ -392,13 +501,15 @@
             <div class="portal-card-header">
 
               <div>
+
                 <h2>
                   Account Information
                 </h2>
 
                 <p>
-                  Your authenticated Supabase account
+                  Your authenticated iMessage account
                 </p>
+
               </div>
 
               <span class="status-pill status-success">
@@ -449,9 +560,9 @@
 
 
 
-        <!-- =========================
+        <!-- =================================================
              NEW CAMPAIGN
-             ========================= -->
+             ================================================= -->
         <section
           id="viewNewCampaign"
           class="view-panel hidden"
@@ -462,20 +573,29 @@
           </div>
 
 
-          <div class="portal-card">
+          <div class="portal-card campaign-card">
 
-            <div class="portal-card-header">
+            <div class="portal-card-header campaign-header">
 
               <div>
+
+                <span class="eyebrow">
+                  CAMPAIGN WORKSPACE
+                </span>
 
                 <h2>
                   Create New Campaign
                 </h2>
 
                 <p>
-                  Send a demo campaign to your recipients.
+                  Prepare a demo messaging campaign for your recipients.
                 </p>
 
+              </div>
+
+
+              <div class="campaign-demo-badge">
+                DEMO MODE
               </div>
 
             </div>
@@ -483,21 +603,101 @@
 
             <div class="campaign-form">
 
+
+              <!-- ROUTE — FIRST OPTION -->
               <div class="form-section">
 
                 <label
-                  for="campaignNumbersArea"
+                  for="campaignRouteInput"
                   class="portal-label"
                 >
-                  Recipient Numbers
+                  Route
                 </label>
+
+
+                <div class="route-select-wrap">
+
+                  <select
+                    id="campaignRouteInput"
+                    class="portal-input route-select"
+                  >
+
+                    <option value="iMessage-Direct">
+                      iMessage Direct
+                    </option>
+
+                    <option value="Default">
+                      Default Route
+                    </option>
+
+                    <option value="Premium">
+                      Premium Route
+                    </option>
+
+                  </select>
+
+                </div>
+
+
+                <div class="form-help">
+                  Select the messaging route for this demo campaign.
+                </div>
+
+              </div>
+
+
+
+              <!-- RECIPIENTS -->
+              <div class="form-section">
+
+                <div class="field-label-row">
+
+                  <label
+                    for="campaignNumbersArea"
+                    class="portal-label"
+                  >
+                    Recipient Numbers
+                  </label>
+
+
+                  <span
+                    id="recipientCount"
+                    class="recipient-count-badge"
+                  >
+                    0 recipients
+                  </span>
+
+                </div>
+
 
                 <textarea
                   id="campaignNumbersArea"
-                  class="portal-textarea"
-                  rows="7"
+                  class="portal-textarea campaign-recipient-area"
+                  rows="8"
                   placeholder="Enter phone numbers separated by commas or new lines"
                 ></textarea>
+
+
+                <!-- LIVE COUNT -->
+                <div class="recipient-counter-panel">
+
+                  <div class="recipient-counter-icon">
+                    #
+                  </div>
+
+                  <div>
+
+                    <strong id="recipientCountLarge">
+                      0
+                    </strong>
+
+                    <span>
+                      recipients detected
+                    </span>
+
+                  </div>
+
+                </div>
 
 
                 <div class="upload-row">
@@ -510,12 +710,14 @@
                     Upload File
                   </button>
 
+
                   <input
                     id="bulkFileInput"
                     type="file"
                     accept=".txt,.csv"
                     hidden
                   >
+
 
                   <span class="form-help">
                     TXT or CSV
@@ -526,6 +728,8 @@
               </div>
 
 
+
+              <!-- SENDER -->
               <div class="form-section">
 
                 <label
@@ -534,6 +738,7 @@
                 >
                   Sender ID
                 </label>
+
 
                 <input
                   id="senderIdInput"
@@ -546,22 +751,34 @@
               </div>
 
 
+
+              <!-- MESSAGE -->
               <div class="form-section">
 
-                <label
-                  for="mainMessageContent"
-                  class="portal-label"
-                >
-                  Message
-                </label>
+                <div class="field-label-row">
+
+                  <label
+                    for="mainMessageContent"
+                    class="portal-label"
+                  >
+                    Message
+                  </label>
+
+                  <span class="message-limit-badge">
+                    160 characters
+                  </span>
+
+                </div>
+
 
                 <textarea
                   id="mainMessageContent"
-                  class="portal-textarea"
-                  rows="6"
+                  class="portal-textarea message-editor"
+                  rows="7"
                   maxlength="160"
                   placeholder="Write your message..."
                 ></textarea>
+
 
                 <div
                   id="wordsAndItemsCounter"
@@ -573,43 +790,31 @@
               </div>
 
 
-              <div
-                id="campaignProgressBox"
-                class="campaign-progress-box hidden"
-              >
 
-                <div class="progress-header">
+              <!-- SEND -->
+              <div class="campaign-submit-area">
 
-                  <span id="campaignProgressText">
-                    Preparing...
+                <div class="campaign-submit-note">
+
+                  <span class="status-indicator-dot online"></span>
+
+                  <span>
+                    Demo dispatch system ready
                   </span>
 
-                  <strong id="campaignProgressPercent">
-                    0%
-                  </strong>
-
                 </div>
 
-                <div class="progress-track">
 
-                  <div
-                    id="campaignProgressBarFill"
-                    class="progress-fill"
-                    style="width: 0%"
-                  ></div>
-
-                </div>
+                <button
+                  id="btnSubmitCampaign"
+                  class="btn-primary campaign-submit-button"
+                  type="button"
+                >
+                  Send Campaign
+                  <span>→</span>
+                </button>
 
               </div>
-
-
-              <button
-                id="btnSubmitCampaign"
-                class="btn-primary"
-                type="button"
-              >
-                Send Campaign
-              </button>
 
             </div>
 
@@ -619,9 +824,9 @@
 
 
 
-        <!-- =========================
+        <!-- =================================================
              OUTBOX
-             ========================= -->
+             ================================================= -->
         <section
           id="viewOutbox"
           class="view-panel hidden"
@@ -637,6 +842,10 @@
             <div class="portal-card-header">
 
               <div>
+
+                <span class="eyebrow">
+                  ACTIVITY
+                </span>
 
                 <h2>
                   Outbox Records
@@ -658,6 +867,7 @@
                 >
                   Refresh
                 </button>
+
 
                 <button
                   id="btnClearOutboxRecords"
@@ -713,11 +923,205 @@
               </h3>
 
               <p>
-                Create a campaign to see demo
-                records here.
+                Create a campaign to see demo records here.
               </p>
 
             </div>
+
+          </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             PAYMENT HISTORY
+             ================================================= -->
+        <section
+          id="viewPaymentHistory"
+          class="view-panel hidden"
+        >
+
+          <div class="breadcrumb-bar">
+            Account / Payment History
+          </div>
+
+
+          <div class="portal-card">
+
+            <div class="portal-card-header">
+
+              <div>
+
+                <span class="eyebrow">
+                  ACCOUNT FINANCE
+                </span>
+
+                <h2>
+                  Payment History
+                </h2>
+
+                <p>
+                  Review your demo balance top-up submissions.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div
+              id="paymentHistoryList"
+              class="payment-history-list"
+            >
+
+              <div class="empty-state">
+
+                <div class="empty-icon">
+                  $
+                </div>
+
+                <h3>
+                  No payments yet
+                </h3>
+
+                <p>
+                  Your submitted top-up requests will appear here.
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             SUPPORT
+             ================================================= -->
+        <section
+          id="viewSupport"
+          class="view-panel hidden"
+        >
+
+          <div class="breadcrumb-bar">
+            Help / Support
+          </div>
+
+
+          <div class="support-hero-card">
+
+            <div class="support-hero-icon">
+              ?
+            </div>
+
+
+            <div>
+
+              <span class="eyebrow">
+                CUSTOMER SUPPORT
+              </span>
+
+              <h2>
+                Need help?
+              </h2>
+
+              <p>
+                Contact our support team for account,
+                campaign or payment assistance.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="support-grid">
+
+
+            <!-- TELEGRAM -->
+            <div class="support-card">
+
+              <div class="support-card-icon telegram-icon">
+                ✈
+              </div>
+
+              <div>
+
+                <span class="support-card-label">
+                  Telegram
+                </span>
+
+                <h3>
+                  @Zkillofficial
+                </h3>
+
+                <p>
+                  Contact support directly on Telegram.
+                </p>
+
+
+                <a
+                  href="https://t.me/Zkillofficial"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="support-action-button"
+                >
+                  Open Telegram →
+                </a>
+
+              </div>
+
+            </div>
+
+
+            <!-- WHATSAPP -->
+            <div class="support-card">
+
+              <div class="support-card-icon whatsapp-icon">
+                ◉
+              </div>
+
+              <div>
+
+                <span class="support-card-label">
+                  WhatsApp
+                </span>
+
+                <h3>
+                  Support
+                </h3>
+
+                <p>
+                  WhatsApp support contact will be shown here
+                  once configured.
+                </p>
+
+                <span class="support-action-disabled">
+                  Contact number not configured
+                </span>
+
+              </div>
+
+            </div>
+
+
+          </div>
+
+
+          <div class="support-note">
+
+            <strong>
+              Support hours
+            </strong>
+
+            <span>
+              Please include your account ID when contacting support
+              so your request can be handled faster.
+            </span>
 
           </div>
 
@@ -731,9 +1135,9 @@
 
 
 
-  <!-- =========================
+  <!-- =====================================================
        TOP UP MODAL
-       ========================= -->
+       ===================================================== -->
   <div
     id="topUpModal"
     class="modal-overlay hidden"
@@ -749,7 +1153,12 @@
         ×
       </button>
 
+
       <div class="modal-header">
+
+        <span class="eyebrow">
+          WALLET
+        </span>
 
         <h2>
           Add Balance
@@ -918,9 +1327,9 @@
 
 
 
-  <!-- =========================
+  <!-- =====================================================
        ACCOUNT MODAL
-       ========================= -->
+       ===================================================== -->
   <div
     id="accountModal"
     class="modal-overlay hidden"
@@ -936,14 +1345,19 @@
         ×
       </button>
 
+
       <div class="modal-header">
+
+        <span class="eyebrow">
+          ACCOUNT
+        </span>
 
         <h2>
           Account Profile
         </h2>
 
         <p>
-          Your current iMessage Hub account.
+          Your current iMessage account.
         </p>
 
       </div>
@@ -988,15 +1402,111 @@
 
 
 
-  <!-- =========================
+  <!-- =====================================================
+       CAMPAIGN SUBMISSION SUCCESS MODAL
+       ===================================================== -->
+  <div
+    id="campaignSuccessModal"
+    class="modal-overlay hidden"
+  >
+
+    <div class="modal-card campaign-success-modal">
+
+      <div class="success-animation">
+
+        <div class="success-check">
+          ✓
+        </div>
+
+      </div>
+
+
+      <div class="modal-header success-modal-header">
+
+        <span class="eyebrow">
+          CAMPAIGN SUBMITTED
+        </span>
+
+        <h2>
+          Submission successful
+        </h2>
+
+        <p>
+          Your demo campaign has been submitted successfully.
+          Check Outbox for the campaign details.
+        </p>
+
+      </div>
+
+
+      <div class="submission-summary-card">
+
+        <div>
+
+          <span>
+            Recipients
+          </span>
+
+          <strong id="successRecipientCount">
+            0
+          </strong>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Route
+          </span>
+
+          <strong id="successRouteName">
+            iMessage Direct
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <div class="modal-actions success-modal-actions">
+
+        <button
+          id="btnSuccessGoOutbox"
+          class="btn-primary"
+          type="button"
+        >
+          View Outbox →
+        </button>
+
+
+        <button
+          id="btnSuccessClose"
+          class="btn-secondary"
+          type="button"
+        >
+          Close
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- =====================================================
        TOASTS
-       ========================= -->
+       ===================================================== -->
   <div
     id="toastContainer"
     class="toast-container"
   ></div>
 
 
+
+  <!-- APP -->
   <script
     type="module"
     src="/src/dashboard.js"
