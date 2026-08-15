@@ -3,406 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>iMessage Hub — Admin Console</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap"
-    rel="stylesheet"
-  >
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles.css">
 </head>
-
 <body class="platform-body">
-
 <div class="platform-layout">
-
-  <!-- =========================
-       ADMIN SIDEBAR
-       ========================= -->
-
   <aside class="platform-sidebar">
-
     <div class="sidebar-brand-box">
-
-      <div
-        class="platform-logo-box"
-        style="background:linear-gradient(135deg,#ff4d4f,#ff7a45);"
-      >
-        🛡️
-      </div>
-
+      <div class="platform-logo-box" style="background:linear-gradient(135deg,#ff4d4f,#ff7a45);">🛡️</div>
       <div class="platform-brand-text">
-
-        <span class="brand-title-main">
-          Master Admin
-        </span>
-
-        <span
-          class="brand-sub-badge"
-          style="color:#ff7875;"
-        >
-          SUPERADMIN
-        </span>
-
+        <span class="brand-title-main">Master Admin</span>
+        <span class="brand-sub-badge" style="color:#ff7875;">SUPERADMIN</span>
       </div>
-
     </div>
-
 
     <nav class="platform-menu">
-
-      <div class="nav-section-title">
-        Administration
-      </div>
-
-      <button
-        class="menu-item active"
-        type="button"
-      >
-        <span>▣</span>
-        <span>USDT Top-ups</span>
+      <div class="nav-section-title">Administration</div>
+      <button class="menu-item active" type="button">
+        <span>▣</span><span>USDT Top-ups</span>
       </button>
-
-
-      <a
-        href="dashboard.html"
-        class="menu-item"
-      >
-        <span>⌂</span>
-        <span>User Portal</span>
+      <a href="dashboard.html" class="menu-item">
+        <span>⌂</span><span>User Portal</span>
       </a>
-
     </nav>
 
-
     <div class="sidebar-footer">
-
       <div class="gateway-status-widget">
-
         <span class="status-indicator-dot online"></span>
-
         <div>
-
-          <div class="gateway-title">
-            Admin Console Online
-          </div>
-
-          <div class="gateway-uptime">
-            Verification system ready
-          </div>
-
+          <div class="gateway-title">Admin Console Online</div>
+          <div class="gateway-uptime">Verification system ready</div>
         </div>
-
       </div>
-
     </div>
-
   </aside>
 
-
-  <!-- =========================
-       MAIN
-       ========================= -->
-
   <div class="platform-main">
-
     <header class="platform-topbar">
-
       <div class="topbar-left-controls">
-
-        <button
-          class="sidebar-toggle-btn"
-          type="button"
-          aria-label="Open navigation"
-        >
-          ☰
-        </button>
-
-        <span class="platform-title-badge">
-          Superadmin Control Center
-        </span>
-
+        <button class="sidebar-toggle-btn" type="button" aria-label="Open navigation">☰</button>
+        <span class="platform-title-badge">Superadmin Control Center</span>
       </div>
-
-
       <div class="topbar-right-controls">
-
-        <span
-          class="status-pill"
-          style="
-            background:#fff0f1;
-            color:#d92d20;
-          "
-        >
-          Root Privileges
-        </span>
-
-
-        <button
-          id="adminLogoutBtn"
-          class="btn-secondary"
-          type="button"
-        >
-          Sign Out
-        </button>
-
+        <span class="status-pill" style="background:#fff0f1;color:#d92d20;">Root Privileges</span>
+        <button id="adminLogoutBtn" class="btn-secondary" type="button">Sign Out</button>
       </div>
-
     </header>
 
-
-    <!-- =========================
-         CONTENT
-         ========================= -->
-
     <main class="platform-content-area">
-
-      <div class="breadcrumb-bar">
-        Administration / USDT Verification Queue
-      </div>
-
-
-      <!-- HEADER -->
+      <div class="breadcrumb-bar">Administration / USDT Verification Queue</div>
 
       <div class="admin-head">
-
         <div>
-
-          <span class="eyebrow">
-            ADMINISTRATION
-          </span>
-
-          <h2>
-            USDT Verification Queue
-          </h2>
-
-          <p
-            style="
-              margin-top:6px;
-              color:var(--text-secondary);
-              font-size:12px;
-            "
-          >
-            Review submitted demo top-up requests and credit
-            approved balances.
+          <span class="eyebrow">ADMINISTRATION</span>
+          <h2>USDT Verification Queue</h2>
+          <p style="margin-top:6px;color:var(--text-secondary);font-size:12px;">
+            Review submitted top-up requests and credit approved balances.
           </p>
-
         </div>
-
-        <span class="admin-badge">
-          SUPERADMIN
-        </span>
-
+        <span class="admin-badge">SUPERADMIN</span>
       </div>
-
-
-      <!-- =========================
-           SUMMARY
-           ========================= -->
 
       <div class="admin-stats">
-
         <div>
-
-          <small>
-            Pending Approvals
-          </small>
-
-          <b
-            id="pendingCount"
-            style="color:#d99400;"
-          >
-            0
-          </b>
-
-          <small style="margin-top:4px;">
-            Awaiting verification
-          </small>
-
+          <small>Pending Approvals</small>
+          <b id="pendingCount" style="color:#d99400;">0</b>
+          <small style="margin-top:4px;">Awaiting verification</small>
         </div>
-
-
         <div>
-
-          <small>
-            Approved Volume
-          </small>
-
-          <b
-            id="approvedVolume"
-            style="color:#16a36a;"
-          >
-            $0.00
-          </b>
-
-          <small style="margin-top:4px;">
-            Demo balance credited
-          </small>
-
+          <small>Approved Volume</small>
+          <b id="approvedVolume" style="color:#16a36a;">$0.00</b>
+          <small style="margin-top:4px;">Balance credited</small>
         </div>
-
-
         <div>
-
-          <small>
-            Network
-          </small>
-
-          <b>
-            TRC20
-          </b>
-
-          <small style="margin-top:4px;">
-            USDT payments
-          </small>
-
+          <small>Network</small>
+          <b>TRC20</b>
+          <small style="margin-top:4px;">USDT payments</small>
         </div>
-
-
         <div>
-
-          <small>
-            Console Status
-          </small>
-
-          <b style="color:#16a36a;">
-            ONLINE
-          </b>
-
-          <small style="margin-top:4px;">
-            Ready for review
-          </small>
-
+          <small>Console Status</small>
+          <b style="color:#16a36a;">ONLINE</b>
+          <small style="margin-top:4px;">Ready for review</small>
         </div>
-
       </div>
-
-
-      <!-- =========================
-           VERIFICATION TABLE
-           ========================= -->
 
       <div class="portal-card">
-
         <div class="portal-card-header">
-
           <div>
-
-            <h2>
-              Payment Verification
-            </h2>
-
-            <p>
-              Review transaction hashes before approving demo credits.
-            </p>
-
+            <h2>Payment Verification</h2>
+            <p>Review transaction hashes before approving credits.</p>
           </div>
-
-
-          <button
-            id="btnRefreshAdmin"
-            class="btn-secondary"
-            type="button"
-          >
-            Refresh Queue
-          </button>
-
+          <button id="btnRefreshAdmin" class="btn-secondary" type="button">Refresh Queue</button>
         </div>
-
 
         <div class="table-wrapper">
-
           <table class="outbox-table">
-
             <thead>
-
               <tr>
-
-                <th>
-                  User / Email
-                </th>
-
-                <th>
-                  Amount
-                </th>
-
-                <th>
-                  Network
-                </th>
-
-                <th>
-                  TxID / Hash
-                </th>
-
-                <th>
-                  Submitted
-                </th>
-
-                <th>
-                  Status
-                </th>
-
-                <th>
-                  Action
-                </th>
-
+                <th>User / Email</th>
+                <th>Amount</th>
+                <th>Network</th>
+                <th>TxID / Hash</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-
             </thead>
-
-
             <tbody id="adminTableBody"></tbody>
-
           </table>
-
         </div>
 
-
-        <div
-          class="empty-state hidden"
-          id="adminEmptyState"
-        >
-
-          <div class="empty-icon">
-            ✓
-          </div>
-
-          <h3>
-            No pending requests
-          </h3>
-
-          <p>
-            New demo top-up submissions will appear here.
-          </p>
-
+        <div class="empty-state hidden" id="adminEmptyState">
+          <div class="empty-icon">✓</div>
+          <h3>No pending requests</h3>
+          <p>New top-up submissions will appear here.</p>
         </div>
-
       </div>
-
     </main>
-
   </div>
-
 </div>
 
-
-<!-- TOASTS -->
-
-<div
-  id="toastContainer"
-  class="toast-container"
-></div>
-
-
-<script
-  type="module"
-  src="/src/admin.js"
-></script>
-
+<div id="toastContainer" class="toast-container"></div>
+<script type="module" src="/src/admin.js"></script>
 </body>
 </html>
