@@ -14,6 +14,9 @@ alter table public.campaign_messages
   add column if not exists next_attempt_at timestamptz not null default now(),
   add column if not exists updated_at timestamptz not null default now();
 
+alter table public.campaign_messages
+  drop constraint if exists campaign_messages_status_check;
+
 update public.campaign_messages
 set status = 'queued',
     updated_at = now()
@@ -21,9 +24,6 @@ where status = 'pending';
 
 alter table public.campaign_messages
   alter column status set default 'queued';
-
-alter table public.campaign_messages
-  drop constraint if exists campaign_messages_status_check;
 
 alter table public.campaign_messages
   add constraint campaign_messages_status_check
