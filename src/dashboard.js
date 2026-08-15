@@ -2,7 +2,6 @@ import { createClient } from "@supabase/supabase-js";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 
 const supabase =
   SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY
@@ -23,7 +22,6 @@ const els = {
   createdAt: $("createdAt"),
   logoutButton: $("logoutButton"),
   dashboardMessage: $("dashboardMessage"),
-  demoModeBanner: $("demoModeBanner"),
   headerName: $("headerName"),
   headerAvatar: $("headerAvatar"),
   dashWelcomeId: $("dashWelcomeId"),
@@ -59,12 +57,10 @@ const els = {
   btnResetOutboxFilters: $("btnResetOutboxFilters"),
   outboxFilterMessage: $("outboxFilterMessage"),
   outboxTotalCount: $("outboxTotalCount"),
-  outboxSubmittedCount: $("outboxSubmittedCount"),
+  outboxQueuedCount: $("outboxQueuedCount"),
   outboxDeliveredCount: $("outboxDeliveredCount"),
   outboxFailedCount: $("outboxFailedCount"),
-  outboxDemoDeliveredCount: $("outboxDemoDeliveredCount"),
   outboxTotalCharges: $("outboxTotalCharges"),
-  outboxDemoCard: $("outboxDemoCard"),
   paymentHistoryList: $("paymentHistoryList"),
   topUpModal: $("topUpModal"),
   closeTopUpModal: $("closeTopUpModal"),
@@ -636,18 +632,12 @@ async function loadPaymentHistory() {
   renderPaymentHistory(data || []);
 }
 
-function outboxStatusLabel(status, createdAt) {
+function outboxStatusLabel(status) {
   const value = String(status || "pending").toLowerCase();
   if (value === "delivered") return "Delivered";
   if (value === "failed") return "Failed";
-
-  // Demo mode is intentionally labelled in the UI. It never mutates the
-  // database and must not be used as proof of real provider delivery.
-  const ageMs = Date.now() - new Date(createdAt).getTime();
-  if (DEMO_MODE && Number.isFinite(ageMs) && ageMs >= 12000) {
-    return "Demo Delivered";
-  }
-  return "Submitted";
+  if (value === "sent") return "Sent";
+  return "Queued";
 }
 
 function outboxRecordCost(record) {
@@ -658,23 +648,20 @@ function outboxRecordCost(record) {
 
 function renderOutboxSummary(records) {
   const summary = records.reduce((totals, record) => {
-    const label = outboxStatusLabel(record.status, record.created_at);
+    const label = outboxStatusLabel(record.status);
     totals.total += 1;
     totals.charges += outboxRecordCost(record);
     if (label === "Delivered") totals.delivered += 1;
     else if (label === "Failed") totals.failed += 1;
-    else if (label === "Demo Delivered") totals.demoDelivered += 1;
-    else totals.submitted += 1;
+    else totals.queued += 1;
     return totals;
-  }, { total: 0, submitted: 0, delivered: 0, failed: 0, demoDelivered: 0, charges: 0 });
+  }, { total: 0, queued: 0, delivered: 0, failed: 0, charges: 0 });
 
   if (els.outboxTotalCount) els.outboxTotalCount.textContent = summary.total.toLocaleString();
-  if (els.outboxSubmittedCount) els.outboxSubmittedCount.textContent = summary.submitted.toLocaleString();
+  if (els.outboxQueuedCount) els.outboxQueuedCount.textContent = summary.queued.toLocaleString();
   if (els.outboxDeliveredCount) els.outboxDeliveredCount.textContent = summary.delivered.toLocaleString();
   if (els.outboxFailedCount) els.outboxFailedCount.textContent = summary.failed.toLocaleString();
-  if (els.outboxDemoDeliveredCount) els.outboxDemoDeliveredCount.textContent = summary.demoDelivered.toLocaleString();
   if (els.outboxTotalCharges) els.outboxTotalCharges.textContent = money(summary.charges);
-  els.outboxDemoCard?.classList.toggle("hidden", !DEMO_MODE);
 }
 
 function renderOutboxRecords(records) {
@@ -694,8 +681,8 @@ function renderOutboxRecords(records) {
     const route = routeById.get(campaign.route_id);
     const routeName = route?.displayName || "Route";
     const perMessageCost = outboxRecordCost(record);
-    const label = outboxStatusLabel(record.status, record.created_at);
-    const delivered = label === "Delivered" || label === "Demo Delivered";
+    const label = outboxStatusLabel(record.status);
+    const delivered = label === "Delivered";
     const statusClass = delivered ? "status-success" : label === "Failed" ? "status-failed" : "";
 
     const row = document.createElement("tr");
@@ -708,7 +695,7 @@ function renderOutboxRecords(records) {
       <td><strong>${record.phone || "—"}</strong></td>
       <td>${campaign.sender_id || "iMessage-Direct"}</td>
       <td>${formatDateTime(record.created_at)}</td>
-      <td><span class="outbox-state">${label === "Failed" ? "FAILED" : delivered ? label.toUpperCase() : "SUBMITTED"}</span></td>`;
+      <td><span class="outbox-state">${label.toUpperCase()}</span></td>`;
     els.outboxRecordsTbody.appendChild(row);
   });
 }
@@ -728,7 +715,7 @@ function applyOutboxFilters() {
 
   const filtered = outboxRecordsCache.filter((record) => {
     const createdTime = new Date(record.created_at).getTime();
-    const label = outboxStatusLabel(record.status, record.created_at).toLowerCase().replace(" ", "-");
+    const label = outboxStatusLabel(record.status).toLowerCase().replace(" ", "-");
     const matchesDate = (!fromTime || createdTime >= fromTime) && (!toTime || createdTime <= toTime);
     const matchesStatus = selectedStatus === "all" || label === selectedStatus;
     return matchesDate && matchesStatus;
@@ -993,7 +980,6 @@ async function initDashboard() {
   ensureCustomAmountUI();
   ensurePaymentRequestModal();
   correctDecorativeStatusCopy();
-  els.demoModeBanner?.classList.toggle("hidden", !DEMO_MODE);
 
   if (!supabase) {
     if (els.dashboardMessage) {
@@ -1023,12 +1009,6 @@ async function initDashboard() {
       loadPaymentHistory(),
       loadOutboxRecords()
     ]);
-
-    if (DEMO_MODE) {
-      window.setInterval(() => {
-        if (currentUser) applyOutboxFilters();
-      }, 2000);
-    }
 
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT" || !session) window.location.href = "index.html";
