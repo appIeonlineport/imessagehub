@@ -80,16 +80,6 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "A valid campaign ID is required." }, 400);
   }
 
-  const { data: profile, error: profileError } = await admin
-    .from("profiles")
-    .select("id,status")
-    .eq("id", user.id)
-    .single();
-
-  if (profileError || profile?.status !== "active") {
-    return jsonResponse({ error: "This account is not active." }, 403);
-  }
-
   const { data: campaign, error: campaignError } = await admin
     .from("campaigns")
     .select("id,user_id,message,sender_id,status")
