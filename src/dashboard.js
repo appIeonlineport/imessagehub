@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 
-// Environment variables
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
@@ -77,6 +76,8 @@ let currentUser = null;
 let selectedTopUpAmount = 99.0;
 let countdownInterval = null;
 let parsedCampaignNumbers = [];
+
+const PER_SMS_RATE = 0.030; // $0.030 USDT per SMS rate
 
 function showToast(message, type = "info") {
   if (!toastContainer) return;
@@ -165,6 +166,7 @@ if (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY) {
 
 async function initDashboard() {
   startLiveClock();
+  injectiMessagePreviewContainer();
 
   if (!supabase) return;
 
@@ -216,6 +218,29 @@ async function initDashboard() {
   }
 }
 
+// Inject 4K iMessage Simulation Window into Campaign View
+function injectiMessagePreviewContainer() {
+  const campaignCard = document.querySelector(".ctitele-campaign-card");
+  if (!campaignCard || document.getElementById("imessageSimulationBox")) return;
+
+  const simBox = document.createElement("div");
+  simBox.id = "imessageSimulationBox";
+  simBox.className = "imessage-sim-container hidden";
+  simBox.innerHTML = `
+    <div class="imessage-sim-header">
+      <div class="imessage-dots"><span></span><span></span><span></span></div>
+      <span class="imessage-sim-title"> Apple iMessage 4K Relay Preview</span>
+    </div>
+    <div class="imessage-bubble-viewport" id="imessageViewport">
+      <div class="imessage-bubble outgoing">
+        <p id="simBubbleText">Type your message to preview...</p>
+        <span class="imessage-status">Delivered • 4K Secure</span>
+      </div>
+    </div>
+  `;
+  campaignCard.parentNode.insertBefore(simBox, campaignCard.nextSibling);
+}
+
 // User Menu Toggle
 if (userMenuBtn && userDropdownMenu) {
   userMenuBtn.addEventListener("click", (e) => {
@@ -228,7 +253,6 @@ if (userMenuBtn && userDropdownMenu) {
   });
 }
 
-// Modals Trigger
 function openModal(modal) {
   if (modal) modal.classList.remove("hidden");
 }
@@ -364,10 +388,20 @@ if (mainMessageContent && wordsAndItemsCounter) {
     const len = mainMessageContent.value.length;
     const words = mainMessageContent.value.trim().split(/\s+/).filter(Boolean).length;
     wordsAndItemsCounter.textContent = `${words} / 160 words | 1 items (${len} chars)`;
+
+    // Live update simulation text bubble
+    const simBubble = document.getElementById("simBubbleText");
+    const simBox = document.getElementById("imessageSimulationBox");
+    if (mainMessageContent.value.trim().length > 0) {
+      if (simBox) simBox.classList.remove("hidden");
+      if (simBubble) simBubble.textContent = mainMessageContent.value;
+    } else {
+      if (simBox) simBox.classList.add("hidden");
+    }
   });
 }
 
-// Launch Campaign
+// Launch Campaign with 4K Simulation & Success Notice
 if (btnSubmitCampaign) {
   btnSubmitCampaign.addEventListener("click", async () => {
     parsedCampaignNumbers = parseInputNumbers(campaignNumbersArea?.value || "");
@@ -388,6 +422,10 @@ if (btnSubmitCampaign) {
     btnSubmitCampaign.disabled = true;
     if (campaignProgressBox) campaignProgressBox.classList.remove("hidden");
 
+    // Reveal 4K iMessage animation viewport
+    const simBox = document.getElementById("imessageSimulationBox");
+    if (simBox) simBox.classList.remove("hidden");
+
     let sent = 0;
     const total = parsedCampaignNumbers.length;
 
@@ -397,13 +435,12 @@ if (btnSubmitCampaign) {
 
       const pct = Math.floor((sent / total) * 100);
       if (campaignProgressPercent) campaignProgressPercent.textContent = `${pct}%`;
-      if (campaignProgressText) campaignProgressText.textContent = `Dispatching ${sent} / ${total}...`;
+      if (campaignProgressText) campaignProgressText.textContent = `Dispatching 4K iMessage ${sent} / ${total}...`;
       if (campaignProgressBarFill) campaignProgressBarFill.style.width = `${pct}%`;
 
       if (sent >= total) {
         clearInterval(progressInterval);
 
-        // Save records to outbox
         parsedCampaignNumbers.forEach((num) => {
           saveRecordToOutbox(num, msg);
         });
@@ -411,7 +448,10 @@ if (btnSubmitCampaign) {
         setTimeout(() => {
           if (campaignProgressBox) campaignProgressBox.classList.add("hidden");
           btnSubmitCampaign.disabled = false;
-          showToast(`Successfully sent campaign to ${total} recipients!`, "success");
+          
+          // EXACT SUCCESS TOAST REQUIREMENT
+          showToast("Your SMS sent successfully!", "success");
+          
           switchView("viewOutbox");
         }, 500);
       }
@@ -419,7 +459,7 @@ if (btnSubmitCampaign) {
   });
 }
 
-// Outbox Logger & Table (Exact ctitele columns)
+// Outbox Logger & Table (Using $0.030 USDT standard rate calculation)
 function loadOutboxRecords() {
   const email = currentUser?.email || "default";
   const records = JSON.parse(localStorage.getItem(`outbox_${email}`) || "[]");
@@ -440,7 +480,7 @@ function loadOutboxRecords() {
       <td><span style="font-family: var(--font-mono); color: #1890ff;">${rec.id}</span></td>
       <td>SMS</td>
       <td>Default</td>
-      <td>$0.055</td>
+      <td style="color: #00f0ff; font-weight: 700;">$${PER_SMS_RATE.toFixed(3)}</td>
       <td><span style="color: #52c41a; font-weight: 700;">Success / Delivered</span></td>
       <td><strong>${rec.recipient}</strong></td>
       <td>${senderIdInput?.value || "iMessage-Direct"}</td>
