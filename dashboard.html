@@ -225,16 +225,6 @@
 
     <!-- ================= CONTENT ================= -->
     <section class="platform-content-area">
-
-      <div
-        id="demoModeBanner"
-        class="hidden"
-        style="margin:0 0 16px;padding:12px 16px;border:1px solid #f5b942;border-radius:12px;background:#fff8e6;color:#6b4b00;font-size:13px;"
-      >
-        <strong>DEMO MODE:</strong>
-        Delivery statuses shown as “Demo Delivered” are simulated for interface demonstration only and do not represent provider delivery.
-      </div>
-
       <!-- ================= DASHBOARD ================= -->
       <section id="viewDashboard" class="view-panel">
 
@@ -837,9 +827,9 @@
             <small>Selected period</small>
           </article>
           <article class="outbox-summary-card">
-            <span>Submitted</span>
-            <strong id="outboxSubmittedCount">0</strong>
-            <small>Awaiting provider result</small>
+            <span>Queued</span>
+            <strong id="outboxQueuedCount">0</strong>
+            <small>Awaiting provider processing</small>
           </article>
           <article class="outbox-summary-card outbox-success-card">
             <span>Delivered</span>
@@ -850,11 +840,6 @@
             <span>Failed</span>
             <strong id="outboxFailedCount">0</strong>
             <small>Provider failures</small>
-          </article>
-          <article id="outboxDemoCard" class="outbox-summary-card outbox-demo-card hidden">
-            <span>Demo Delivered</span>
-            <strong id="outboxDemoDeliveredCount">0</strong>
-            <small>Simulated UI status</small>
           </article>
           <article class="outbox-summary-card outbox-charge-card">
             <span>Charges Deducted</span>
@@ -888,7 +873,6 @@
                 <option value="submitted">Submitted</option>
                 <option value="delivered">Delivered</option>
                 <option value="failed">Failed</option>
-                <option value="demo-delivered">Demo Delivered</option>
               </select>
             </label>
             <div class="outbox-filter-actions">
