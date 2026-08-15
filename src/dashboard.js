@@ -87,6 +87,7 @@ let currentWalletBalance = 0;
 let selectedTopUpAmount = 99;
 let countdownInterval = null;
 let parsedCampaignNumbers = [];
+let selectedSourceFileName = "";
 let routeByDisplayName = new Map();
 let routeById = new Map();
 
@@ -176,60 +177,70 @@ els.btnGetStarted?.addEventListener("click", () => switchView("viewNewCampaign")
 async function loadRoutes() {
   if (!supabase) return;
 
-  const { data, error } = await supabase
-    .from("routes")
-    .select("id,name,code,description,enabled,price_per_message,currency")
-    .eq("enabled", true)
-    .order("created_at", { ascending: true });
+  try {
+    const { data, error } = await supabase
+      .from("routes")
+      .select("id,name,code,description,enabled,price_per_message,currency,created_at")
+      .eq("enabled", true)
+      .order("created_at", { ascending: true });
 
-  if (error) {
-    console.error("Route lookup error:", error);
-    showToast("Unable to load messaging routes.", "error");
-    return;
-  }
+    if (error) throw error;
 
-  routeByDisplayName = new Map();
-  routeById = new Map();
+    routeByDisplayName = new Map();
+    routeById = new Map();
 
-  (data || []).forEach((route) => {
-    const normalized = {
-      ...route,
-      displayName: normalizeRouteName(route),
-      price: Number(route.price_per_message) || 0
-    };
-    routeByDisplayName.set(normalized.displayName, normalized);
-    routeById.set(normalized.id, normalized);
-  });
+    (data || []).forEach((route) => {
+      const normalized = {
+        ...route,
+        displayName: normalizeRouteName(route),
+        price: Number(route.price_per_message) || 0
+      };
+      routeByDisplayName.set(normalized.displayName, normalized);
+      routeById.set(normalized.id, normalized);
+    });
 
-  routeCards.forEach((card) => {
-    const radio = card.querySelector('input[name="campaignRoute"]');
-    if (!radio) return;
+    routeCards.forEach((card) => {
+      const radio = card.querySelector('input[name="campaignRoute"]');
+      if (!radio) return;
 
-    const route = routeByDisplayName.get(radio.value);
-    const priceLabel = card.querySelector("b");
+      const route = routeByDisplayName.get(radio.value);
+      const priceLabel = card.querySelector("b");
 
-    if (!route) {
-      radio.disabled = true;
-      card.style.opacity = "0.45";
-      card.style.pointerEvents = "none";
-      return;
+      if (!route) {
+        radio.disabled = true;
+        radio.checked = false;
+        card.classList.remove("active");
+        card.style.opacity = "0.45";
+        card.style.pointerEvents = "none";
+        return;
+      }
+
+      radio.disabled = false;
+      radio.dataset.routeId = route.id;
+      radio.dataset.price = String(route.price);
+      card.style.opacity = "1";
+      card.style.pointerEvents = "";
+      if (priceLabel) priceLabel.textContent = money(route.price, 3);
+    });
+
+    let selected = document.querySelector('input[name="campaignRoute"]:checked:not(:disabled)');
+    if (!selected) {
+      selected = document.querySelector('input[name="campaignRoute"]:not(:disabled)');
+      if (selected) selected.checked = true;
     }
 
-    radio.disabled = false;
-    radio.dataset.routeId = route.id;
-    radio.dataset.price = String(route.price);
-    card.style.opacity = "1";
-    card.style.pointerEvents = "";
-    if (priceLabel) priceLabel.textContent = money(route.price, 3);
-  });
+    updateRouteUI();
 
-  const selected = document.querySelector('input[name="campaignRoute"]:checked:not(:disabled)');
-  if (!selected) {
-    const first = document.querySelector('input[name="campaignRoute"]:not(:disabled)');
-    if (first) first.checked = true;
+    if (!data?.length) {
+      showToast("No active messaging routes are available.", "error");
+    }
+  } catch (error) {
+    console.error("Route lookup error:", error);
+    routeByDisplayName = new Map();
+    routeById = new Map();
+    updateRouteUI();
+    showToast(`Unable to load messaging routes: ${error.message}`, "error");
   }
-
-  updateRouteUI();
 }
 
 function getSelectedRoute() {
@@ -243,11 +254,7 @@ function getSelectedRoute() {
   const price = Number(selected.dataset.price) || 0;
   if (!routeId || price <= 0) return null;
 
-  return {
-    id: routeId,
-    displayName: selected.value,
-    price
-  };
+  return { id: routeId, displayName: selected.value, price };
 }
 
 function updateRouteUI() {
@@ -306,12 +313,10 @@ function parseInputNumbers(text) {
 function updateRecipientCount() {
   parsedCampaignNumbers = parseInputNumbers(els.campaignNumbersArea?.value || "");
   const count = parsedCampaignNumbers.length;
-
   if (els.recipientCount) {
     els.recipientCount.textContent = `${count} recipient${count === 1 ? "" : "s"}`;
   }
   if (els.recipientCountLarge) els.recipientCountLarge.textContent = String(count);
-
   updateCampaignCost();
 }
 
@@ -333,7 +338,10 @@ function updateMessageCounter() {
   }
 }
 
-els.campaignNumbersArea?.addEventListener("input", updateRecipientCount);
+els.campaignNumbersArea?.addEventListener("input", () => {
+  selectedSourceFileName = "";
+  updateRecipientCount();
+});
 els.mainMessageContent?.addEventListener("input", updateMessageCounter);
 
 if (els.btnTriggerUpload && els.bulkFileInput) {
@@ -342,15 +350,19 @@ if (els.btnTriggerUpload && els.bulkFileInput) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    selectedSourceFileName = file.name;
     const reader = new FileReader();
     reader.onload = (loadEvent) => {
       if (els.campaignNumbersArea) {
         els.campaignNumbersArea.value = String(loadEvent.target?.result || "");
       }
       updateRecipientCount();
-      showToast(`${parsedCampaignNumbers.length} recipients loaded.`, "success");
+      showToast(`${parsedCampaignNumbers.length} recipients loaded from ${file.name}.`, "success");
     };
-    reader.onerror = () => showToast("Unable to read the selected file.", "error");
+    reader.onerror = () => {
+      selectedSourceFileName = "";
+      showToast("Unable to read the selected file.", "error");
+    };
     reader.readAsText(file);
     els.bulkFileInput.value = "";
   });
@@ -450,7 +462,6 @@ function ensurePaymentRequestModal() {
     </div>`;
 
   document.body.appendChild(modal);
-
   $("btnClosePaymentConfirmation")?.addEventListener("click", () => closeModal(modal));
   $("btnPaymentHistoryFromConfirmation")?.addEventListener("click", async () => {
     closeModal(modal);
@@ -502,7 +513,6 @@ els.btnSubmitPaid?.addEventListener("click", async () => {
 
   const customValue = Number.parseFloat($("customTopUpAmount")?.value || "");
   if (Number.isFinite(customValue) && customValue >= 1) selectedTopUpAmount = customValue;
-
   const txHash = els.usdtTxHash?.value.trim() || "";
 
   if (!Number.isFinite(selectedTopUpAmount) || selectedTopUpAmount < 1) {
@@ -732,14 +742,17 @@ async function submitCampaign() {
   }
 
   try {
-    const campaignName = `Campaign ${new Date().toISOString().slice(0, 19).replace("T", " ")}`;
+    const campaignName = selectedSourceFileName
+      ? selectedSourceFileName.replace(/\.[^.]+$/, "")
+      : `Campaign ${new Date().toISOString().slice(0, 19).replace("T", " ")}`;
 
     const { data, error } = await supabase.rpc("submit_campaign", {
       p_route_id: route.id,
       p_name: campaignName,
       p_sender_id: sender,
       p_message: message,
-      p_recipients: parsedCampaignNumbers
+      p_recipients: parsedCampaignNumbers,
+      p_source_file_name: selectedSourceFileName || ""
     });
 
     if (error) throw error;
@@ -879,7 +892,6 @@ function renderAccount() {
 function correctDecorativeStatusCopy() {
   const deliveryCheck = document.querySelector(".delivery-check");
   if (deliveryCheck) deliveryCheck.textContent = "✓ Submitted";
-
   const rightIncoming = document.querySelector(".phone-right .message-bubble.incoming");
   if (rightIncoming) rightIncoming.textContent = "Campaign queued";
 }
@@ -900,7 +912,6 @@ async function initDashboard() {
 
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
-
     if (error || !user) {
       window.location.href = "index.html";
       return;
@@ -936,6 +947,7 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden && currentUser) {
     refreshWalletBalance();
     loadPaymentHistory();
+    loadRoutes();
   }
 });
 
