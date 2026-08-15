@@ -907,7 +907,12 @@
           <article class="outbox-summary-card">
             <span>Submitted</span>
             <strong id="outboxSubmittedCount">0</strong>
-            <small>Accepted by the portal</small>
+            <small>Awaiting provider acceptance</small>
+          </article>
+          <article class="outbox-summary-card outbox-sent-card">
+            <span>Sent</span>
+            <strong id="outboxSentCount">0</strong>
+            <small>Accepted by the provider</small>
           </article>
           <article class="outbox-summary-card outbox-success-card">
             <span>Delivered</span>
@@ -949,6 +954,7 @@
               <select id="outboxStatusFilter" class="portal-input">
                 <option value="all">All statuses</option>
                 <option value="submitted">Submitted</option>
+                <option value="sent">Sent</option>
                 <option value="delivered">Delivered</option>
                 <option value="failed">Failed</option>
               </select>

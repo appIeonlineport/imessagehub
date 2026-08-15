@@ -66,6 +66,7 @@ const els = {
   outboxFilterMessage: $("outboxFilterMessage"),
   outboxTotalCount: $("outboxTotalCount"),
   outboxSubmittedCount: $("outboxSubmittedCount"),
+  outboxSentCount: $("outboxSentCount"),
   outboxDeliveredCount: $("outboxDeliveredCount"),
   outboxFailedCount: $("outboxFailedCount"),
   outboxTotalCharges: $("outboxTotalCharges"),
@@ -681,6 +682,7 @@ async function loadPaymentHistory() {
 
 function outboxStatusLabel(status) {
   const value = String(status || "pending").toLowerCase();
+  if (value === "sent") return "Sent";
   if (value === "delivered") return "Delivered";
   if (value === "failed") return "Failed";
   return "Submitted";
@@ -697,14 +699,16 @@ function renderOutboxSummary(records) {
     const label = outboxStatusLabel(record.status);
     totals.total += 1;
     totals.charges += outboxRecordCost(record);
-    if (label === "Delivered") totals.delivered += 1;
+    if (label === "Sent") totals.sent += 1;
+    else if (label === "Delivered") totals.delivered += 1;
     else if (label === "Failed") totals.failed += 1;
     else totals.submitted += 1;
     return totals;
-  }, { total: 0, submitted: 0, delivered: 0, failed: 0, charges: 0 });
+  }, { total: 0, submitted: 0, sent: 0, delivered: 0, failed: 0, charges: 0 });
 
   if (els.outboxTotalCount) els.outboxTotalCount.textContent = summary.total.toLocaleString();
   if (els.outboxSubmittedCount) els.outboxSubmittedCount.textContent = summary.submitted.toLocaleString();
+  if (els.outboxSentCount) els.outboxSentCount.textContent = summary.sent.toLocaleString();
   if (els.outboxDeliveredCount) els.outboxDeliveredCount.textContent = summary.delivered.toLocaleString();
   if (els.outboxFailedCount) els.outboxFailedCount.textContent = summary.failed.toLocaleString();
   if (els.outboxTotalCharges) els.outboxTotalCharges.textContent = money(summary.charges);
@@ -728,8 +732,8 @@ function renderOutboxRecords(records) {
     const routeName = route?.displayName || "Route";
     const perMessageCost = outboxRecordCost(record);
     const label = outboxStatusLabel(record.status);
-    const delivered = label === "Delivered";
-    const statusClass = delivered ? "status-success" : label === "Failed" ? "status-failed" : "";
+    const successful = label === "Sent" || label === "Delivered";
+    const statusClass = successful ? "status-success" : label === "Failed" ? "status-failed" : "";
 
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -929,6 +933,23 @@ async function submitCampaign() {
     if (els.successRouteName) els.successRouteName.textContent = route.displayName;
     if (els.successCampaignCost) {
       els.successCampaignCost.textContent = money(result?.total_cost ?? estimatedCost);
+    }
+
+    const { data: dispatchResult, error: dispatchError } = await supabase.functions.invoke(
+      "send-onbuka-campaign",
+      { body: { campaignId: result?.campaign_id } }
+    );
+
+    if (dispatchError) {
+      console.error("OnBuka dispatch error:", dispatchError);
+      showToast("Campaign submitted, but provider dispatch is not configured yet.", "error");
+    } else if (Number(dispatchResult?.sent || 0) > 0) {
+      showToast(
+        `${Number(dispatchResult.sent).toLocaleString()} message(s) accepted by OnBuka.`,
+        "success"
+      );
+    } else if (Number(dispatchResult?.failed || 0) > 0) {
+      showToast(dispatchResult?.reason || "OnBuka rejected the campaign.", "error");
     }
 
     openModal(els.campaignSuccessModal);
