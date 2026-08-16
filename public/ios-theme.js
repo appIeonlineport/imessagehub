@@ -196,6 +196,110 @@
     syncMetrics(); syncRecent();
   }
 
+  function installOutboxPagination() {
+    const tbody = $('#outboxRecordsTbody');
+    const tableWrapper = tbody?.closest('.table-wrapper');
+    if (!tbody || !tableWrapper || $('#iosOutboxPager')) return;
+
+    if (!$('#iosOutboxPagerStyle')) {
+      const style = document.createElement('style');
+      style.id = 'iosOutboxPagerStyle';
+      style.textContent = `
+        .ios-outbox-pager{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 2px 2px}
+        .ios-outbox-page-size{display:flex;align-items:center;gap:8px;color:#74839a;font-size:12px;font-weight:700}
+        .ios-outbox-page-size select{height:36px;border:1px solid #dbe5f2;border-radius:11px;background:#fff;color:#15223e;padding:0 28px 0 10px;font:inherit;outline:none}
+        .ios-outbox-page-nav{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+        .ios-outbox-page-nav button{min-width:36px;height:36px;border:1px solid #dbe5f2;border-radius:11px;background:#fff;color:#34425d;font-size:12px;font-weight:800;padding:0 10px;cursor:pointer}
+        .ios-outbox-page-nav button:hover:not(:disabled){border-color:#9fc9ff;background:#f2f8ff;color:#147ef5}
+        .ios-outbox-page-nav button.active{background:#147ef5;border-color:#147ef5;color:#fff;box-shadow:0 7px 16px rgba(20,126,245,.22)}
+        .ios-outbox-page-nav button:disabled{opacity:.42;cursor:default}
+        .ios-outbox-page-info{color:#8794a8;font-size:11px;font-weight:650}
+        @media(max-width:560px){.ios-outbox-pager{align-items:stretch;padding-top:12px}.ios-outbox-page-size{width:100%;justify-content:space-between}.ios-outbox-page-nav{width:100%;justify-content:center}.ios-outbox-page-nav button{min-width:34px;height:34px;padding:0 8px}.ios-outbox-page-info{width:100%;text-align:center}}
+      `;
+      document.head.appendChild(style);
+    }
+
+    const pager = document.createElement('div');
+    pager.id = 'iosOutboxPager';
+    pager.className = 'ios-outbox-pager';
+    pager.innerHTML = `
+      <label class="ios-outbox-page-size">Show
+        <select id="iosOutboxPageSize" aria-label="Outbox rows per page">
+          <option value="10" selected>10</option>
+          <option value="30">30</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        records
+      </label>
+      <div class="ios-outbox-page-nav" id="iosOutboxPageNav" aria-label="Outbox pagination"></div>
+      <div class="ios-outbox-page-info" id="iosOutboxPageInfo"></div>`;
+    tableWrapper.insertAdjacentElement('afterend', pager);
+
+    let page = 1;
+    let pageSize = 10;
+    let renderQueued = false;
+
+    const render = () => {
+      renderQueued = false;
+      const rows = $$(':scope > tr', tbody);
+      const total = rows.length;
+      const pages = Math.max(1, Math.ceil(total / pageSize));
+      page = Math.min(Math.max(1, page), pages);
+      const start = (page - 1) * pageSize;
+      const end = Math.min(start + pageSize, total);
+
+      rows.forEach((row, index) => {
+        row.hidden = index < start || index >= end;
+      });
+
+      const nav = $('#iosOutboxPageNav');
+      const info = $('#iosOutboxPageInfo');
+      if (info) info.textContent = total ? `Showing ${start + 1}–${end} of ${total}` : 'No records';
+      if (!nav) return;
+
+      const pageButtons = [];
+      if (pages <= 7) {
+        for (let i = 1; i <= pages; i += 1) pageButtons.push(i);
+      } else {
+        const candidates = new Set([1, pages, page - 1, page, page + 1].filter((n) => n >= 1 && n <= pages));
+        [...candidates].sort((a, b) => a - b).forEach((n, index, arr) => {
+          if (index && n - arr[index - 1] > 1) pageButtons.push('…');
+          pageButtons.push(n);
+        });
+      }
+
+      nav.innerHTML = `<button type="button" data-page="prev" ${page === 1 ? 'disabled' : ''}>‹ Prev</button>${pageButtons.map((n) => n === '…' ? '<button type="button" disabled>…</button>' : `<button type="button" data-page="${n}" class="${n === page ? 'active' : ''}" aria-current="${n === page ? 'page' : 'false'}">${n}</button>`).join('')}<button type="button" data-page="next" ${page === pages ? 'disabled' : ''}>Next ›</button>`;
+    };
+
+    const queueRender = (reset = false) => {
+      if (reset) page = 1;
+      if (renderQueued) return;
+      renderQueued = true;
+      requestAnimationFrame(render);
+    };
+
+    $('#iosOutboxPageSize')?.addEventListener('change', (e) => {
+      pageSize = Number(e.target.value) || 10;
+      page = 1;
+      queueRender();
+    });
+
+    $('#iosOutboxPageNav')?.addEventListener('click', (e) => {
+      const button = e.target.closest('button[data-page]');
+      if (!button || button.disabled) return;
+      const value = button.dataset.page;
+      const pages = Math.max(1, Math.ceil($$(':scope > tr', tbody).length / pageSize));
+      if (value === 'prev') page = Math.max(1, page - 1);
+      else if (value === 'next') page = Math.min(pages, page + 1);
+      else page = Math.min(pages, Math.max(1, Number(value) || 1));
+      queueRender();
+    });
+
+    new MutationObserver(() => queueRender(true)).observe(tbody, { childList: true });
+    render();
+  }
+
   function polishAvatar() {
     const name = $('#welcomeName')?.textContent?.trim() || $('#headerName')?.textContent?.trim() || 'V';
     const initial = (name.match(/[A-Za-z]/)?.[0] || 'V').toUpperCase();
@@ -209,6 +313,7 @@
     installMiniModal();
     bindActions();
     observeData();
+    installOutboxPagination();
     polishAvatar();
     setTimeout(polishAvatar, 900);
   }
