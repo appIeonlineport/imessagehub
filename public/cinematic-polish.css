@@ -1,0 +1,18 @@
+:root{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;font-synthesis:none}
+html{background:#f4f7fb}body{backface-visibility:hidden}img,svg{shape-rendering:geometricPrecision}button,input,select,textarea{font:inherit}
+.auth-card,.portal-card,.panel,.stat-card,.admin-stats>div,.gateway-status-widget{transform:translateZ(0);border-color:rgba(113,142,179,.18)!important;box-shadow:0 18px 55px rgba(20,43,78,.08),0 1px 2px rgba(17,38,70,.06)!important}
+.form-input,.btn,.btn-primary,.btn-secondary,.menu-item,.status-pill{border-radius:max(10px,.7vw)}
+.brand-svg,.platform-logo-box{filter:drop-shadow(0 8px 18px rgba(0,122,255,.2))}
+body.platform-body.imh-page-enter .platform-sidebar{animation:imh-side-reveal .75s .08s cubic-bezier(.16,.8,.2,1) both}
+body.platform-body.imh-page-enter .platform-topbar{animation:imh-top-reveal .72s .13s cubic-bezier(.16,.8,.2,1) both}
+body.platform-body.imh-page-enter .platform-content-area{animation:imh-content-reveal .8s .2s cubic-bezier(.16,.8,.2,1) both}
+body.platform-body::before{content:"";position:fixed;inset:0;z-index:99990;pointer-events:none;background:radial-gradient(circle at 50% 42%,rgba(30,136,255,.18),transparent 38%),#06101f;opacity:0;visibility:hidden}
+body.platform-body.imh-page-enter::before{animation:imh-curtain .84s cubic-bezier(.4,0,.2,1) both}
+@keyframes imh-curtain{0%{opacity:1;visibility:visible}58%{opacity:.22}100%{opacity:0;visibility:hidden}}
+@keyframes imh-side-reveal{from{opacity:0;transform:translate3d(-18px,0,0);filter:blur(5px)}to{opacity:1;transform:none;filter:none}}
+@keyframes imh-top-reveal{from{opacity:0;transform:translate3d(0,-12px,0);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes imh-content-reveal{from{opacity:0;transform:translate3d(0,18px,0) scale(.992);filter:blur(7px)}to{opacity:1;transform:none;filter:none}}
+@media(min-resolution:2dppx){.auth-card,.portal-card,.panel,.admin-stats>div{border-width:.5px!important}.outbox-table th,.outbox-table td{border-width:.5px}}
+@media(min-width:1800px){body{font-size:17px}.platform-content-area{max-width:1760px;margin-inline:auto;width:100%}.auth-container{transform:scale(1.04)}.portal-card,.panel{border-radius:22px}.platform-topbar{min-height:76px}.platform-sidebar{width:290px}}
+@media(min-width:3000px){body{font-size:20px}.platform-content-area{max-width:2200px}.auth-container{transform:scale(1.16)}.platform-sidebar{width:340px}.platform-topbar{min-height:90px}.platform-logo-box{width:54px;height:54px}}
+@media(prefers-reduced-motion:reduce){body.platform-body.imh-page-enter .platform-sidebar,body.platform-body.imh-page-enter .platform-topbar,body.platform-body.imh-page-enter .platform-content-area,body.platform-body.imh-page-enter::before{animation:none!important}}

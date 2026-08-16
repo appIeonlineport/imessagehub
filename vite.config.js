@@ -15,16 +15,20 @@ const mobileCss = String.raw`
 const mobileJs=String.raw`(()=>{const init=()=>{const t=document.querySelector('.sidebar-toggle-btn'),s=document.querySelector('.platform-sidebar');if(!t||!s)return;const set=o=>{document.body.classList.toggle('mobile-sidebar-open',o);t.setAttribute('aria-expanded',String(o));t.textContent=o?'×':'☰'};t.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();set(!document.body.classList.contains('mobile-sidebar-open'))});s.addEventListener('click',e=>{if(innerWidth<=560&&e.target.closest('.menu-item'))set(false)});document.addEventListener('click',e=>{if(innerWidth<=560&&document.body.classList.contains('mobile-sidebar-open')&&!s.contains(e.target)&&!t.contains(e.target))set(false)});addEventListener('resize',()=>{if(innerWidth>560)set(false)})};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init()})();`;
 
 const dashboardTheme={name:"imessage-ios-dashboard-theme",transformIndexHtml:{order:"post",handler(html){
-  if(!html.includes('class="platform-layout"')||!html.includes('sidebar-toggle-btn'))return html;
+  const cinematicTags=[
+    {tag:"link",attrs:{rel:"stylesheet",href:"/cinematic-polish.css"},injectTo:"head"},
+    {tag:"script",attrs:{src:"/cinematic-polish.js",defer:true},injectTo:"body"}
+  ];
+  if(!html.includes('class="platform-layout"')||!html.includes('sidebar-toggle-btn'))return{html,tags:cinematicTags};
   const isAdmin=html.includes('iMessage Hub — Admin Console');
   if(isAdmin){
-    return{html,tags:[
+    return{html,tags:[...cinematicTags,
       {tag:"style",children:mobileCss,injectTo:"head"},
       {tag:"link",attrs:{rel:"stylesheet",href:"/admin-ios.css"},injectTo:"head"},
       {tag:"script",children:mobileJs,injectTo:"body"}
     ]};
   }
-  return{html,tags:[
+  return{html,tags:[...cinematicTags,
     {tag:"style",children:mobileCss,injectTo:"head"},
     {tag:"link",attrs:{rel:"stylesheet",href:"/ios-theme.css"},injectTo:"head"},
     {tag:"link",attrs:{rel:"stylesheet",href:"/ios-polish.css"},injectTo:"head"},
