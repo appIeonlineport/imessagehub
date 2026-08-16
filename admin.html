@@ -28,6 +28,9 @@
       <button id="btnAdminUsers" class="menu-item" data-admin-view="adminUsersView" type="button">
         <span>◉</span><span>Users</span>
       </button>
+      <button id="btnAdminHistory" class="menu-item" data-admin-view="adminHistoryView" type="button">
+        <span>◫</span><span>Sending History</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -231,6 +234,36 @@
             <h3>No campaign activity yet</h3>
             <p>Submitted campaigns will appear here.</p>
           </div>
+        </div>
+      </section>
+
+      <section id="adminHistoryView" class="admin-view-panel hidden">
+        <div class="breadcrumb-bar">Administration / User Sending History</div>
+        <div class="admin-head admin-history-head">
+          <div>
+            <span class="eyebrow">ACCOUNT ARCHIVE</span>
+            <h2>User Sending History</h2>
+            <p>Review every user's uploaded number files, messages and delivery results.</p>
+          </div>
+          <button id="btnRefreshAdminHistory" class="btn-secondary" type="button">Refresh History</button>
+        </div>
+
+        <div class="admin-history-toolbar">
+          <label>
+            <span>User account</span>
+            <select id="adminHistoryUserFilter" class="portal-input"><option value="all">All users</option></select>
+          </label>
+          <label>
+            <span>Search</span>
+            <input id="adminHistorySearch" class="portal-input" type="search" placeholder="Email, campaign, file or message">
+          </label>
+          <div class="admin-history-total"><span>Campaigns shown</span><strong id="adminHistoryCount">0</strong></div>
+        </div>
+
+        <div id="adminHistoryLoading" class="admin-history-empty">Loading sending history…</div>
+        <div id="adminHistoryList" class="admin-history-list"></div>
+        <div id="adminHistoryEmpty" class="admin-history-empty hidden">
+          <strong>No sending history found.</strong><br>Try another user or search term.
         </div>
       </section>
     </main>

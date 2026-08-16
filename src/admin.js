@@ -30,8 +30,16 @@ const adminTotalUsers = $("adminTotalUsers");
 const adminWalletTotal = $("adminWalletTotal");
 const adminTopupTotal = $("adminTopupTotal");
 const adminCampaignTotal = $("adminCampaignTotal");
+const btnRefreshAdminHistory = $("btnRefreshAdminHistory");
+const adminHistoryUserFilter = $("adminHistoryUserFilter");
+const adminHistorySearch = $("adminHistorySearch");
+const adminHistoryCount = $("adminHistoryCount");
+const adminHistoryLoading = $("adminHistoryLoading");
+const adminHistoryList = $("adminHistoryList");
+const adminHistoryEmpty = $("adminHistoryEmpty");
 const adminViewButtons = $$('[data-admin-view]');
 const adminViewPanels = $$(".admin-view-panel");
+let adminHistoryRows = [];
 
 function showToast(message, type = "info") {
   if (!toastContainer) return;
@@ -160,6 +168,8 @@ async function switchAdminView(viewId) {
 
   if (viewId === "adminUsersView") {
     await loadUsersAndActivity();
+  } else if (viewId === "adminHistoryView") {
+    await loadAdminSendingHistory();
   } else {
     await Promise.all([fetchRequests(), loadRoutes()]);
   }
@@ -467,6 +477,118 @@ function renderCampaignActivity(campaigns) {
     adminCampaignBody.appendChild(row);
   });
 }
+
+function safeFileName(value) {
+  return String(value || "campaign-data")
+    .replace(/[^a-z0-9._-]+/gi, "-")
+    .replace(/^-+|-+$/g, "") || "campaign-data";
+}
+
+function populateHistoryUsers(rows) {
+  if (!adminHistoryUserFilter) return;
+  const current = adminHistoryUserFilter.value || "all";
+  const users = new Map();
+  rows.forEach((row) => users.set(row.user_id, row.user_email || row.user_id));
+  adminHistoryUserFilter.innerHTML = '<option value="all">All users</option>';
+  [...users.entries()].sort((a, b) => a[1].localeCompare(b[1])).forEach(([id, email]) => {
+    const option = document.createElement("option");
+    option.value = id;
+    option.textContent = email;
+    adminHistoryUserFilter.appendChild(option);
+  });
+  adminHistoryUserFilter.value = [...users.keys()].includes(current) ? current : "all";
+}
+
+function renderAdminSendingHistory() {
+  if (!adminHistoryList) return;
+  const selectedUser = adminHistoryUserFilter?.value || "all";
+  const search = String(adminHistorySearch?.value || "").trim().toLowerCase();
+  const rows = adminHistoryRows.filter((row) => {
+    if (selectedUser !== "all" && row.user_id !== selectedUser) return false;
+    if (!search) return true;
+    return [row.user_email, row.campaign_name, row.source_file_name, row.message, row.sender_id]
+      .some((value) => String(value || "").toLowerCase().includes(search));
+  });
+
+  adminHistoryList.innerHTML = "";
+  adminHistoryCount.textContent = String(rows.length);
+  adminHistoryEmpty?.classList.toggle("hidden", rows.length > 0);
+
+  rows.forEach((campaign, index) => {
+    const phones = Array.isArray(campaign.phones) ? campaign.phones.filter(Boolean) : [];
+    const card = document.createElement("article");
+    card.className = "admin-history-card";
+    card.innerHTML = `
+      <div class="admin-history-top">
+        <div>
+          <span class="admin-history-user">${escapeHtml(campaign.user_email || campaign.user_id || "Unknown user")}</span>
+          <h3>${escapeHtml(campaign.source_file_name || campaign.campaign_name || "Campaign")}</h3>
+          <p>${formatDate(campaign.created_at)} · ${escapeHtml(campaign.sender_id || "iMessage-Direct")}</p>
+        </div>
+        <span class="admin-history-status">${escapeHtml(campaign.campaign_status || "processing")}</span>
+      </div>
+      <div class="admin-history-message">${escapeHtml(campaign.message || "No message text saved.")}</div>
+      <div class="admin-history-stats">
+        <div><span>RECIPIENTS</span><strong>${Number(campaign.total_recipients) || phones.length}</strong></div>
+        <div><span>DELIVERED</span><strong>${Number(campaign.delivered_count) || 0}</strong></div>
+        <div><span>FAILED</span><strong>${Number(campaign.failed_count) || 0}</strong></div>
+      </div>
+      <div class="admin-history-actions">
+        <button class="btn-primary" type="button" data-history-toggle>View numbers</button>
+        <button class="btn-secondary" type="button" data-history-download ${phones.length ? "" : "disabled"}>Download data</button>
+      </div>
+      <pre class="admin-history-numbers">${escapeHtml(phones.length ? phones.join("\n") : "Numbers are not available for this record.")}</pre>`;
+
+    const numberBox = card.querySelector(".admin-history-numbers");
+    const toggle = card.querySelector("[data-history-toggle]");
+    toggle?.addEventListener("click", () => {
+      const open = numberBox.classList.toggle("open");
+      toggle.textContent = open ? "Hide numbers" : "View numbers";
+    });
+    card.querySelector("[data-history-download]")?.addEventListener("click", () => {
+      const blob = new Blob([`${phones.join("\n")}\n`], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = safeFileName(campaign.source_file_name || campaign.campaign_name || `campaign-${index + 1}`).replace(/\.txt$/i, "") + ".txt";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+    });
+    adminHistoryList.appendChild(card);
+  });
+}
+
+async function loadAdminSendingHistory() {
+  if (!supabase || !adminHistoryList) return;
+  adminHistoryLoading?.classList.remove("hidden");
+  adminHistoryEmpty?.classList.add("hidden");
+  try {
+    const { data, error } = await supabase.rpc("admin_sending_history");
+    if (error) throw error;
+    adminHistoryRows = Array.isArray(data) ? data : [];
+    populateHistoryUsers(adminHistoryRows);
+    renderAdminSendingHistory();
+  } catch (error) {
+    console.error("Admin sending history error:", error);
+    adminHistoryRows = [];
+    renderAdminSendingHistory();
+    showToast(`Could not load sending history: ${error.message}`, "error");
+  } finally {
+    adminHistoryLoading?.classList.add("hidden");
+  }
+}
+
+adminHistoryUserFilter?.addEventListener("change", renderAdminSendingHistory);
+adminHistorySearch?.addEventListener("input", renderAdminSendingHistory);
+btnRefreshAdminHistory?.addEventListener("click", async () => {
+  btnRefreshAdminHistory.disabled = true;
+  const original = btnRefreshAdminHistory.textContent;
+  btnRefreshAdminHistory.textContent = "Refreshing…";
+  await loadAdminSendingHistory();
+  btnRefreshAdminHistory.disabled = false;
+  btnRefreshAdminHistory.textContent = original || "Refresh History";
+});
 
 btnRefreshRoutes?.addEventListener("click", async () => {
   btnRefreshRoutes.disabled = true;
