@@ -22,7 +22,8 @@ const dashboardTheme={name:"imessage-ios-dashboard-theme",transformIndexHtml:{or
   {tag:"script",children:mobileJs,injectTo:"body"},
   {tag:"script",attrs:{src:"/ios-theme.js",defer:true},injectTo:"body"},
   {tag:"script",attrs:{src:"/ios-polish.js",defer:true},injectTo:"body"},
-  {tag:"script",attrs:{src:"/ios-payment.js",defer:true},injectTo:"body"}
+  {tag:"script",attrs:{src:"/ios-payment.js",defer:true},injectTo:"body"},
+  {tag:"script",attrs:{src:"/portal-final.js",defer:true},injectTo:"body"}
 ]}}}};
 
 export default defineConfig({plugins:[dashboardTheme],build:{rollupOptions:{input:{main:resolve(__dirname,"index.html"),dashboard:resolve(__dirname,"dashboard.html"),admin:resolve(__dirname,"admin.html")}}}});
