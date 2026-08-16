@@ -23,7 +23,7 @@
       walletBox.insertAdjacentHTML('beforebegin', `
         <section class="ios-payment-qr-card" aria-label="USDT TRC20 QR payment">
           <div class="ios-qr-wrap">
-            <img src="/assets/usdt-trc20-qr.png" alt="USDT TRC20 payment QR code" loading="eager" decoding="async" />
+            <img src="/assets/usdt-trc20-qr.svg" alt="USDT TRC20 payment QR code" loading="eager" decoding="async" />
             <span class="ios-qr-network">TRON</span>
           </div>
           <div class="ios-qr-copy">
