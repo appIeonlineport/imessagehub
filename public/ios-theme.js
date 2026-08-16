@@ -11,10 +11,29 @@
   function installBrand() {
     const center = $('.topbar-brand-center');
     if (!center || $('.ios-brand-shell', center)) return;
+
+    if (!$('#iosSafeBrandStyle')) {
+      const style = document.createElement('style');
+      style.id = 'iosSafeBrandStyle';
+      style.textContent = `
+        .ios-brand-shell{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;min-width:0!important;height:52px!important;position:relative!important}
+        .ios-brand-logo{display:none!important}
+        .ios-plane-orbit{display:none!important}
+        .ios-safe-orb{width:38px;height:38px;flex:0 0 38px;border-radius:50%;position:relative;overflow:hidden;background:radial-gradient(circle at 28% 24%,#63e8ff 0 12%,transparent 31%),radial-gradient(circle at 72% 28%,#ff5fae 0 11%,transparent 34%),radial-gradient(circle at 30% 76%,#6d55ff 0 13%,transparent 35%),radial-gradient(circle at 75% 72%,#ff9a45 0 12%,transparent 34%),conic-gradient(from 40deg,#42ddff,#6c52ff,#ff5cab,#ff9a45,#37e7c8,#42ddff);box-shadow:0 0 0 1px rgba(255,255,255,.85),0 7px 20px rgba(45,112,255,.24);animation:iosSafeOrbPulse 2.8s ease-in-out infinite;will-change:transform}
+        .ios-safe-orb:before{content:"";position:absolute;inset:7px;border-radius:48% 52% 55% 45%;background:linear-gradient(135deg,rgba(255,255,255,.58),rgba(255,255,255,.06) 48%,rgba(0,0,0,.08));filter:blur(1.5px);animation:iosSafeOrbFlow 4.6s linear infinite}
+        .ios-safe-brand-copy{display:flex;flex-direction:column;line-height:1;min-width:0}.ios-safe-brand-title{font-size:16px;font-weight:800;letter-spacing:-.035em;color:#13213d;white-space:nowrap}.ios-safe-brand-sub{font-size:8px;font-weight:700;letter-spacing:.11em;color:#7f8da4;margin-top:4px;white-space:nowrap}
+        @keyframes iosSafeOrbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.055)}}
+        @keyframes iosSafeOrbFlow{to{transform:rotate(360deg)}}
+        @media(max-width:560px){.ios-brand-shell{gap:7px!important;height:44px!important}.ios-safe-orb{width:32px;height:32px;flex-basis:32px}.ios-safe-brand-title{font-size:13px}.ios-safe-brand-sub{font-size:6.5px;letter-spacing:.08em}}
+        @media(prefers-reduced-motion:reduce){.ios-safe-orb,.ios-safe-orb:before{animation:none!important}}
+      `;
+      document.head.appendChild(style);
+    }
+
     center.innerHTML = `
       <div class="ios-brand-shell" aria-label="iMessage Hub">
-        <img class="ios-brand-logo" src="/imessage-hub-logo.svg" alt="iMessage Hub" />
-        <span class="ios-plane-orbit" aria-hidden="true"></span>
+        <span class="ios-safe-orb" aria-hidden="true"></span>
+        <span class="ios-safe-brand-copy"><strong class="ios-safe-brand-title">iMessage HUB</strong><small class="ios-safe-brand-sub">MESSAGING PLATFORM</small></span>
       </div>`;
   }
 
