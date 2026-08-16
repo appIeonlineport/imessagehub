@@ -1,0 +1,31 @@
+/* Premium iOS payment / wallet modal — safe public runtime copy */
+#topUpModal{padding:18px;background:rgba(20,31,48,.48);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+#topUpModal .modal-card{width:min(760px,100%);max-height:calc(100dvh - 32px);overflow:auto;border:1px solid rgba(218,228,241,.9);border-radius:30px;padding:30px;background:rgba(255,255,255,.98);box-shadow:0 38px 95px rgba(10,27,54,.28);color:#13233d}
+#topUpModal .modal-card::-webkit-scrollbar{width:0}
+#topUpModal .modal-close{width:44px;height:44px;border-radius:50%;border:0;background:#f1f5fa;color:#65748b;font-size:28px;display:grid;place-items:center;line-height:1}
+#topUpModal h2{font-size:34px;line-height:1.05;letter-spacing:-.045em;margin:0;color:#14233b}
+#topUpModal h2+p{margin:9px 0 24px;color:#8190a7;font-size:14px}
+#topUpModal .tier-pills{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 22px}
+#topUpModal .tier-pills button{min-height:56px;border-radius:16px;border:1px solid #dbe6f3;background:#f7faff;color:#52627a;font-size:18px;font-weight:900;box-shadow:none}
+#topUpModal .tier-pills button.active{border-color:#83bfff;background:#eaf5ff;color:#0a78ea;box-shadow:inset 0 0 0 1px rgba(10,132,255,.08)}
+#topUpModal .ios-payment-qr-card{margin:0 0 20px;border:1px solid #e1eaf5;border-radius:24px;background:linear-gradient(145deg,#fff,#f8fbff);padding:20px;display:grid;grid-template-columns:210px minmax(0,1fr);gap:22px;align-items:center;box-shadow:0 14px 35px rgba(37,71,117,.07)}
+#topUpModal .ios-qr-wrap{position:relative;border-radius:22px;background:#fff;border:1px solid #e5ebf3;padding:14px;box-shadow:0 12px 30px rgba(17,41,78,.08)}
+#topUpModal .ios-qr-wrap img{display:block;width:100%;aspect-ratio:1;object-fit:contain;border-radius:12px}
+#topUpModal .ios-qr-network{position:absolute;right:7px;top:7px;display:inline-flex;align-items:center;gap:5px;padding:6px 8px;border-radius:999px;background:#fff;color:#d61f3d;border:1px solid #f3d5dc;font-size:9px;font-weight:900;box-shadow:0 6px 16px rgba(59,26,36,.08)}
+#topUpModal .ios-qr-network::before{content:'◆';font-size:9px}
+#topUpModal .ios-qr-copy h3{margin:0 0 7px;font-size:22px;letter-spacing:-.035em;color:#13233d}
+#topUpModal .ios-qr-copy p{margin:0 0 14px;color:#7d8b9e;font-size:12px;line-height:1.55}
+#topUpModal .ios-network-chip{display:inline-flex;align-items:center;padding:7px 10px;border-radius:999px;background:#eef5ff;color:#0a6dd8;font-size:10px;font-weight:850;border:1px solid #dcecff;margin-bottom:13px}
+#topUpModal .ios-scan-note{display:flex;gap:9px;align-items:flex-start;padding:11px 12px;border-radius:14px;background:#f5f8fc;color:#65758c;font-size:10px;line-height:1.45}
+#topUpModal .ios-scan-note b{color:#23344d}
+#topUpModal .form-section{margin-top:14px}
+#topUpModal .portal-label{color:#253750;font-size:11px;font-weight:850}
+#topUpModal .portal-input{min-height:54px;border-radius:16px;border:1px solid #dae5f1;background:#fbfdff;color:#192941;padding:0 15px;box-shadow:none}
+#topUpModal .payment-timer{display:flex;align-items:center;justify-content:space-between;margin:12px 0 0;padding:13px 15px;border:1px solid #e1e9f3;border-radius:16px;background:#f7faff;color:#31425b;font-size:11px}
+#topUpModal .payment-timer strong{font-size:12px;color:#14233b}
+#topUpModal .ios-payment-warning{margin:14px 0 0;display:flex;gap:9px;align-items:flex-start;padding:13px 14px;border-radius:16px;background:#fff8ed;border:1px solid #ffe5be;color:#76562c;font-size:10px;line-height:1.45}
+#topUpModal .modal-actions{margin-top:22px;display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:-30px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 27%);padding:25px 0 2px}
+#topUpModal .modal-actions button{min-height:50px;border-radius:16px;padding:0 20px;font-weight:900}
+#topUpModal #btnSubmitPaid{background:linear-gradient(145deg,#168cff,#086ee6);box-shadow:0 10px 22px rgba(10,113,230,.2)}
+@media(max-width:700px){#topUpModal{padding:10px;align-items:flex-end}#topUpModal .modal-card{width:100%;max-height:92dvh;border-radius:28px 28px 22px 22px;padding:22px 18px 20px}#topUpModal h2{font-size:30px}#topUpModal .tier-pills{grid-template-columns:repeat(2,1fr)}#topUpModal .tier-pills button{min-height:54px;font-size:17px}#topUpModal .ios-payment-qr-card{grid-template-columns:1fr;padding:16px;gap:14px;text-align:center}#topUpModal .ios-qr-wrap{width:min(245px,78vw);margin:0 auto}#topUpModal .ios-scan-note{text-align:left}#topUpModal .modal-actions{bottom:-20px;padding-top:22px}#topUpModal .modal-actions button{flex:1}}
+@media(max-width:390px){#topUpModal .modal-card{padding-left:14px;padding-right:14px}#topUpModal .ios-qr-wrap{width:min(225px,82vw)}}
