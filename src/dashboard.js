@@ -114,7 +114,7 @@ let routeById = new Map();
 
 const helpAnswers = [
   { keys: ["send", "campaign", "message"], answer: "Open Campaigns, select an available route, upload or paste international numbers with country code, enter your message, review the cost, then submit the campaign." },
-  { keys: ["route", "link"], answer: "Your available routes are shown inside New Campaign. Route access is controlled by the admin, so contact your account manager if a route is missing." },
+  { keys: ["route", "routes", "link", "unavailable", "activate"], answer: "Your first recharge on the panel is compulsory to activate messaging routes. After completing your first recharge, contact the admin for route activation. If routes show unavailable, please recharge first and then contact admin." },
   { keys: ["balance", "wallet", "credit"], answer: "Your current balance appears in the top bar and Dashboard. Open Add Balance to submit a USDT top-up; the balance updates after admin approval." },
   { keys: ["payment", "usdt", "topup", "top-up"], answer: "Use Add Balance, enter the amount and submit the correct transaction hash. You can track pending or approved requests in Payment History." },
   { keys: ["status", "submitted", "delivered", "failed", "outbox"], answer: "Open Outbox or Reports to check campaign progress. Submitted means processing, Delivered confirms delivery, and Failed means the provider could not complete that recipient." },
@@ -225,6 +225,18 @@ function normalizeRouteName(route) {
   return String(route?.name || route?.code || "Route");
 }
 
+function showRouteActivationNotice(show) {
+  let notice = $("routeActivationNotice");
+  if (!notice) {
+    notice = document.createElement("div");
+    notice.id = "routeActivationNotice";
+    notice.className = "route-activation-notice hidden";
+    notice.innerHTML = `<span aria-hidden="true">!</span><div><strong>Routes unavailable</strong><p>Your first recharge on the panel is compulsory to activate messaging routes. Complete your first recharge, then contact the admin for route activation.</p></div>`;
+    document.querySelector(".route-options")?.insertAdjacentElement("afterend", notice);
+  }
+  notice.classList.toggle("hidden", !show);
+}
+
 async function switchView(targetViewId) {
   viewPanels.forEach((panel) => panel.classList.add("hidden"));
   $(targetViewId)?.classList.remove("hidden");
@@ -307,15 +319,15 @@ async function loadRoutes() {
 
     updateRouteUI();
 
-    if (!data?.length) {
-      showToast("No active messaging routes are available.", "error");
-    }
+    showRouteActivationNotice(!data?.length);
+    if (!data?.length) showToast("First recharge is compulsory to activate routes. Please recharge, then contact admin.", "error");
   } catch (error) {
     console.error("Route lookup error:", error);
     routeByDisplayName = new Map();
     routeById = new Map();
     updateRouteUI();
-    showToast(`Unable to load messaging routes: ${error.message}`, "error");
+    showRouteActivationNotice(true);
+    showToast("Routes unavailable. First recharge is compulsory; please recharge, then contact admin.", "error");
   }
 }
 
@@ -926,7 +938,7 @@ async function submitCampaign() {
   const route = getSelectedRoute();
 
   if (!route?.id) {
-    showToast("Please select an available messaging route.", "error");
+    showToast("Route unavailable. First recharge is compulsory; please recharge, then contact admin.", "error");
     return;
   }
 
