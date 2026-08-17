@@ -68,6 +68,15 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Invalid account session." }, 401);
   }
 
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("status")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!profile || profile.status !== "active") {
+    return jsonResponse({ error: "This account is blocked." }, 403);
+  }
+
   let campaignId = "";
   try {
     const body = await req.json();

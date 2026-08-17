@@ -200,11 +200,7 @@ async function loadRoutes() {
   if (!supabase) return;
 
   try {
-    const { data, error } = await supabase
-      .from("routes")
-      .select("id,name,code,description,enabled,price_per_message,currency,created_at")
-      .eq("enabled", true)
-      .order("created_at", { ascending: true });
+    const { data, error } = await supabase.rpc("available_routes_for_user");
 
     if (error) throw error;
 
@@ -1132,6 +1128,11 @@ async function initDashboard() {
 
     currentUser = user;
     currentProfile = await loadProfile();
+    if (String(currentProfile?.status || "active").toLowerCase() !== "active") {
+      await supabase.auth.signOut();
+      window.location.replace("index.html?account=blocked");
+      return;
+    }
     renderAccount();
 
     await loadRoutes();

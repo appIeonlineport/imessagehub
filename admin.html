@@ -181,7 +181,7 @@
           <div class="portal-card-header">
             <div>
               <h2>User Accounts</h2>
-              <p>Balance, top-up totals and account activity by user.</p>
+              <p>Control account access and choose exactly which routes each user can use.</p>
             </div>
           </div>
           <div class="table-wrapper">
@@ -190,6 +190,7 @@
                 <tr>
                   <th>User</th>
                   <th>Role</th>
+                  <th>Route Access</th>
                   <th>Wallet</th>
                   <th>Approved Top-ups</th>
                   <th>Pending Top-ups</th>
@@ -197,11 +198,13 @@
                   <th>Campaign Spend</th>
                   <th>Latest Source</th>
                   <th>Last Activity</th>
+                  <th>Account Actions</th>
                 </tr>
               </thead>
               <tbody id="adminUsersBody"></tbody>
             </table>
           </div>
+          <div id="adminUsersMobile" class="admin-users-mobile"></div>
           <div id="adminUsersEmpty" class="empty-state hidden">
             <div class="empty-icon">◉</div>
             <h3>No users found</h3>

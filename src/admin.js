@@ -23,6 +23,7 @@ const routesLoading = $("routesLoading");
 const routesList = $("routesList");
 const toastContainer = $("toastContainer");
 const adminUsersBody = $("adminUsersBody");
+const adminUsersMobile = $("adminUsersMobile");
 const adminUsersEmpty = $("adminUsersEmpty");
 const adminCampaignBody = $("adminCampaignBody");
 const adminCampaignEmpty = $("adminCampaignEmpty");
@@ -40,6 +41,7 @@ const adminHistoryEmpty = $("adminHistoryEmpty");
 const adminViewButtons = $$('[data-admin-view]');
 const adminViewPanels = $$(".admin-view-panel");
 let adminHistoryRows = [];
+let userRouteAccess = new Map();
 
 function showToast(message, type = "info") {
   if (!toastContainer) return;
@@ -404,13 +406,21 @@ async function loadUsersAndActivity() {
   if (!supabase) return;
 
   try {
-    const [usersResult, campaignsResult] = await Promise.all([
+    const [usersResult, campaignsResult, accessResult] = await Promise.all([
       supabase.rpc("admin_users_overview"),
-      supabase.rpc("admin_campaign_activity")
+      supabase.rpc("admin_campaign_activity"),
+      supabase.rpc("admin_user_route_access")
     ]);
 
     if (usersResult.error) throw usersResult.error;
     if (campaignsResult.error) throw campaignsResult.error;
+    if (accessResult.error) throw accessResult.error;
+
+    userRouteAccess = new Map();
+    (accessResult.data || []).forEach((item) => {
+      if (!userRouteAccess.has(item.user_id)) userRouteAccess.set(item.user_id, []);
+      userRouteAccess.get(item.user_id).push(item);
+    });
 
     renderUsers(usersResult.data || []);
     renderCampaignActivity(campaignsResult.data || []);
@@ -423,6 +433,7 @@ async function loadUsersAndActivity() {
 function renderUsers(users) {
   if (!adminUsersBody) return;
   adminUsersBody.innerHTML = "";
+  if (adminUsersMobile) adminUsersMobile.innerHTML = "";
 
   const walletTotal = users.reduce((sum, user) => sum + (Number(user.wallet_balance) || 0), 0);
   const topupTotal = users.reduce((sum, user) => sum + (Number(user.approved_topups) || 0), 0);
@@ -440,6 +451,7 @@ function renderUsers(users) {
   adminUsersEmpty?.classList.add("hidden");
 
   users.forEach((user) => {
+    const routes = userRouteAccess.get(user.user_id) || [];
     const row = document.createElement("tr");
     const role = String(user.role || "agent").toUpperCase();
     const status = String(user.status || "active").toUpperCase();
@@ -449,16 +461,134 @@ function renderUsers(users) {
         <span style="display:block;margin-top:3px;color:#7b8798;">${escapeHtml(user.email || user.user_id || "—")}</span>
       </td>
       <td><span class="status-pill ${status === "ACTIVE" ? "status-success" : ""}">${escapeHtml(role)} · ${escapeHtml(status)}</span></td>
+      <td><div class="admin-user-route-switches">${renderUserRouteSwitches(user, routes)}</div></td>
       <td><strong>${money(user.wallet_balance)}</strong></td>
       <td><strong style="color:#087548;">${money(user.approved_topups)}</strong></td>
       <td>${money(user.pending_topups)}</td>
       <td>${Number(user.campaign_count) || 0}</td>
       <td>${money(user.total_campaign_spend)}</td>
       <td><code class="code-pill">${escapeHtml(user.latest_source_file || "Manual / none")}</code></td>
-      <td>${formatDate(user.last_activity)}</td>`;
+      <td>${formatDate(user.last_activity)}</td>
+      <td>${renderUserActions(user)}</td>`;
     adminUsersBody.appendChild(row);
+
+    if (adminUsersMobile) {
+      const card = document.createElement("article");
+      card.className = `admin-user-card ${status === "ACTIVE" ? "" : "is-blocked"}`;
+      card.innerHTML = `
+        <div class="admin-user-card-head">
+          <div><strong>${escapeHtml(user.full_name || "User")}</strong><span>${escapeHtml(user.email || user.user_id || "—")}</span></div>
+          <span class="status-pill ${status === "ACTIVE" ? "status-success" : "status-blocked"}">${escapeHtml(status)}</span>
+        </div>
+        <div class="admin-user-mobile-routes">
+          <span class="admin-control-label">ROUTE ACCESS</span>
+          ${renderUserRouteSwitches(user, routes)}
+        </div>
+        <div class="admin-user-card-stats">
+          <div><span>Wallet</span><strong>${money(user.wallet_balance)}</strong></div>
+          <div><span>Campaigns</span><strong>${Number(user.campaign_count) || 0}</strong></div>
+          <div><span>Spend</span><strong>${money(user.total_campaign_spend)}</strong></div>
+        </div>
+        <div class="admin-user-card-actions">${renderUserActions(user)}</div>`;
+      adminUsersMobile.appendChild(card);
+    }
   });
 }
+
+function renderUserRouteSwitches(user, routes) {
+  if (!routes.length) return '<span class="admin-route-unavailable">No routes</span>';
+  const protectedAccount = ["admin", "owner"].includes(String(user.role || "").toLowerCase());
+  return routes.map((route) => {
+    const checked = route.allowed && route.route_enabled;
+    const disabled = protectedAccount || !route.route_enabled;
+    const label = displayRouteName({ name: route.route_name, code: route.route_code });
+    return `<label class="admin-user-route-control ${checked ? "is-on" : "is-off"}">
+      <span>${escapeHtml(label)}</span>
+      <input type="checkbox" data-user-route data-user-id="${escapeHtml(user.user_id)}" data-route-id="${escapeHtml(route.route_id)}" data-route-name="${escapeHtml(label)}" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""}>
+      <i aria-hidden="true"></i>
+    </label>`;
+  }).join("");
+}
+
+function renderUserActions(user) {
+  const role = String(user.role || "").toLowerCase();
+  if (["admin", "owner"].includes(role)) return '<span class="admin-protected-account">Protected admin</span>';
+  const blocked = String(user.status || "active").toLowerCase() !== "active";
+  return `<div class="admin-user-actions">
+    <button type="button" class="admin-user-action ${blocked ? "unblock" : "block"}" data-user-status data-user-id="${escapeHtml(user.user_id)}" data-user-email="${escapeHtml(user.email || "this user")}" data-action="${blocked ? "unblock" : "block"}">${blocked ? "Unblock" : "Block"}</button>
+    <button type="button" class="admin-user-action delete" data-user-delete data-user-id="${escapeHtml(user.user_id)}" data-user-email="${escapeHtml(user.email || "this user")}">Delete</button>
+  </div>`;
+}
+
+async function setUserRouteAccess(input) {
+  const label = input.closest("label");
+  const enabled = input.checked;
+  input.disabled = true;
+  label?.classList.add("is-saving");
+  try {
+    const { error } = await supabase.rpc("admin_set_user_route_access", {
+      p_user_id: input.dataset.userId,
+      p_route_id: input.dataset.routeId,
+      p_enabled: enabled
+    });
+    if (error) throw error;
+    document.querySelectorAll(`[data-user-route][data-user-id="${CSS.escape(input.dataset.userId)}"][data-route-id="${CSS.escape(input.dataset.routeId)}"]`).forEach((peer) => {
+      peer.checked = enabled;
+      peer.closest("label")?.classList.toggle("is-on", enabled);
+      peer.closest("label")?.classList.toggle("is-off", !enabled);
+    });
+    showToast(`${input.dataset.routeName} ${enabled ? "enabled" : "disabled"} for user.`, "success");
+  } catch (error) {
+    input.checked = !enabled;
+    showToast(`Route update failed: ${error.message}`, "error");
+  } finally {
+    input.disabled = false;
+    label?.classList.remove("is-saving");
+  }
+}
+
+async function manageUser(action, userId, email, button) {
+  if (action === "delete") {
+    const first = window.confirm(`Permanently delete ${email}? Their wallet, campaigns and history will also be removed.`);
+    if (!first) return;
+    const typed = window.prompt(`Type DELETE to permanently remove ${email}.`);
+    if (typed !== "DELETE") {
+      showToast("Delete cancelled.", "info");
+      return;
+    }
+  } else if (!window.confirm(`${action === "block" ? "Block" : "Unblock"} ${email}?`)) {
+    return;
+  }
+
+  button.disabled = true;
+  const original = button.textContent;
+  button.textContent = action === "delete" ? "Deleting…" : "Saving…";
+  try {
+    const { data, error } = await supabase.functions.invoke("admin-user-management", {
+      body: { action, userId }
+    });
+    if (error) throw error;
+    if (data?.error) throw new Error(data.error);
+    showToast(action === "delete" ? "User permanently deleted." : `User ${action}ed successfully.`, "success");
+    await loadUsersAndActivity();
+  } catch (error) {
+    showToast(`User action failed: ${error.message}`, "error");
+    button.disabled = false;
+    button.textContent = original;
+  }
+}
+
+document.addEventListener("change", (event) => {
+  const input = event.target.closest?.("[data-user-route]");
+  if (input) setUserRouteAccess(input);
+});
+
+document.addEventListener("click", (event) => {
+  const statusButton = event.target.closest?.("[data-user-status]");
+  if (statusButton) manageUser(statusButton.dataset.action, statusButton.dataset.userId, statusButton.dataset.userEmail, statusButton);
+  const deleteButton = event.target.closest?.("[data-user-delete]");
+  if (deleteButton) manageUser("delete", deleteButton.dataset.userId, deleteButton.dataset.userEmail, deleteButton);
+});
 
 function renderCampaignActivity(campaigns) {
   if (!adminCampaignBody) return;
