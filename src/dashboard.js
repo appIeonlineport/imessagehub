@@ -1002,20 +1002,20 @@ async function submitCampaign() {
     }
 
     const { data: dispatchResult, error: dispatchError } = await supabase.functions.invoke(
-      "send-onbuka-campaign",
+      "send-telnyx-campaign",
       { body: { campaignId: result?.campaign_id } }
     );
 
     if (dispatchError) {
-      console.error("OnBuka dispatch error:", dispatchError);
+      console.error("Telnyx dispatch error:", dispatchError);
       showToast("Campaign submitted, but provider dispatch is not configured yet.", "error");
     } else if (Number(dispatchResult?.sent || 0) > 0) {
       showToast(
-        `${Number(dispatchResult.sent).toLocaleString()} message(s) accepted by OnBuka.`,
+        `${Number(dispatchResult.sent).toLocaleString()} message(s) accepted by Telnyx.`,
         "success"
       );
     } else if (Number(dispatchResult?.failed || 0) > 0) {
-      showToast(dispatchResult?.reason || "OnBuka rejected the campaign.", "error");
+      showToast(dispatchResult?.reason || "Telnyx rejected the campaign.", "error");
     }
 
     openModal(els.campaignSuccessModal);
