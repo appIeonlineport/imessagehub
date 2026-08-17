@@ -70,7 +70,7 @@ begin
 
   return query
   select p.id, r.id, r.name, r.code, r.enabled,
-         (r.enabled and coalesce(ura.enabled, true))
+         coalesce(ura.enabled, true)
   from public.profiles p
   cross join public.routes r
   left join public.user_route_access ura

@@ -499,11 +499,11 @@ function renderUserRouteSwitches(user, routes) {
   if (!routes.length) return '<span class="admin-route-unavailable">No routes</span>';
   const protectedAccount = ["admin", "owner"].includes(String(user.role || "").toLowerCase());
   return routes.map((route) => {
-    const checked = route.allowed && route.route_enabled;
-    const disabled = protectedAccount || !route.route_enabled;
+    const checked = route.allowed;
+    const disabled = protectedAccount;
     const label = displayRouteName({ name: route.route_name, code: route.route_code });
     return `<label class="admin-user-route-control ${checked ? "is-on" : "is-off"}">
-      <span>${escapeHtml(label)}</span>
+      <span>${escapeHtml(label)}${route.route_enabled ? "" : " · Global OFF"}</span>
       <input type="checkbox" data-user-route data-user-id="${escapeHtml(user.user_id)}" data-route-id="${escapeHtml(route.route_id)}" data-route-name="${escapeHtml(label)}" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""}>
       <i aria-hidden="true"></i>
     </label>`;
