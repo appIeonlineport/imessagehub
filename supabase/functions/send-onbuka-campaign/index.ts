@@ -21,21 +21,14 @@ function normalizePhone(value: string) {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-  if (req.method !== "POST") {
-    return jsonResponse({ error: "Method not allowed" }, 405);
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const telnyxApiKey = Deno.env.get("TELNYX_API_KEY");
   const telnyxFromNumber = normalizePhone(Deno.env.get("TELNYX_FROM_NUMBER") || "");
-  const maxRecipients = Math.max(
-    1,
-    Math.min(Number(Deno.env.get("TELNYX_MAX_RECIPIENTS") || "10"), 100)
-  );
+  const maxRecipients = Math.max(1, Math.min(Number(Deno.env.get("TELNYX_MAX_RECIPIENTS") || "10"), 100));
 
   if (!supabaseUrl || !serviceRoleKey) {
     return jsonResponse({ error: "Supabase server configuration is missing." }, 500);
@@ -46,24 +39,28 @@ Deno.serve(async (req: Request) => {
 
   const authorization = req.headers.get("Authorization") || "";
   const accessToken = authorization.replace(/^Bearer\s+/i, "");
-  if (!accessToken) {
-    return jsonResponse({ error: "Authentication required." }, 401);
-  }
+  if (!accessToken) return jsonResponse({ error: "Authentication required." }, 401);
+
+  const authClient = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+  });
+  const { data: { user }, error: userError } = await authClient.auth.getUser(accessToken);
+  if (userError || !user) return jsonResponse({ error: "Invalid account session." }, 401);
 
   const admin = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false }
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    global: { headers: { Authorization: `Bearer ${serviceRoleKey}` } }
   });
 
-  const { data: { user }, error: userError } = await admin.auth.getUser(accessToken);
-  if (userError || !user) {
-    return jsonResponse({ error: "Invalid account session." }, 401);
-  }
-
-  const { data: profile } = await admin
+  const { data: profile, error: profileError } = await admin
     .from("profiles")
     .select("status")
     .eq("id", user.id)
     .maybeSingle();
+  if (profileError) {
+    console.error("Profile lookup failed", profileError);
+    return jsonResponse({ error: "Unable to verify account status." }, 500);
+  }
   if (!profile || String(profile.status).toLowerCase() !== "active") {
     return jsonResponse({ error: "This account is blocked." }, 403);
   }
@@ -75,7 +72,6 @@ Deno.serve(async (req: Request) => {
   } catch {
     return jsonResponse({ error: "Invalid JSON body." }, 400);
   }
-
   if (!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(campaignId)) {
     return jsonResponse({ error: "A valid campaign ID is required." }, 400);
   }
@@ -86,9 +82,7 @@ Deno.serve(async (req: Request) => {
     .eq("id", campaignId)
     .eq("user_id", user.id)
     .single();
-  if (campaignError || !campaign) {
-    return jsonResponse({ error: "Campaign not found." }, 404);
-  }
+  if (campaignError || !campaign) return jsonResponse({ error: "Campaign not found." }, 404);
 
   const { data: claimedMessages, error: claimError } = await admin
     .from("campaign_messages")
@@ -105,14 +99,12 @@ Deno.serve(async (req: Request) => {
     .select("id,phone");
 
   if (claimError) {
+    console.error("Message claim failed", claimError);
     return jsonResponse({ error: "Unable to claim campaign messages." }, 500);
   }
 
   if (!claimedMessages?.length) {
-    const { data: existing } = await admin
-      .from("campaign_messages")
-      .select("status")
-      .eq("campaign_id", campaignId);
+    const { data: existing } = await admin.from("campaign_messages").select("status").eq("campaign_id", campaignId);
     return jsonResponse({
       alreadyDispatched: true,
       provider: "telnyx",
@@ -147,7 +139,6 @@ Deno.serve(async (req: Request) => {
   }
 
   const results: Array<Record<string, unknown>> = [];
-
   for (const message of claimedMessages) {
     const to = normalizePhone(String(message.phone || ""));
     try {
@@ -157,11 +148,7 @@ Deno.serve(async (req: Request) => {
           "Authorization": `Bearer ${telnyxApiKey}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          from: telnyxFromNumber,
-          to,
-          text: String(campaign.message || "")
-        }),
+        body: JSON.stringify({ from: telnyxFromNumber, to, text: String(campaign.message || "") }),
         signal: AbortSignal.timeout(30000)
       });
 
@@ -199,7 +186,6 @@ Deno.serve(async (req: Request) => {
     p_campaign_id: campaignId,
     p_results: results
   });
-
   if (settlementError) {
     console.error("Telnyx dispatch settlement failed", settlementError);
     return jsonResponse({ error: "Telnyx responded, but the local delivery record could not be settled." }, 500);
@@ -214,10 +200,6 @@ Deno.serve(async (req: Request) => {
     failed: Number(settled?.failed_count || 0),
     refunded: Number(settled?.refund_amount || 0),
     reason: results.find((item) => item.status === "failed")?.last_error || "Telnyx accepted the message(s).",
-    results: results.map((item) => ({
-      status: item.status,
-      provider_status: item.provider_status,
-      error: item.last_error
-    }))
+    results: results.map((item) => ({ status: item.status, provider_status: item.provider_status, error: item.last_error }))
   }, 200);
 });
