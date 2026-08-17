@@ -1,0 +1,39 @@
+name: One-time Telnyx cleanup
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cleanup-onbuka.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove OnBuka and switch dashboard to Telnyx
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed -i 's/send-onbuka-campaign/send-telnyx-campaign/g' src/dashboard.js
+          sed -i 's/OnBuka dispatch error/Telnyx dispatch error/g' src/dashboard.js
+          sed -i 's/accepted by OnBuka/accepted by Telnyx/g' src/dashboard.js
+          sed -i 's/OnBuka rejected/Telnyx rejected/g' src/dashboard.js
+          mkdir -p supabase/functions/send-telnyx-campaign
+          cp supabase/functions/send-onbuka-campaign/index.ts supabase/functions/send-telnyx-campaign/index.ts
+          rm -rf supabase/functions/send-onbuka-campaign
+          rm -rf supabase/functions/onbuka-delivery-report
+      - name: Commit cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/dashboard.js supabase/functions
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m 'Remove OnBuka and use Telnyx sending'
+          git push
