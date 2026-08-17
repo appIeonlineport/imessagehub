@@ -30,12 +30,8 @@ Deno.serve(async (req: Request) => {
   const telnyxFromNumber = normalizePhone(Deno.env.get("TELNYX_FROM_NUMBER") || "");
   const maxRecipients = Math.max(1, Math.min(Number(Deno.env.get("TELNYX_MAX_RECIPIENTS") || "10"), 100));
 
-  if (!supabaseUrl || !anonKey || !serviceRoleKey) {
-    return jsonResponse({ error: "Supabase server configuration is missing." }, 500);
-  }
-  if (!telnyxApiKey || !telnyxFromNumber) {
-    return jsonResponse({ configured: false, error: "Telnyx credentials are not configured." }, 503);
-  }
+  if (!supabaseUrl || !anonKey || !serviceRoleKey) return jsonResponse({ error: "Supabase server configuration is missing." }, 500);
+  if (!telnyxApiKey || !telnyxFromNumber) return jsonResponse({ configured: false, error: "Telnyx credentials are not configured." }, 503);
 
   const authorization = req.headers.get("Authorization") || "";
   const accessToken = authorization.replace(/^Bearer\s+/i, "");
@@ -47,23 +43,6 @@ Deno.serve(async (req: Request) => {
   const { data: { user }, error: userError } = await authClient.auth.getUser(accessToken);
   if (userError || !user) return jsonResponse({ error: "Invalid account session." }, 401);
 
-  const admin = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-  });
-
-  const { data: profile, error: profileError } = await admin
-    .from("profiles")
-    .select("status")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (profileError) {
-    console.error("Profile lookup failed", profileError);
-    return jsonResponse({ error: "Unable to verify account status.", stage: "profile_lookup" }, 500);
-  }
-  if (!profile || String(profile.status).toLowerCase() !== "active") {
-    return jsonResponse({ error: "This account is blocked." }, 403);
-  }
-
   let campaignId = "";
   try {
     const body = await req.json();
@@ -71,105 +50,99 @@ Deno.serve(async (req: Request) => {
   } catch {
     return jsonResponse({ error: "Invalid JSON body." }, 400);
   }
-  if (!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(campaignId)) {
-    return jsonResponse({ error: "A valid campaign ID is required." }, 400);
-  }
+  if (!/^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(campaignId)) return jsonResponse({ error: "A valid campaign ID is required." }, 400);
 
-  const { data: campaign, error: campaignError } = await admin
-    .from("campaigns")
-    .select("id,user_id,message,status")
-    .eq("id", campaignId)
-    .eq("user_id", user.id)
-    .single();
-  if (campaignError || !campaign) {
-    console.error("Campaign lookup failed", campaignError);
-    return jsonResponse({ error: "Campaign not found." }, 404);
-  }
+  const serviceHeaders = {
+    apikey: serviceRoleKey,
+    Authorization: `Bearer ${serviceRoleKey}`,
+    "Content-Type": "application/json"
+  };
 
-  const { data: claimedMessages, error: claimError } = await admin
-    .from("campaign_messages")
-    .update({
-      status: "sending",
-      provider: "telnyx",
-      provider_status: "dispatching",
-      last_error: null,
-      updated_at: new Date().toISOString()
-    })
-    .eq("campaign_id", campaignId)
-    .eq("user_id", user.id)
-    .eq("status", "pending")
-    .select("id,phone");
+  const campaignRes = await fetch(
+    `${supabaseUrl}/rest/v1/campaigns?id=eq.${encodeURIComponent(campaignId)}&user_id=eq.${encodeURIComponent(user.id)}&select=id,user_id,message,status`,
+    { headers: serviceHeaders, signal: AbortSignal.timeout(10000) }
+  );
+  if (!campaignRes.ok) return jsonResponse({ error: "Unable to verify campaign.", stage: "campaign_lookup" }, 500);
+  const campaigns = await campaignRes.json();
+  const campaign = Array.isArray(campaigns) ? campaigns[0] : null;
+  if (!campaign) return jsonResponse({ error: "Campaign not found." }, 404);
 
-  if (claimError) {
-    console.error("Message claim failed", claimError);
-    return jsonResponse({ error: "Unable to claim campaign messages.", stage: "claim_messages" }, 500);
-  }
+  const claimRes = await fetch(
+    `${supabaseUrl}/rest/v1/campaign_messages?campaign_id=eq.${encodeURIComponent(campaignId)}&user_id=eq.${encodeURIComponent(user.id)}&status=eq.pending&select=id,phone`,
+    {
+      method: "PATCH",
+      headers: { ...serviceHeaders, Prefer: "return=representation" },
+      body: JSON.stringify({
+        status: "sending",
+        provider: "telnyx",
+        provider_status: "dispatching",
+        last_error: null,
+        updated_at: new Date().toISOString()
+      }),
+      signal: AbortSignal.timeout(10000)
+    }
+  );
+  if (!claimRes.ok) return jsonResponse({ error: "Unable to claim campaign messages.", stage: "claim_messages" }, 500);
+  const claimedMessages = await claimRes.json();
 
-  if (!claimedMessages?.length) {
-    const { data: existing } = await admin
-      .from("campaign_messages")
-      .select("status")
-      .eq("campaign_id", campaignId);
-    return jsonResponse({
-      alreadyDispatched: true,
-      provider: "telnyx",
-      sent: (existing || []).filter((item) => item.status === "sent").length,
-      delivered: (existing || []).filter((item) => item.status === "delivered").length,
-      failed: (existing || []).filter((item) => item.status === "failed").length
-    });
+  if (!Array.isArray(claimedMessages) || !claimedMessages.length) {
+    return jsonResponse({ alreadyDispatched: true, provider: "telnyx" });
   }
 
   if (claimedMessages.length > maxRecipients) {
-    await admin.from("campaign_messages").update({
-      status: "pending",
-      provider_status: "test_limit",
-      last_error: `Testing is limited to ${maxRecipients} recipients per campaign.`,
-      updated_at: new Date().toISOString()
-    }).in("id", claimedMessages.map((item) => item.id));
+    await fetch(`${supabaseUrl}/rest/v1/campaign_messages?id=in.(${claimedMessages.map((m: any) => m.id).join(",")})`, {
+      method: "PATCH",
+      headers: serviceHeaders,
+      body: JSON.stringify({
+        status: "pending",
+        provider_status: "test_limit",
+        last_error: `Testing is limited to ${maxRecipients} recipients per campaign.`,
+        updated_at: new Date().toISOString()
+      })
+    });
     return jsonResponse({ error: `Testing is limited to ${maxRecipients} recipients per campaign.` }, 400);
   }
 
-  const invalidMessages = claimedMessages.filter((item) => {
-    const digits = normalizePhone(String(item.phone || "")).replace(/\D/g, "");
+  const invalid = claimedMessages.some((item: any) => {
+    const digits = normalizePhone(item.phone).replace(/\D/g, "");
     return digits.length < 7 || digits.length > 15;
   });
-  if (invalidMessages.length) {
-    await admin.from("campaign_messages").update({
-      status: "pending",
-      provider_status: "invalid_recipient",
-      last_error: "Use international numbers with a country code.",
-      updated_at: new Date().toISOString()
-    }).in("id", claimedMessages.map((item) => item.id));
+  if (invalid) {
+    await fetch(`${supabaseUrl}/rest/v1/campaign_messages?id=in.(${claimedMessages.map((m: any) => m.id).join(",")})`, {
+      method: "PATCH",
+      headers: serviceHeaders,
+      body: JSON.stringify({
+        status: "pending",
+        provider_status: "invalid_recipient",
+        last_error: "Use international numbers with a country code.",
+        updated_at: new Date().toISOString()
+      })
+    });
     return jsonResponse({ error: "One or more recipient numbers are invalid. Use international numbers with a country code." }, 400);
   }
 
   const results: Array<Record<string, unknown>> = [];
   for (const message of claimedMessages) {
-    const to = normalizePhone(String(message.phone || ""));
+    const to = normalizePhone(message.phone);
     try {
       const providerResponse = await fetch("https://api.telnyx.com/v2/messages", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${telnyxApiKey}`,
+          Authorization: `Bearer ${telnyxApiKey}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          from: telnyxFromNumber,
-          to,
-          text: String(campaign.message || "")
-        }),
+        body: JSON.stringify({ from: telnyxFromNumber, to, text: String(campaign.message || "") }),
         signal: AbortSignal.timeout(30000)
       });
 
       const responseText = await providerResponse.text();
-      let payload: Record<string, unknown> = {};
+      let payload: any = {};
       try { payload = responseText ? JSON.parse(responseText) : {}; } catch { payload = {}; }
-
-      const data = (payload?.data || {}) as Record<string, unknown>;
-      const toRows = Array.isArray(data?.to) ? data.to as Array<Record<string, unknown>> : [];
+      const data = payload?.data || {};
+      const toRows = Array.isArray(data?.to) ? data.to : [];
       const providerStatus = String(toRows[0]?.status || (providerResponse.ok ? "queued" : "rejected"));
       const providerMessageId = String(data?.id || "");
-      const errors = Array.isArray(payload?.errors) ? payload.errors as Array<Record<string, unknown>> : [];
+      const errors = Array.isArray(payload?.errors) ? payload.errors : [];
       const errorDetail = String(errors[0]?.detail || errors[0]?.title || "");
       const accepted = providerResponse.ok && Boolean(providerMessageId);
 
@@ -191,32 +164,28 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  const { data: settlement, error: settlementError } = await admin.rpc("settle_telnyx_dispatch", {
-    p_campaign_id: campaignId,
-    p_results: results
+  const settleRes = await fetch(`${supabaseUrl}/rest/v1/rpc/settle_telnyx_dispatch`, {
+    method: "POST",
+    headers: serviceHeaders,
+    body: JSON.stringify({ p_campaign_id: campaignId, p_results: results }),
+    signal: AbortSignal.timeout(10000)
   });
-  if (settlementError) {
-    console.error("Telnyx dispatch settlement failed", settlementError);
-    return jsonResponse({
-      error: "Telnyx responded, but the local delivery record could not be settled.",
-      stage: "settlement",
-      providerResults: results.map((item) => ({ status: item.status, provider_status: item.provider_status, error: item.last_error }))
-    }, 500);
+  const settleText = await settleRes.text();
+  let settlement: any = null;
+  try { settlement = settleText ? JSON.parse(settleText) : null; } catch { settlement = null; }
+  if (!settleRes.ok) {
+    console.error("Telnyx settlement failed", settleText);
+    return jsonResponse({ error: "Telnyx responded, but local delivery status could not be settled.", stage: "settlement" }, 500);
   }
 
   const settled = Array.isArray(settlement) ? settlement[0] : settlement;
   return jsonResponse({
     configured: true,
     provider: "telnyx",
-    from: telnyxFromNumber,
     sent: Number(settled?.sent_count || 0),
     failed: Number(settled?.failed_count || 0),
     refunded: Number(settled?.refund_amount || 0),
     reason: results.find((item) => item.status === "failed")?.last_error || "Telnyx accepted the message(s).",
-    results: results.map((item) => ({
-      status: item.status,
-      provider_status: item.provider_status,
-      error: item.last_error
-    }))
+    results: results.map((item) => ({ status: item.status, provider_status: item.provider_status, error: item.last_error }))
   });
 });
