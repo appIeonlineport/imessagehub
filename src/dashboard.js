@@ -162,8 +162,8 @@ function startLiveClock() {
 }
 
 function normalizeRouteName(route) {
-  if (route?.code === "US-A") return "Route A";
-  if (route?.code === "US-B") return "Route B";
+  if (route?.code === "US-A") return "iMessage Route";
+  if (route?.code === "US-B") return "iMessage with Link";
   return String(route?.name || route?.code || "Route");
 }
 

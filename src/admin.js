@@ -79,8 +79,8 @@ function formatDate(value) {
 }
 
 function displayRouteName(route) {
-  if (route?.code === "US-A") return "Route A";
-  if (route?.code === "US-B") return "Route B";
+  if (route?.code === "US-A") return "iMessage Route";
+  if (route?.code === "US-B") return "iMessage with Link";
   return route?.name || route?.code || "Route";
 }
 
