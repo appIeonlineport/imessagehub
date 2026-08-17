@@ -189,7 +189,8 @@ async function loadRoutes() {
     const { data, error } = await supabase
       .from("routes")
       .select("id,name,code,enabled,price_per_message,updated_at,created_at")
-      .order("created_at", { ascending: true });
+      .order("enabled", { ascending: false })
+      .order("price_per_message", { ascending: true });
 
     if (error) throw error;
 
@@ -210,10 +211,11 @@ async function loadRoutes() {
 
 function createRouteRow(route) {
   const row = document.createElement("div");
-  row.style.cssText = "display:grid;grid-template-columns:minmax(180px,1fr) 120px 150px 110px;align-items:center;gap:1rem;padding:1rem;border:1px solid #e5ebf3;border-radius:12px;background:#fff;";
+  row.className = "admin-route-row";
 
   const info = document.createElement("div");
-  info.innerHTML = `<strong style="display:block;font-size:.9rem;">${escapeHtml(displayRouteName(route))}</strong><span style="display:block;margin-top:3px;font-size:.72rem;color:#7b8798;">${escapeHtml(route.code)}</span>`;
+  info.className = "admin-route-info";
+  info.innerHTML = `<strong>${escapeHtml(displayRouteName(route))}</strong><span>${escapeHtml(route.code)}</span>`;
 
   const status = document.createElement("span");
   status.className = `status-pill ${route.enabled ? "status-success" : ""}`;
@@ -225,11 +227,17 @@ function createRouteRow(route) {
   price.step = "0.001";
   price.value = Number(route.price_per_message || 0).toFixed(3);
   price.className = "portal-input";
-  price.style.minHeight = "38px";
+  price.setAttribute("aria-label", `${displayRouteName(route)} price per message`);
+
+  const priceWrap = document.createElement("label");
+  priceWrap.className = "admin-route-price";
+  priceWrap.innerHTML = "<span>PRICE / MESSAGE</span>";
+  priceWrap.appendChild(price);
 
   const toggle = document.createElement("button");
   toggle.type = "button";
   toggle.className = route.enabled ? "btn-secondary" : "btn-primary";
+  toggle.classList.add("admin-route-toggle");
   toggle.textContent = route.enabled ? "Turn OFF" : "Turn ON";
 
   price.addEventListener("change", async () => {
@@ -246,7 +254,7 @@ function createRouteRow(route) {
     await updateRoute(route.id, { enabled: !route.enabled }, toggle);
   });
 
-  row.append(info, status, price, toggle);
+  row.append(info, status, priceWrap, toggle);
   return row;
 }
 
