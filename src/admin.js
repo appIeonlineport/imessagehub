@@ -24,6 +24,11 @@ const routesList = $("routesList");
 const toastContainer = $("toastContainer");
 const adminUsersBody = $("adminUsersBody");
 const adminUsersMobile = $("adminUsersMobile");
+const btnUserNotifications = $("btnUserNotifications");
+const btnMarkUsersRead = $("btnMarkUsersRead");
+const adminUserNotifications = $("adminUserNotifications");
+const adminNotificationBadge = $("adminNotificationBadge");
+const adminNotificationList = $("adminNotificationList");
 const adminUsersEmpty = $("adminUsersEmpty");
 const adminCampaignBody = $("adminCampaignBody");
 const adminCampaignEmpty = $("adminCampaignEmpty");
@@ -42,6 +47,8 @@ const adminViewButtons = $$('[data-admin-view]');
 const adminViewPanels = $$(".admin-view-panel");
 let adminHistoryRows = [];
 let userRouteAccess = new Map();
+let newUserNotifications = [];
+const USER_NOTIFICATION_SEEN_KEY = "imessagehub_admin_users_seen_at";
 
 function showToast(message, type = "info") {
   if (!toastContainer) return;
@@ -406,15 +413,17 @@ async function loadUsersAndActivity() {
   if (!supabase) return;
 
   try {
-    const [usersResult, campaignsResult, accessResult] = await Promise.all([
+    const [usersResult, campaignsResult, accessResult, notificationsResult] = await Promise.all([
       supabase.rpc("admin_users_overview"),
       supabase.rpc("admin_campaign_activity"),
-      supabase.rpc("admin_user_route_access")
+      supabase.rpc("admin_user_route_access"),
+      supabase.rpc("admin_new_user_notifications", { p_limit: 20 })
     ]);
 
     if (usersResult.error) throw usersResult.error;
     if (campaignsResult.error) throw campaignsResult.error;
     if (accessResult.error) throw accessResult.error;
+    if (notificationsResult.error) throw notificationsResult.error;
 
     userRouteAccess = new Map();
     (accessResult.data || []).forEach((item) => {
@@ -424,11 +433,45 @@ async function loadUsersAndActivity() {
 
     renderUsers(usersResult.data || []);
     renderCampaignActivity(campaignsResult.data || []);
+    newUserNotifications = notificationsResult.data || [];
+    renderUserNotifications();
   } catch (error) {
     console.error("Admin users/activity error:", error);
     showToast(`Could not load users: ${error.message}`, "error");
   }
 }
+
+function renderUserNotifications() {
+  if (!adminNotificationList || !adminNotificationBadge) return;
+  const seenAt = localStorage.getItem(USER_NOTIFICATION_SEEN_KEY) || "1970-01-01T00:00:00.000Z";
+  const unread = newUserNotifications.filter((item) => new Date(item.created_at) > new Date(seenAt));
+  adminNotificationBadge.textContent = unread.length > 9 ? "9+" : String(unread.length);
+  adminNotificationBadge.classList.toggle("hidden", unread.length === 0);
+  adminNotificationList.innerHTML = newUserNotifications.length
+    ? newUserNotifications.map((item) => {
+        const isNew = new Date(item.created_at) > new Date(seenAt);
+        const initial = String(item.full_name || item.email || "U").trim().charAt(0).toUpperCase();
+        return `<article class="admin-notification-item ${isNew ? "is-unread" : ""}">
+          <span class="admin-notification-avatar">${escapeHtml(initial)}</span>
+          <div><strong>${escapeHtml(item.full_name || "New user")}</strong><span>${escapeHtml(item.email || item.user_id)}</span><small>Joined ${formatDate(item.created_at)}</small></div>
+          ${isNew ? '<i aria-label="Unread"></i>' : ""}
+        </article>`;
+      }).join("")
+    : '<div class="admin-notification-empty">No user updates yet.</div>';
+}
+
+function markUserNotificationsRead() {
+  localStorage.setItem(USER_NOTIFICATION_SEEN_KEY, new Date().toISOString());
+  renderUserNotifications();
+  showToast("New user notifications marked as read.", "success");
+}
+
+btnUserNotifications?.addEventListener("click", () => {
+  const opening = adminUserNotifications?.classList.contains("hidden");
+  adminUserNotifications?.classList.toggle("hidden");
+  btnUserNotifications.setAttribute("aria-expanded", String(Boolean(opening)));
+});
+btnMarkUsersRead?.addEventListener("click", markUserNotificationsRead);
 
 function renderUsers(users) {
   if (!adminUsersBody) return;

@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles.css">
+  <link rel="stylesheet" href="/admin-notifications.css">
 </head>
 <body class="platform-body">
 <div class="platform-layout">
@@ -151,8 +152,18 @@
             <h2>Users & Activity</h2>
             <p style="margin-top:6px;color:#7b8798;font-size:12px;">Review user accounts, wallet balances, top-ups and campaign activity.</p>
           </div>
-          <button id="btnRefreshUsers" class="btn-secondary" type="button">Refresh Users</button>
+          <div class="admin-user-head-actions">
+            <button id="btnUserNotifications" class="admin-notification-btn" type="button" aria-expanded="false" aria-controls="adminUserNotifications">
+              <span aria-hidden="true">🔔</span><b id="adminNotificationBadge" class="hidden">0</b><span>New Users</span>
+            </button>
+            <button id="btnRefreshUsers" class="btn-secondary" type="button">Refresh Users</button>
+          </div>
         </div>
+
+        <section id="adminUserNotifications" class="admin-user-notifications hidden" aria-label="New user notifications">
+          <div class="admin-notification-head"><div><strong>New user updates</strong><span>Latest registered accounts</span></div><button id="btnMarkUsersRead" type="button">Mark all read</button></div>
+          <div id="adminNotificationList" class="admin-notification-list"></div>
+        </section>
 
         <div class="admin-stats">
           <div>

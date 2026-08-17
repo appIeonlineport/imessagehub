@@ -111,6 +111,64 @@ let parsedCampaignNumbers = [];
 let selectedSourceFileName = "";
 let routeByDisplayName = new Map();
 let routeById = new Map();
+
+const helpAnswers = [
+  { keys: ["send", "campaign", "message"], answer: "Open Campaigns, select an available route, upload or paste international numbers with country code, enter your message, review the cost, then submit the campaign." },
+  { keys: ["route", "link"], answer: "Your available routes are shown inside New Campaign. Route access is controlled by the admin, so contact your account manager if a route is missing." },
+  { keys: ["balance", "wallet", "credit"], answer: "Your current balance appears in the top bar and Dashboard. Open Add Balance to submit a USDT top-up; the balance updates after admin approval." },
+  { keys: ["payment", "usdt", "topup", "top-up"], answer: "Use Add Balance, enter the amount and submit the correct transaction hash. You can track pending or approved requests in Payment History." },
+  { keys: ["status", "submitted", "delivered", "failed", "outbox"], answer: "Open Outbox or Reports to check campaign progress. Submitted means processing, Delivered confirms delivery, and Failed means the provider could not complete that recipient." },
+  { keys: ["number", "file", "upload", "txt"], answer: "Use international numbers with country code. For uploads, use a plain TXT file with one number per line and remove spaces or duplicate entries." },
+  { keys: ["account", "login", "password", "blocked"], answer: "For login, blocked-account, email or password issues, contact your account manager/admin. Never share your password or OTP in this chat." }
+];
+
+function setupHelpChatbot() {
+  if ($("customerHelpChat")) return;
+  const root = document.createElement("div");
+  root.id = "customerHelpChat";
+  root.className = "help-chat";
+  root.innerHTML = `<button class="help-chat-launch" type="button" aria-label="Open customer help"><span>✦</span><b>Help</b></button>
+    <section class="help-chat-panel" aria-label="Customer help chat" aria-hidden="true">
+      <header><div><span>✦</span><p><strong>iMessage Hub Help</strong><small>Instant account & sending guidance</small></p></div><button type="button" data-help-close aria-label="Close">×</button></header>
+      <div class="help-chat-messages" aria-live="polite"></div>
+      <div class="help-chat-chips"><button type="button">How to send?</button><button type="button">Add balance</button><button type="button">Message status</button><button type="button">Route missing</button></div>
+      <form><input type="text" maxlength="180" autocomplete="off" placeholder="Ask about sending or account…" aria-label="Help question"><button type="submit" aria-label="Send">➤</button></form>
+    </section>`;
+  document.body.appendChild(root);
+
+  const panel = root.querySelector(".help-chat-panel");
+  const messages = root.querySelector(".help-chat-messages");
+  const input = root.querySelector("input");
+  const addMessage = (text, role) => {
+    const item = document.createElement("div");
+    item.className = `help-chat-message ${role}`;
+    item.textContent = text;
+    messages.appendChild(item);
+    messages.scrollTop = messages.scrollHeight;
+  };
+  const reply = (question) => {
+    const normalized = question.toLowerCase();
+    const match = helpAnswers.find((item) => item.keys.some((key) => normalized.includes(key)));
+    setTimeout(() => addMessage(match?.answer || "I can help with sending campaigns, routes, number files, balance, USDT payments, delivery status and account access. Choose a topic below or ask again with a few more details.", "bot"), 220);
+  };
+  const ask = (question) => {
+    const clean = String(question || "").trim();
+    if (!clean) return;
+    addMessage(clean, "user");
+    reply(clean);
+    input.value = "";
+  };
+  const toggle = (open) => {
+    root.classList.toggle("is-open", open);
+    panel.setAttribute("aria-hidden", String(!open));
+    if (open) input.focus();
+  };
+  root.querySelector(".help-chat-launch").addEventListener("click", () => toggle(!root.classList.contains("is-open")));
+  root.querySelector("[data-help-close]").addEventListener("click", () => toggle(false));
+  root.querySelector("form").addEventListener("submit", (event) => { event.preventDefault(); ask(input.value); });
+  root.querySelectorAll(".help-chat-chips button").forEach((button) => button.addEventListener("click", () => ask(button.textContent)));
+  addMessage("Hi! I’m your iMessage Hub help assistant. How can I help with sending or your account?", "bot");
+}
 let outboxRecordsCache = [];
 
 function money(value, digits = 2) {
@@ -1106,6 +1164,7 @@ function correctDecorativeStatusCopy() {
 }
 
 async function initDashboard() {
+  setupHelpChatbot();
   startLiveClock();
   ensureCustomAmountUI();
   ensurePaymentRequestModal();
