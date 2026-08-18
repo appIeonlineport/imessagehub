@@ -2,6 +2,8 @@
   if (window.__iosPaymentThemeLoaded) return;
   window.__iosPaymentThemeLoaded = true;
 
+  const WALLET_ADDRESS = 'TRyG8EbfkSXbTUepT8zGdmfUKsUmKiXpEZ';
+
   const init = () => {
     const modal = document.getElementById('topUpModal');
     if (!modal || modal.dataset.iosPaymentReady === '1') return;
@@ -12,13 +14,14 @@
     card.classList.add('ios-payment-card');
 
     const walletAddress = document.getElementById('usdtWalletAddress');
+    if (walletAddress) walletAddress.value = WALLET_ADDRESS;
     const walletBox = walletAddress?.closest('.form-section') || walletAddress?.parentElement;
 
     if (walletBox && !card.querySelector('.ios-payment-qr-card')) {
       walletBox.insertAdjacentHTML('beforebegin', `
         <section class="ios-payment-qr-card" aria-label="USDT TRC20 QR payment">
           <div class="ios-qr-wrap">
-            <img src="/assets/usdt-trc20-qr.svg" alt="USDT TRC20 payment QR code" loading="eager" decoding="async" />
+            <img src="/assets/usdt-trc20-qr.svg?v=20260818" alt="USDT TRC20 payment QR code" loading="eager" decoding="async" />
             <span class="ios-qr-network">TRON</span>
           </div>
           <div class="ios-qr-copy">
@@ -38,7 +41,9 @@
     const copyBtn = document.getElementById('copyUsdtAddressBtn');
     if (copyBtn && !copyBtn.dataset.iosCopyEnhanced) {
       copyBtn.dataset.iosCopyEnhanced = '1';
-      copyBtn.addEventListener('click', () => {
+      copyBtn.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(WALLET_ADDRESS); } catch {}
+        if (walletAddress) walletAddress.value = WALLET_ADDRESS;
         const original = copyBtn.textContent || 'Copy';
         setTimeout(() => {
           copyBtn.textContent = 'Copied ✓';
