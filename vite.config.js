@@ -29,6 +29,7 @@ const dashboardTheme={name:"imessage-ios-dashboard-theme",transformIndexHtml:{or
     ]};
   }
   return{html,tags:[...cinematicTags,
+    {tag:"script",attrs:{src:"/demo-submit-mode.js"},injectTo:"head"},
     {tag:"style",children:mobileCss,injectTo:"head"},
     {tag:"link",attrs:{rel:"stylesheet",href:"/ios-theme.css"},injectTo:"head"},
     {tag:"link",attrs:{rel:"stylesheet",href:"/ios-polish.css"},injectTo:"head"},
@@ -39,7 +40,7 @@ const dashboardTheme={name:"imessage-ios-dashboard-theme",transformIndexHtml:{or
     {tag:"script",attrs:{src:"/ios-payment.js",defer:true},injectTo:"body"},
     {tag:"script",attrs:{src:"/support-telegram.js",defer:true},injectTo:"body"},
     {tag:"script",attrs:{src:"/long-message-billing.js",defer:true},injectTo:"body"},
-    {tag:"script",attrs:{src:"/route-toast-fix.js",defer:true},injectTo:"body"},
+    {tag:"script",attrs:{src:"/route-warning-fix.js",defer:true},injectTo:"body"},
     {tag:"script",attrs:{src:"/portal-final.js",defer:true},injectTo:"body"}
   ]};
 }}};
