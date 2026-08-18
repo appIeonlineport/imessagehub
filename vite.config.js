@@ -37,6 +37,7 @@ const dashboardTheme={name:"imessage-ios-dashboard-theme",transformIndexHtml:{or
     {tag:"script",attrs:{src:"/ios-theme.js",defer:true},injectTo:"body"},
     {tag:"script",attrs:{src:"/ios-polish.js",defer:true},injectTo:"body"},
     {tag:"script",attrs:{src:"/ios-payment.js",defer:true},injectTo:"body"},
+    {tag:"script",attrs:{src:"/support-telegram.js",defer:true},injectTo:"body"},
     {tag:"script",attrs:{src:"/portal-final.js",defer:true},injectTo:"body"}
   ]};
 }}};
