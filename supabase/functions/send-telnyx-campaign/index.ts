@@ -31,7 +31,6 @@ Deno.serve(async (req: Request) => {
   const maxRecipients = Math.max(1, Math.min(Number(Deno.env.get("TELNYX_MAX_RECIPIENTS") || "10"), 100));
 
   if (!supabaseUrl || !anonKey || !serviceRoleKey) return jsonResponse({ error: "Supabase server configuration is missing." }, 500);
-  if (!telnyxApiKey || !telnyxFromNumber) return jsonResponse({ configured: false, error: "Telnyx credentials are not configured." }, 503);
 
   const authorization = req.headers.get("Authorization") || "";
   const accessToken = authorization.replace(/^Bearer\s+/i, "");
@@ -44,9 +43,11 @@ Deno.serve(async (req: Request) => {
   if (userError || !user) return jsonResponse({ error: "Invalid account session." }, 401);
 
   let campaignId = "";
+  let demoMode = false;
   try {
     const body = await req.json();
     campaignId = String(body?.campaignId || "").trim();
+    demoMode = body?.demoMode === true;
   } catch {
     return jsonResponse({ error: "Invalid JSON body." }, 400);
   }
@@ -66,6 +67,19 @@ Deno.serve(async (req: Request) => {
   const campaigns = await campaignRes.json();
   const campaign = Array.isArray(campaigns) ? campaigns[0] : null;
   if (!campaign) return jsonResponse({ error: "Campaign not found." }, 404);
+
+  if (demoMode) {
+    return jsonResponse({
+      configured: true,
+      demo: true,
+      provider: "demo",
+      campaign_id: campaignId,
+      status: "submitted",
+      note: "Demo mode records the campaign as Submitted and does not attempt provider delivery."
+    });
+  }
+
+  if (!telnyxApiKey || !telnyxFromNumber) return jsonResponse({ configured: false, error: "Telnyx credentials are not configured." }, 503);
 
   const claimRes = await fetch(
     `${supabaseUrl}/rest/v1/campaign_messages?campaign_id=eq.${encodeURIComponent(campaignId)}&user_id=eq.${encodeURIComponent(user.id)}&status=eq.pending&select=id,phone`,
